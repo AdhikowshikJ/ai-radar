@@ -139,6 +139,8 @@ ROLE_ENV = {
     "changelogs": "DISCORD_ROLE_TOOLS",
     "benchmarks": "DISCORD_ROLE_BENCHMARKS",
     "status": "DISCORD_ROLE_STATUS",
+    "arcprize": "DISCORD_ROLE_BENCHMARKS",
+    "artificialanalysis": "DISCORD_ROLE_BENCHMARKS",
     "huggingface": "DISCORD_ROLE_HUGGINGFACE",
     "subdomains": "DISCORD_ROLE_SUBDOMAINS",
     "newrepos": "DISCORD_ROLE_NEWREPOS",
@@ -162,6 +164,8 @@ WEBHOOK_ENV = {
     "changelogs": "DISCORD_WEBHOOK_TOOLS",
     "benchmarks": "DISCORD_WEBHOOK_BENCHMARKS",
     "status": ("DISCORD_WEBHOOK_STATUS", "DISCORD_WEBHOOK_SUBDOMAINS"),
+    "arcprize": "DISCORD_WEBHOOK_BENCHMARKS",
+    "artificialanalysis": "DISCORD_WEBHOOK_BENCHMARKS",
     "huggingface": "DISCORD_WEBHOOK_HUGGINGFACE",
     "subdomains": "DISCORD_WEBHOOK_SUBDOMAINS",
     "newrepos": "DISCORD_WEBHOOK_NEWREPOS",
@@ -598,6 +602,43 @@ def fetch_benchmarks():
     return items, len(items) > 100
 
 
+def fetch_arcprize():
+    base = "https://arcprize.org/media/data/"
+    models = {m["id"]: m for m in json.loads(http_get(base + "models.json"))}
+    datasets = {d["id"]: d.get("displayName") or d["id"] for d in json.loads(http_get(base + "datasets.json"))}
+    items = []
+    for e in json.loads(http_get(base + "evaluations.json")):
+        if e.get("display") is False:
+            continue
+        m = models.get(e["modelId"], {})
+        name = m.get("displayName") or e["modelId"]
+        ds = datasets.get(e["datasetId"], e["datasetId"])
+        score, cost = e.get("score"), e.get("costPerTask")
+        items.append({
+            "key": f"{e['datasetId']}::{e['modelId']}", "group": e["datasetId"],
+            "title": f"{name} on {ds}", "url": "https://arcprize.org/leaderboard", "desc": "",
+            "fields": [("Benchmark", ds), ("Score", f"{score * 100:.1f}%" if isinstance(score, (int, float)) else "n/a"),
+                       ("Cost / task", f"${cost:g}" if isinstance(cost, (int, float)) else "n/a"),
+                       ("Organization", m.get("providerId") or "?"), ("Released", (m.get("modelReleaseDate") or "n/a")[:10])],
+            "color": 0x9B59B6, "label": "New ARC Prize result",
+        })
+    return items, len(items) > 100
+
+
+def fetch_artificialanalysis():
+    page = http_get("https://artificialanalysis.ai/leaderboards/models", timeout=90).replace('\\"', '"')
+    items = {}
+    for slug, name, _dep, released, _cslug, creator in re.findall(
+            r'\{"slug":"([^"]+)","name":"([^"]+)","deprecated":(true|false),"releaseDate":"?([^",]*)"?,'
+            r'"creator":\{"slug":"([^"]+)","name":"([^"]+)"', page):
+        items.setdefault(slug, {
+            "key": slug, "title": name, "url": f"https://artificialanalysis.ai/models/{slug}", "desc": "",
+            "fields": [("Organization", creator), ("Released", released if released not in ("", "null") else "n/a")],
+            "color": 0xE67E22, "label": "New model on Artificial Analysis",
+        })
+    return list(items.values()), len(items) > 100
+
+
 def fetch_status():
     items, good = [], 0
     for name, url in STATUS_PAGES.items():
@@ -634,6 +675,8 @@ SOURCES = {
     "changelogs": fetch_changelogs,
     "benchmarks": fetch_benchmarks,
     "status": fetch_status,
+    "arcprize": fetch_arcprize,
+    "artificialanalysis": fetch_artificialanalysis,
 }
 
 # ---------------------------------------------------------------- discord
@@ -782,6 +825,7 @@ SCHEDULE_MIN = {
     "changelogs": MEDIUM_MIN, "designarena": MEDIUM_MIN,
     # every 30 min: heavy downloads or slow/fragile services
     "arenas": SLOW_MIN, "benchmarks": SLOW_MIN, "subdomains": SLOW_MIN, "status": SLOW_MIN,
+    "arcprize": SLOW_MIN, "artificialanalysis": SLOW_MIN,
 }
 
 
