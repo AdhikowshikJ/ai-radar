@@ -13293,8 +13293,8 @@
 "deepseek/deepseek-v4-flash": {
 "Name": "DeepSeek: DeepSeek V4 Flash 0423",
 "Context": 1048576,
-"Input price": "0.00000008246",
-"Output price": "0.00000016492"
+"Input price": "0.00000007784",
+"Output price": "0.00000015568"
 },
 "tencent/hy3-preview": {
 "Name": "Tencent: Hy3 preview",
