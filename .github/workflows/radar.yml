@@ -2,7 +2,7 @@ name: AI Radar
 
 on:
   schedule:
-    - cron: "*/15 * * * *"   # every 15 min (GitHub may delay it a few minutes)
+    - cron: "*/5 * * * *"    # every 5 min; radar.py decides which sources are due (5/15/30 min)
   workflow_dispatch:          # lets you press "Run workflow" manually
 
 permissions:

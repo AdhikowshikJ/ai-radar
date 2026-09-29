@@ -45,7 +45,15 @@ Add one secret per channel using the names in the table above (name = secret nam
 Repo → **Actions** tab → enable workflows → **AI Radar** → **Run workflow**.
 
 - The **first run is silent**. It only memorises what already exists so your channels don't get flooded with 3,000 old items.
-- From the second run on (every ~15 min), you only get NEW things.
+- From the second run on, you only get NEW things.
+
+## How often each tracker checks
+The workflow wakes up every 5 minutes (GitHub often runs it late or skips a slot when busy):
+- **Every 5 min:** OpenRouter, all model APIs, GitHub releases, Cursor, Bedrock, Azure, Google Cloud
+- **Every 15 min:** sitemaps, Hugging Face, new GitHub repos, changelogs, Design Arena
+- **Every 30 min:** arena.ai, Epoch benchmarks, subdomains, status pages
+
+Pressing **Run workflow** manually checks everything at once. Change the speeds in `SCHEDULE_MIN` in `radar.py`.
 
 ## API keys for `#api-models` (optional, free to create)
 Listing models doesn't generate tokens, but check each provider's current terms. Add any you have as secrets; missing ones are simply skipped:

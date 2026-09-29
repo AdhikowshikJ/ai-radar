@@ -682,6 +682,29 @@ def webhook_for(source):
     return None
 
 
+# ---------------------------------------------------------------- schedule
+# The workflow fires every 5 min. Each source runs on its own interval, decided from the
+# clock (no extra state, so no commit every 5 min). If GitHub skips a slot, slower sources
+# just catch up on their next slot; they change slowly anyway.
+FAST_MIN, MEDIUM_MIN, SLOW_MIN = 5, 15, 30
+SCHEDULE_MIN = {
+    # every 5 min: light and where being first matters
+    "openrouter": FAST_MIN, "releases": FAST_MIN, "cursor": FAST_MIN,
+    "bedrock": FAST_MIN, "azure": FAST_MIN, "gcp": FAST_MIN,
+    **{k: FAST_MIN for k in SOURCES if k.startswith("api_")},
+    # every 15 min: many requests per run
+    "sitemaps": MEDIUM_MIN, "huggingface": MEDIUM_MIN, "newrepos": MEDIUM_MIN,
+    "changelogs": MEDIUM_MIN, "designarena": MEDIUM_MIN,
+    # every 30 min: heavy downloads or slow/fragile services
+    "arenas": SLOW_MIN, "benchmarks": SLOW_MIN, "subdomains": SLOW_MIN, "status": SLOW_MIN,
+}
+
+
+def due_sources(now=None):
+    slot = int((now or time.time()) // (FAST_MIN * 60))  # which 5-min slot we're in
+    return [k for k in SOURCES if slot % (SCHEDULE_MIN.get(k, SLOW_MIN) // FAST_MIN) == 0]
+
+
 # ---------------------------------------------------------------- main
 
 
@@ -689,12 +712,19 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--dry-run", action="store_true", help="print only; don't post or save")
     ap.add_argument("--only", help="comma-separated: " + ",".join(SOURCES))
+    ap.add_argument("--all", action="store_true", help="ignore the 5/15/30 min schedule, run every source")
     ap.add_argument("--announce-first", action="store_true",
                     help="on a source's first run, post everything instead of just remembering it")
     args = ap.parse_args()
 
     state = json.loads(STATE_FILE.read_text()) if STATE_FILE.exists() else {}
-    wanted = args.only.split(",") if args.only else list(SOURCES)
+    if args.only:
+        wanted = args.only.split(",")
+    elif args.all or os.environ.get("GITHUB_EVENT_NAME") == "workflow_dispatch":
+        wanted = list(SOURCES)  # manual runs check everything
+    else:
+        wanted = due_sources()
+    print(f"sources this run: {', '.join(wanted)}")
 
     for name in wanted:
         print(f"[{name}] fetching...")
