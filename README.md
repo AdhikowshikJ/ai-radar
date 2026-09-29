@@ -17,6 +17,9 @@ Free bot that posts to Discord when something new shows up:
 | `#benchmarks` | New model results on 80+ benchmarks from Epoch AI (GPQA, SWE-bench Verified, FrontierMath…) | `DISCORD_WEBHOOK_BENCHMARKS` |
 | `#status` | New components on the OpenAI/Anthropic status pages (often = new product) | `DISCORD_WEBHOOK_STATUS` (falls back to `#subdomains`) |
 
+**Leaderboard snapshots** (top 20 with 🥇🥈🥉, scores, 🔼/🔽 moves and 🆕 NEW), posted only when the top-20 order changes:
+Artificial Analysis Intelligence Index → `#benchmarks`; arena.ai Text, arena.ai Vision and Design Arena → `#arenas`.
+
 `#subpages` also watches cursor.com, antigravity.google, deepseek.com, z.ai, mistral.ai, minimax.io, blog.google (English), deepmind.google, ai.google.dev, x.ai and microsoft.ai.
 
 Want everything in ONE channel? Just add a single secret `DISCORD_WEBHOOK_URL`. It's used for any source without its own webhook.

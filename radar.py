@@ -173,7 +173,19 @@ WEBHOOK_ENV = {
 }
 
 
+_GET_CACHE = {}
+
+
 def http_get(url, timeout=40, headers=None):
+    if not headers and url in _GET_CACHE:
+        return _GET_CACHE[url]
+    text = _http_get(url, timeout, headers)
+    if not headers:
+        _GET_CACHE[url] = text
+    return text
+
+
+def _http_get(url, timeout=40, headers=None):
     req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept": "*/*", **(headers or {})})
     with urllib.request.urlopen(req, timeout=timeout) as resp:
         raw = resp.read()
@@ -716,6 +728,10 @@ def post_embed(webhook, item, role_id=None):
     if role_id:
         payload["content"] = f"<@&{role_id}> {item['label']}"
         payload["allowed_mentions"] = {"roles": [role_id]}
+    return post_payload(webhook, payload)
+
+
+def post_payload(webhook, payload):
     body = json.dumps(payload).encode()
     for attempt in range(3):
         req = urllib.request.Request(
@@ -744,6 +760,122 @@ def webhook_for(source):
         if os.environ.get(n):
             return os.environ[n]
     return None
+
+
+# ---------------------------------------------------------------- leaderboard snapshots
+# Each returns rows sorted best-first: [{"id", "name", "score"}]
+
+
+def lb_artificialanalysis():
+    page = http_get("https://artificialanalysis.ai/leaderboards/models", timeout=90).replace('\\"', '"')
+    chunks = page.split('{"slug":"')[1:]
+    # variant slug (e.g. claude-opus-5-5-xhigh) -> model slug; listed in a separate part of the page
+    release = dict(re.findall(r'^([^"]+)","name":"[^"]*","releaseSlug":"([^"]+)"', "\n".join(chunks), re.M))
+    rows = {}  # one row per model, keeping its best-scoring effort variant
+    for chunk in chunks:
+        m = re.match(r'([^"]+)","name":"([^"]+)"', chunk)
+        score = re.search(r'"intelligenceIndex":([\d.]+),"intelligenceIndexIsEstimated":false', chunk[:3000])
+        if not (m and score):
+            continue
+        model = release.get(m.group(1), m.group(1))
+        row = {"id": model, "name": m.group(2), "score": float(score.group(1))}
+        if model not in rows or row["score"] > rows[model]["score"]:
+            rows[model] = row
+    return sorted(rows.values(), key=lambda r: -r["score"])
+
+
+def lb_arena(slug):
+    def fetch():
+        page = http_get(f"https://arena.ai/leaderboard/{slug}", timeout=60).replace('\\"', '"')
+        first = page.split('"entries":[', 1)[1].split('"entries":[', 1)[0]  # overall board only
+        rows = {}
+        for rank, name, rating in re.findall(r'"rank":(\d+),.*?"modelDisplayName":"([^"]+)","rating":([\d.]+)', first):
+            rows.setdefault(name, {"id": name, "name": name, "score": float(rating), "rank": int(rank)})
+        return sorted(rows.values(), key=lambda r: (r["rank"], -r["score"]))
+    return fetch
+
+
+def lb_designarena():
+    page = http_get("https://www.designarena.ai/leaderboard", timeout=60).replace('\\"', '"')
+    rows = {}
+    for name, elo in re.findall(r'\{"model":"([^"]+)","wins".*?"elo":([\d.]+)', page):
+        rows.setdefault(name, {"id": name, "name": name, "score": float(elo)})
+    return sorted(rows.values(), key=lambda r: -r["score"])
+
+
+# id -> (title, subtitle, link, fetch, channel source, color, fmt for score)
+LEADERBOARDS = {
+    "lb_aa_index": ("Artificial Analysis Intelligence",
+                    "A comprehensive suite of evaluations across reasoning, knowledge, maths and programming.",
+                    "https://artificialanalysis.ai/leaderboards/models", lb_artificialanalysis,
+                    "benchmarks", 0xE67E22, "{:.1f}"),
+    "lb_arena_text": ("Text Arena leaderboard", "Human-preference Elo from arena.ai (overall, text).",
+                      "https://arena.ai/leaderboard/text", lb_arena("text"), "arenas", 0x57F287, "{:.0f}"),
+    "lb_arena_vision": ("Vision Arena leaderboard", "Human-preference Elo from arena.ai (overall, vision).",
+                        "https://arena.ai/leaderboard/vision", lb_arena("vision"), "arenas", 0x57F287, "{:.0f}"),
+    "lb_designarena": ("Design Arena leaderboard", "Elo from designarena.ai (all categories).",
+                       "https://www.designarena.ai/leaderboard", lb_designarena, "arenas", 0x57F287, "{:.0f}"),
+}
+LB_TOP, LB_MEMORY = 20, 50  # show top 20; remember top 50 so we can say where risers came from
+MEDALS = {1: "🥇", 2: "🥈", 3: "🥉"}
+
+
+def render_leaderboard(lb_id, rows, prev):
+    title, subtitle, link, _f, _src, color, fmt = LEADERBOARDS[lb_id]
+    lines = []
+    for i, r in enumerate(rows[:LB_TOP], 1):
+        move = ""
+        if r["id"] not in prev:
+            move = " 🆕 **NEW**"
+        else:
+            p = prev.index(r["id"]) + 1
+            move = f" 🔼{p - i}" if p > i else (f" 🔽{i - p}" if p < i else "")
+        rank = MEDALS.get(i, f"{i}.")
+        lines.append(f"{rank} {r['name']} [`{fmt.format(r['score'])}`]{move}")
+    now = int(time.time())
+    return {
+        "embeds": [{
+            "title": title, "url": link, "color": color,
+            "description": (f"{subtitle}\n**Updated:** <t:{now}:R>\n\n" + "\n".join(lines))[:4000],
+            "thumbnail": {"url": icon_url({"url": link})},
+            "footer": {"text": BRAND}, "timestamp": datetime.now(timezone.utc).isoformat(),
+        }],
+        "allowed_mentions": {"parse": []},
+    }
+
+
+def run_leaderboard(lb_id, state, dry_run):
+    _t, _s, _l, fetch, src, _c, _fmt = LEADERBOARDS[lb_id]
+    try:
+        rows = fetch()
+    except Exception as e:
+        print(f"[{lb_id}] failed: {e}", file=sys.stderr)
+        return
+    if len(rows) < LB_TOP:
+        print(f"[{lb_id}] only {len(rows)} rows, skipping")
+        return
+    key = f"{lb_id}#ranking"
+    ids = [r["id"] for r in rows[:LB_MEMORY]]
+    prev = state.get(key)
+    if prev is None:
+        print(f"[{lb_id}] first run, remembering ranking")
+        if not dry_run:
+            state[key] = ids
+        return
+    if ids[:LB_TOP] == prev[:LB_TOP]:
+        print(f"[{lb_id}] top {LB_TOP} unchanged")
+        return
+    print(f"[{lb_id}] top {LB_TOP} changed")
+    payload = render_leaderboard(lb_id, rows, prev)
+    if dry_run:
+        print(payload["embeds"][0]["description"])
+        return
+    hook = webhook_for(src)
+    if not hook:
+        print(f"[{lb_id}] no webhook set, will post once it's added")
+        return
+    if post_payload(hook, payload):
+        state[key] = ids
 
 
 # ---------------------------------------------------------------- change tracking
@@ -831,7 +963,8 @@ SCHEDULE_MIN = {
 
 def due_sources(now=None):
     slot = int((now or time.time()) // (FAST_MIN * 60))  # which 5-min slot we're in
-    return [k for k in SOURCES if slot % (SCHEDULE_MIN.get(k, SLOW_MIN) // FAST_MIN) == 0]
+    return [k for k in list(SOURCES) + list(LEADERBOARDS)
+            if slot % (SCHEDULE_MIN.get(k, SLOW_MIN) // FAST_MIN) == 0]
 
 
 # ---------------------------------------------------------------- main
@@ -850,12 +983,15 @@ def main():
     if args.only:
         wanted = args.only.split(",")
     elif args.all or os.environ.get("RADAR_MODE") == "all":
-        wanted = list(SOURCES)  # manual "Run workflow" checks everything
+        wanted = list(SOURCES) + list(LEADERBOARDS)  # manual "Run workflow" checks everything
     else:
         wanted = due_sources()
     print(f"sources this run: {', '.join(wanted)}")
 
     for name in wanted:
+        if name in LEADERBOARDS:
+            run_leaderboard(name, state, args.dry_run)
+            continue
         print(f"[{name}] fetching...")
         try:
             items, ok = SOURCES[name]()
