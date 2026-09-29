@@ -294,8 +294,28 @@ def guess_org(name):
     return "?"
 
 
+def designarena_registry():
+    """model id -> (display name, organization). Reveals codenames once Design Arena does;
+    organization is "?" for anonymous/stealth providers (triggers the codename alert)."""
+    try:
+        reg = json.loads(http_get("https://www.designarena.ai/api/registry", timeout=40))
+    except Exception as e:
+        print(f"  ! designarena registry: {e}", file=sys.stderr)
+        return {}
+    providers = reg.get("providers", {})
+    out = {}
+    for k, v in reg.get("models", {}).items():
+        p = providers.get(v.get("provider") or "", {})
+        org = p.get("displayName") or ""
+        if org == "Anonymous" or "mystery" in p.get("logoName", ""):
+            org = "?"
+        out[k] = (v.get("displayName") or k, org)
+    return out
+
+
 def fetch_designarena():
     page = http_get("https://www.designarena.ai/leaderboard", timeout=60).replace('\\"', '"')
+    reg = designarena_registry()
     items = {}
     # page embeds {"category":"allcategories"...,"modelStats":[{"model":..,"elo":..,"isNew":..}]}
     for m in re.finditer(r'\{"model":"([^"]+)","wins":(\d+),"losses":(\d+).*?"total":(\d+),"winRate":([\d.]+),'
@@ -303,9 +323,13 @@ def fetch_designarena():
         name, wins, losses, total, wr, elo, is_new = m.groups()
         if name in items:
             continue
+        display, org = reg.get(name, (name, ""))
+        same = re.sub(r"[^a-z0-9]", "", display.lower()) == re.sub(r"[^a-z0-9]", "", name.lower())
+        title = display if same else f"{display} (id: {name})"
         items[name] = {
-            "key": name, "title": name, "url": "https://www.designarena.ai/leaderboard", "desc": "",
-            "fields": [("Arena", "Design Arena"), ("Organization", guess_org(name)), ("Elo", f"{float(elo):.0f}"),
+            "key": name, "title": title, "url": "https://www.designarena.ai/leaderboard", "desc": "",
+            "fields": [("Arena", "Design Arena"), ("Organization", org or guess_org(name)),
+                       ("Elo", f"{float(elo):.0f}"),
                        ("Win rate", f"{wr}%"), ("Battles", f"{int(total):,}")],
             "color": 0x57F287, "label": "New Design Arena model",
         }
@@ -840,9 +864,11 @@ def lb_arena(slug):
 
 def lb_designarena():
     page = http_get("https://www.designarena.ai/leaderboard", timeout=60).replace('\\"', '"')
+    main_board = page.split('"modelStats":[', 2)[1]  # 1st board = main "all categories" (2nd is fullstack)
+    reg = designarena_registry()
     rows = {}
-    for name, elo in re.findall(r'\{"model":"([^"]+)","wins".*?"elo":([\d.]+)', page):
-        rows.setdefault(name, {"id": name, "name": name, "score": float(elo)})
+    for name, elo in re.findall(r'\{"model":"([^"]+)","wins".*?"elo":([\d.]+)', main_board):
+        rows.setdefault(name, {"id": name, "name": reg.get(name, (name, ""))[0], "score": float(elo)})
     return sorted(rows.values(), key=lambda r: -r["score"])
 
 
@@ -856,7 +882,7 @@ LEADERBOARDS = {
                       "https://arena.ai/leaderboard/text", lb_arena("text"), "arenas", 0x57F287, "{:.0f}"),
     "lb_arena_vision": ("Vision Arena leaderboard", "Human-preference Elo from arena.ai (overall, vision).",
                         "https://arena.ai/leaderboard/vision", lb_arena("vision"), "arenas", 0x57F287, "{:.0f}"),
-    "lb_designarena": ("Design Arena leaderboard", "Elo from designarena.ai (all categories).",
+    "lb_designarena_main": ("Design Arena leaderboard", "Elo from designarena.ai (all categories).",
                        "https://www.designarena.ai/leaderboard", lb_designarena, "arenas", 0x57F287, "{:.0f}"),
 }
 LB_TOP, LB_MEMORY = 20, 50  # show top 20; remember top 50 so we can say where risers came from
