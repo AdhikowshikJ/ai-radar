@@ -296,6 +296,10 @@
 "openai/gpt-6-sol-pro",
 "openai/gpt-6-sol-pro:batch",
 "openai/gpt-6-sol:batch",
+"openai/gpt-6.1-sol",
+"openai/gpt-6.1-sol-pro",
+"openai/gpt-6.1-sol-pro:batch",
+"openai/gpt-6.1-sol:batch",
 "openai/gpt-audio",
 "openai/gpt-audio-mini",
 "openai/gpt-chat-latest",
@@ -25698,6 +25702,30 @@
 "azure#groups": [],
 "cursor#groups": [],
 "openrouter#snap": {
+"openai/gpt-6.1-sol-pro": {
+"Name": "OpenAI: GPT-6.1 Sol Pro",
+"Context": 1050000,
+"Input price": "0.000002",
+"Output price": "0.00001"
+},
+"openai/gpt-6.1-sol-pro:batch": {
+"Name": "OpenAI: GPT-6.1 Sol Pro (batch)",
+"Context": 1050000,
+"Input price": "0.000001",
+"Output price": "0.000005"
+},
+"openai/gpt-6.1-sol": {
+"Name": "OpenAI: GPT-6.1 Sol",
+"Context": 1050000,
+"Input price": "0.000002",
+"Output price": "0.00001"
+},
+"openai/gpt-6.1-sol:batch": {
+"Name": "OpenAI: GPT-6.1 Sol (batch)",
+"Context": 1050000,
+"Input price": "0.000001",
+"Output price": "0.000005"
+},
 "anthropic/claude-sonnet-5.5": {
 "Name": "Anthropic: Claude Sonnet 5.5",
 "Context": 1000000,
