@@ -54,7 +54,9 @@
 "chg::deepseek/deepseek-v4-pro",
 "chg::qwen/qwen3.8-27b",
 "chg::z-ai/glm-5.1",
+"chg::z-ai/glm-5.2",
 "chg::z-ai/glm-5.3",
+"chg::~deepseek/deepseek-pro-latest",
 "chg::~z-ai/glm-latest",
 "cognitivecomputations/dolphin-mistral-24b-venice-edition",
 "cohere/command-a",
@@ -12381,8 +12383,8 @@
 "~deepseek/deepseek-pro-latest": {
 "Name": "DeepSeek: DeepSeek Pro Latest",
 "Context": 1048576,
-"Input price": "0.000000096",
-"Output price": "0.0000019584"
+"Input price": "0.00000015",
+"Output price": "0.0000035"
 },
 "~deepseek/deepseek-flash-latest": {
 "Name": "DeepSeek: DeepSeek Flash Latest",
@@ -13029,7 +13031,7 @@
 "z-ai/glm-5.2": {
 "Name": "Z.ai: GLM 5.2",
 "Context": 1048576,
-"Input price": "0.0000001949",
+"Input price": "0.0000002339",
 "Output price": "0.0000044"
 },
 "openrouter/fusion": {
