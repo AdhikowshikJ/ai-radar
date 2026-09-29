@@ -54,6 +54,7 @@
 "chg::deepseek/deepseek-v4-pro",
 "chg::qwen/qwen3.8-27b",
 "chg::z-ai/glm-5.1",
+"chg::z-ai/glm-5.3",
 "chg::~z-ai/glm-latest",
 "cognitivecomputations/dolphin-mistral-24b-venice-edition",
 "cohere/command-a",
@@ -12626,7 +12627,7 @@
 "z-ai/glm-5.3": {
 "Name": "Z.ai: GLM 5.3",
 "Context": 1310720,
-"Input price": "0.0000014",
+"Input price": "0.0000001849",
 "Output price": "0.0000044"
 },
 "z-ai/glm-5.3:batch": {
