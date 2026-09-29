@@ -53,6 +53,7 @@
 "chg::deepseek/deepseek-v4-flash",
 "chg::deepseek/deepseek-v4-pro",
 "chg::deepseek/deepseek-v4-pro-0813",
+"chg::google/gemma-4-26b-a4b-it",
 "chg::qwen/qwen3.8-27b",
 "chg::tencent/hy3",
 "chg::z-ai/glm-5.1",
@@ -19855,6 +19856,7 @@
 "ale_bench_external.csv::claude-sonnet-4-20250514_32K",
 "ale_bench_external.csv::claude-sonnet-4-5-20250929_32K",
 "ale_bench_external.csv::claude-sonnet-4-6_medium",
+"ale_bench_external.csv::claude-sonnet-5-5_high",
 "ale_bench_external.csv::claude-sonnet-5_high",
 "ale_bench_external.csv::codestral-2508",
 "ale_bench_external.csv::deepseek-v4-flash-0731_max",
@@ -25215,11 +25217,13 @@
 "webdev_arena_external.csv::claude-opus-4-8_high",
 "webdev_arena_external.csv::claude-opus-4-8_none",
 "webdev_arena_external.csv::claude-opus-4-8_unknown",
+"webdev_arena_external.csv::claude-opus-5-5_max",
 "webdev_arena_external.csv::claude-opus-5_high",
 "webdev_arena_external.csv::claude-opus-5_max",
 "webdev_arena_external.csv::claude-sonnet-4-5-20250929",
 "webdev_arena_external.csv::claude-sonnet-4-5-20250929_32K",
 "webdev_arena_external.csv::claude-sonnet-4-6",
+"webdev_arena_external.csv::claude-sonnet-5-5_high",
 "webdev_arena_external.csv::claude-sonnet-5_high",
 "webdev_arena_external.csv::deepseek-v4-flash-0731_high",
 "webdev_arena_external.csv::deepseek-v4-flash_high",
@@ -26900,8 +26904,8 @@
 "google/gemma-4-26b-a4b-it": {
 "Name": "Google: Gemma 4 26B A4B ",
 "Context": 262144,
-"Input price": "0.00000009",
-"Output price": "0.0000003"
+"Input price": "0.0000000765",
+"Output price": "0.000000255"
 },
 "google/gemma-4-26b-a4b-it:free": {
 "Name": "Google: Gemma 4 26B A4B  (free)",
