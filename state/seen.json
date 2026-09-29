@@ -26228,7 +26228,7 @@
 "Name": "DeepSeek: DeepSeek V4 Pro 0813",
 "Context": 1048576,
 "Input price": "0.0000003999",
-"Output price": "0.00000349"
+"Output price": "0.00000244"
 },
 "x-ai/grok-4.6": {
 "Name": "SpaceXAI: Grok 4.6",
@@ -26569,7 +26569,7 @@
 "z-ai/glm-5.2": {
 "Name": "Z.ai: GLM 5.2",
 "Context": 1048576,
-"Input price": "0.0000002807",
+"Input price": "0.0000002339",
 "Output price": "0.00000399"
 },
 "openrouter/fusion": {
