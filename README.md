@@ -1,0 +1,67 @@
+# AI Radar 📡
+
+Free bot that posts to Discord when something new shows up:
+
+| Channel (suggested) | Source | Secret name |
+|---|---|---|
+| `#openrouter` | New models on OpenRouter | `DISCORD_WEBHOOK_OPENROUTER` |
+| `#arenas` | New models on arena.ai leaderboards (text, vision, image, video, search, document) **and Design Arena** | `DISCORD_WEBHOOK_ARENAS` |
+| `#subpages` | New pages on openai.com / anthropic.com (from their sitemaps) | `DISCORD_WEBHOOK_PAGES` |
+| `#repo-releases` | Releases of Codex, Gemini CLI, Claude Code, SDKs | `DISCORD_WEBHOOK_RELEASES` |
+
+Want everything in ONE channel? Just add a single secret `DISCORD_WEBHOOK_URL`. It's used for any source without its own webhook.
+
+## Setup (about 15 minutes)
+
+### 1. Make webhooks in Discord
+For each channel: **Channel settings (gear) → Integrations → Webhooks → New Webhook → Copy Webhook URL**.
+Treat these URLs like passwords. Anyone with one can post in your channel. Never put them in the code or in chat.
+
+### 2. Put this folder on GitHub
+1. Create a new repo on github.com (public = free unlimited Actions minutes; private also works but has a monthly limit).
+2. Upload the contents of this `ai-radar` folder as the repo root, including the hidden `.github` folder. Easiest: install GitHub Desktop, or run in this folder:
+   ```
+   git init && git add . && git commit -m "ai radar"
+   git branch -M main
+   git remote add origin https://github.com/YOU/ai-radar.git
+   git push -u origin main
+   ```
+
+### 3. Add the webhook URLs as secrets
+Repo → **Settings → Secrets and variables → Actions → New repository secret**.
+Add one secret per channel using the names in the table above (name = secret name, value = webhook URL).
+
+### 4. Turn it on
+Repo → **Actions** tab → enable workflows → **AI Radar** → **Run workflow**.
+
+- The **first run is silent**. It only memorises what already exists so your channels don't get flooded with 3,000 old items.
+- From the second run on (every ~30 min), you only get NEW things.
+
+## Optional: role pings (like zAI's "@Design Arena")
+1. Discord → Server Settings → Roles → create roles like `Arena Alerts`, `Design Arena`, `OpenRouter`.
+2. Turn on Developer Mode (User Settings → Advanced), right-click the role → **Copy Role ID**.
+3. Add a GitHub secret with that ID: `DISCORD_ROLE_ARENAS`, `DISCORD_ROLE_DESIGNARENA`, `DISCORD_ROLE_OPENROUTER`, `DISCORD_ROLE_PAGES` or `DISCORD_ROLE_RELEASES`.
+4. Give yourselves the roles you want pings for (or let people self-assign with Carl-bot reaction roles).
+
+Posts show a live "Discovered: … (x minutes ago)" timestamp. Models with an **unknown organization turn red** and are flagged as a possible codename/stealth model. Those are the ones worth tweeting early.
+
+## Test on your own laptop first (optional)
+```
+python3 radar.py --dry-run                 # shows what it would post; posts nothing
+export DISCORD_WEBHOOK_URL="paste-url"     # one test channel
+python3 radar.py --announce-first --only releases   # posts the current releases so you can see how they look
+```
+(Don't commit `state/seen.json` from a test run, or delete it before pushing.)
+
+## Customising
+Everything is at the top of `radar.py`:
+- `ARENAS`: which arena.ai leaderboards to watch
+- `SITEMAPS`: sites and which URL paths count (`include`)
+- `RELEASE_REPOS`: GitHub repos to follow
+- `MAX_POSTS_PER_SOURCE`: flood protection (extra items get summarised in one message)
+
+## Known limits
+- arena.ai has no official API, so the Arena part reads the page's embedded data. If they redesign the site it can break. The bot notices when parsing fails and skips (with a warning in the Actions log) rather than spamming.
+- The `agent` and `webdev` arenas aren't tracked yet because their pages load data differently.
+- OpenAI/Anthropic pages appear in sitemaps when published, sometimes just before an announcement.
+- GitHub pauses scheduled workflows after 60 days of no repo activity. The state commits count as activity, so this normally won't happen.

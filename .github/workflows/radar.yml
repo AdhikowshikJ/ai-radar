@@ -1,0 +1,42 @@
+name: AI Radar
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"   # every 30 min (GitHub may delay it a few minutes)
+  workflow_dispatch:          # lets you press "Run workflow" manually
+
+permissions:
+  contents: write             # needed to save state/seen.json back to the repo
+
+concurrency:
+  group: ai-radar
+  cancel-in-progress: false
+
+jobs:
+  radar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Run radar
+        env:
+          DISCORD_WEBHOOK_OPENROUTER: ${{ secrets.DISCORD_WEBHOOK_OPENROUTER }}
+          DISCORD_WEBHOOK_ARENAS: ${{ secrets.DISCORD_WEBHOOK_ARENAS }}
+          DISCORD_WEBHOOK_PAGES: ${{ secrets.DISCORD_WEBHOOK_PAGES }}
+          DISCORD_WEBHOOK_RELEASES: ${{ secrets.DISCORD_WEBHOOK_RELEASES }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          DISCORD_ROLE_OPENROUTER: ${{ secrets.DISCORD_ROLE_OPENROUTER }}
+          DISCORD_ROLE_ARENAS: ${{ secrets.DISCORD_ROLE_ARENAS }}
+          DISCORD_ROLE_DESIGNARENA: ${{ secrets.DISCORD_ROLE_DESIGNARENA }}
+          DISCORD_ROLE_PAGES: ${{ secrets.DISCORD_ROLE_PAGES }}
+          DISCORD_ROLE_RELEASES: ${{ secrets.DISCORD_ROLE_RELEASES }}
+        run: python radar.py
+      - name: Save state
+        run: |
+          git config user.name "ai-radar"
+          git config user.email "ai-radar@users.noreply.github.com"
+          git add state/seen.json
+          git diff --staged --quiet || (git commit -m "radar: update seen state" && git push)
