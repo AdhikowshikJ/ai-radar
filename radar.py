@@ -52,7 +52,8 @@ SITEMAPS = {
     "antigravity": {"url": "https://antigravity.google/sitemap.xml", "include": ("/",), "min": 3},
     "deepseek": {"url": "https://www.deepseek.com/sitemap.xml", "include": ("/",), "min": 5},
     "z.ai": {"url": "https://z.ai/sitemap.xml", "include": ("/",), "min": 5},
-    "mistral": {"url": "https://mistral.ai/sitemap.xml", "include": ("/news/", "/models", "/products/"), "min": 5},
+    # all English pages ("mistral.ai" is a new key, so the wider set is baselined silently)
+    "mistral.ai": {"url": "https://mistral.ai/sitemap.xml", "include": ("/",), "exclude": r"mistral\.ai/(fr|it)/", "min": 50},
     "minimax": {"url": "https://www.minimax.io/sitemap.xml", "include": ("/",), "min": 3},
     # Google, xAI, Microsoft
     "google blog": {"url": "https://blog.google/en-us/sitemap.xml", "include": ("/",), "min": 1000},
