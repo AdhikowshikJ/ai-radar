@@ -943,6 +943,37 @@ def track_changes(name, items, old_snap):
     return changes, cur
 
 
+# ---------------------------------------------------------------- batching
+# For these sources, all new items from the same site/domain in one run go into ONE message.
+BATCH_SOURCES = {"sitemaps": "pages", "subdomains": "subdomains"}
+
+
+def batch_items(name, items):
+    groups = {}
+    for i in items:
+        groups.setdefault(i.get("group") or name, []).append(i)
+    batches = []
+    for group, members in groups.items():
+        noun = BATCH_SOURCES[name]
+        lines, used = [], 0
+        for m in members:
+            line = f"• {m['url'] if name == 'sitemaps' else m['title']}"
+            if used + len(line) > 3300:
+                lines.append(f"…and {len(members) - len(lines)} more")
+                break
+            lines.append(line)
+            used += len(line) + 1
+        first = members[0]
+        batches.append({
+            "key": f"batch::{group}", "members": [m["key"] for m in members],
+            "title": f"New {group} {noun}" if len(members) > 1 else f"New {group} {noun.rstrip('s')}",
+            "url": first["url"], "icon": first.get("icon"), "desc": "\n".join(lines),
+            "fields": [("Count", str(len(members)))] if len(members) > 1 else [],
+            "color": first["color"], "label": first["label"],
+        })
+    return batches
+
+
 # ---------------------------------------------------------------- schedule
 # The workflow fires every 5 min. Each source runs on its own interval, decided from the
 # clock (no extra state, so no commit every 5 min). If GitHub skips a slot, slower sources
@@ -1044,9 +1075,11 @@ def main():
             print(f"[{name}] no webhook set ({WEBHOOK_ENV[name]}), will post once it's added")
             continue
         elif announce:
+            if name in BATCH_SOURCES:
+                announce = batch_items(name, announce)
             for i in announce[:MAX_POSTS_PER_SOURCE]:
                 if post_embed(hook, i, os.environ.get(ROLE_ENV[name])):
-                    posted.add(i["key"])
+                    posted.update(i.get("members", [i["key"]]))
                 time.sleep(1)
             skipped = announce[MAX_POSTS_PER_SOURCE:]
             if skipped:  # too many at once: mention it, then treat them as seen
@@ -1055,7 +1088,8 @@ def main():
                     "desc": "\n".join(f"• {s['title']}" for s in skipped[:15])[:1500],
                     "fields": [], "color": 0x99AAB5, "label": name,
                 })
-                posted.update(s["key"] for s in skipped)
+                for sk in skipped:
+                    posted.update(sk.get("members", [sk["key"]]))
 
         if not args.dry_run:
             # First run (without --announce-first): remember everything so we don't spam.
