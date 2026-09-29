@@ -12639,7 +12639,7 @@
 "qwen/qwen3.8-27b": {
 "Name": "Qwen: Qwen3.8 27B",
 "Context": 1000000,
-"Input price": "0.0000000349",
+"Input price": "0.0000000328",
 "Output price": "0.0000044"
 },
 "qwen/qwen3.8-27b:free": {
