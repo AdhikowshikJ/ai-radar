@@ -16,6 +16,7 @@ import re
 import sys
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
 import xml.etree.ElementTree as ET
 from datetime import datetime, timezone
@@ -453,7 +454,7 @@ def fetch_subdomains():
                     names.add(n)
         for n in names:
             items.append({
-                "key": n, "group": root, "title": n, "url": f"https://crt.sh/?q={n}", "desc": "",
+                "key": n, "group": root, "title": n, "url": f"https://crt.sh/?q={n}", "desc": "", "icon": root,
                 "fields": [("Domain", root)], "color": 0x1ABC9C, "label": "New subdomain",
             })
     return items, good > 0
@@ -631,6 +632,14 @@ SOURCES = {
 # ---------------------------------------------------------------- discord
 
 
+def icon_url(item):
+    """Site icon for the embed thumbnail: item's "icon" domain, else the domain of its link."""
+    domain = item.get("icon") or urllib.parse.urlparse(item.get("url") or "").hostname
+    if not domain:
+        return None
+    return f"https://www.google.com/s2/favicons?domain={domain}&sz=128"
+
+
 def post_embed(webhook, item, role_id=None):
     now = int(time.time())
     fields = list(item["fields"])
@@ -651,6 +660,8 @@ def post_embed(webhook, item, role_id=None):
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "footer": {"text": BRAND},
     }
+    if icon_url(item):
+        embed["thumbnail"] = {"url": icon_url(item)}
     payload = {"embeds": [embed], "allowed_mentions": {"parse": []}}
     if role_id:
         payload["content"] = f"<@&{role_id}> {item['label']}"
