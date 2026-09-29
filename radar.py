@@ -54,6 +54,12 @@ SITEMAPS = {
     "z.ai": {"url": "https://z.ai/sitemap.xml", "include": ("/",), "min": 5},
     "mistral": {"url": "https://mistral.ai/sitemap.xml", "include": ("/news/", "/models", "/products/"), "min": 5},
     "minimax": {"url": "https://www.minimax.io/sitemap.xml", "include": ("/",), "min": 3},
+    # Google, xAI, Microsoft
+    "google blog": {"url": "https://blog.google/en-us/sitemap.xml", "include": ("/",), "min": 1000},
+    "deepmind": {"url": "https://deepmind.google/sitemap.xml", "include": ("/",), "min": 100},
+    "google ai dev": {"url": "https://ai.google.dev/sitemap.xml", "include": ("/",), "exclude": r"\?hl=", "min": 100},
+    "xai": {"url": "https://x.ai/sitemap.xml", "include": ("/",), "min": 50},
+    "microsoft ai": {"url": "https://microsoft.ai/sitemap.xml", "include": ("/",), "min": 20},
 }
 
 RELEASE_REPOS = [
@@ -283,10 +289,9 @@ def _sitemap_urls(url, depth=0):
     if root.tag.endswith("sitemapindex") and depth < 1:
         urls = []
         for sub in locs[:60]:  # sanity cap
-            try:
-                urls += _sitemap_urls(sub, depth + 1)
-            except Exception as e:
-                print(f"  ! sub-sitemap {sub}: {e}", file=sys.stderr)
+            # if any part fails, fail the whole site this run: otherwise that part's old pages
+            # would look "new" the next time it loads
+            urls += _sitemap_urls(sub, depth + 1)
         return urls
     return locs
 
@@ -305,6 +310,8 @@ def fetch_sitemaps():
         good += 1
         for u in urls:
             path = "/" + u.split("//", 1)[-1].split("/", 1)[-1]
+            if cfg.get("exclude") and re.search(cfg["exclude"], u):
+                continue
             if any(path.startswith(p) or p.rstrip("/") == path for p in cfg["include"]) and path.strip("/"):
                 items.append({
                     "key": u, "group": name, "title": path, "url": u, "desc": "",
