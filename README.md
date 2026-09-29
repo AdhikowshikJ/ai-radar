@@ -8,6 +8,11 @@ Free bot that posts to Discord when something new shows up:
 | `#arenas` | New models on arena.ai leaderboards (text, vision, image, video, search, document) **and Design Arena** | `DISCORD_WEBHOOK_ARENAS` |
 | `#subpages` | New pages on openai.com / anthropic.com (from their sitemaps) | `DISCORD_WEBHOOK_PAGES` |
 | `#repo-releases` | Releases of Codex, Gemini CLI, Claude Code, SDKs | `DISCORD_WEBHOOK_RELEASES` |
+| `#api-models` | New model IDs live in the OpenAI / Anthropic / Gemini APIs (needs API keys, see below) | `DISCORD_WEBHOOK_API_MODELS` |
+| `#huggingface` | New models uploaded by big labs (DeepSeek, Qwen, Meta, Mistral, Google, OpenAI…) | `DISCORD_WEBHOOK_HUGGINGFACE` |
+| `#subdomains` | New subdomains of openai.com, anthropic.com, claude.ai, chatgpt.com (certificate logs via crt.sh) | `DISCORD_WEBHOOK_SUBDOMAINS` |
+| `#new-repos` | New public GitHub repos from AI labs | `DISCORD_WEBHOOK_NEWREPOS` |
+| `#google-cloud` | Google Cloud release notes: Gemini, Gemini Enterprise, Generative AI on Vertex | `DISCORD_WEBHOOK_GOOGLE_CLOUD` |
 
 Want everything in ONE channel? Just add a single secret `DISCORD_WEBHOOK_URL`. It's used for any source without its own webhook.
 
@@ -37,6 +42,14 @@ Repo → **Actions** tab → enable workflows → **AI Radar** → **Run workflo
 - The **first run is silent**. It only memorises what already exists so your channels don't get flooded with 3,000 old items.
 - From the second run on (every ~30 min), you only get NEW things.
 
+## API keys for `#api-models` (optional, free to create)
+Listing models doesn't generate tokens, but check each provider's current terms. Add any you have as secrets; missing ones are simply skipped:
+- `OPENAI_API_KEY` from platform.openai.com → API keys
+- `ANTHROPIC_API_KEY` from console.anthropic.com → API keys
+- `GEMINI_API_KEY` from aistudio.google.com → Get API key
+
+Tip: use a separate key for the radar so you can revoke it anytime.
+
 ## Optional: role pings (like zAI's "@Design Arena")
 1. Discord → Server Settings → Roles → create roles like `Arena Alerts`, `Design Arena`, `OpenRouter`.
 2. Turn on Developer Mode (User Settings → Advanced), right-click the role → **Copy Role ID**.
@@ -62,6 +75,8 @@ Everything is at the top of `radar.py`:
 
 ## Known limits
 - arena.ai has no official API, so the Arena part reads the page's embedded data. If they redesign the site it can break. The bot notices when parsing fails and skips (with a warning in the Actions log) rather than spamming.
+- crt.sh (subdomains) is often slow or down; the bot just skips it and tries again next run.
+- New orgs/domains/feeds you add are remembered silently the first time, so they never flood a channel.
 - The `agent` and `webdev` arenas aren't tracked yet because their pages load data differently.
 - OpenAI/Anthropic pages appear in sitemaps when published, sometimes just before an announcement.
 - GitHub pauses scheduled workflows after 60 days of no repo activity. The state commits count as activity, so this normally won't happen.

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""AI Radar: watches OpenRouter, Arena leaderboards, sitemaps and GitHub releases,
+"""AI Radar: watches OpenRouter, arenas, model APIs, Hugging Face, Google Cloud,
+sitemaps, subdomains and GitHub (releases + new repos),
 and posts anything new to Discord webhooks. Standard library only.
 
 Usage:
@@ -56,6 +57,25 @@ RELEASE_REPOS = [
     "anthropics/anthropic-sdk-python",
 ]
 
+HF_AUTHORS = [
+    "openai", "google", "meta-llama", "facebook", "deepseek-ai", "Qwen", "mistralai",
+    "moonshotai", "zai-org", "MiniMaxAI", "xai-org", "microsoft", "nvidia", "ibm-granite",
+    "allenai", "stepfun-ai", "tencent", "XiaomiMiMo", "ByteDance-Seed", "baidu",
+]
+
+GITHUB_ORGS = [
+    "openai", "anthropics", "google-gemini", "google-deepmind", "deepseek-ai", "QwenLM",
+    "meta-llama", "mistralai", "MoonshotAI", "xai-org", "zai-org", "MiniMax-AI",
+]
+
+GCP_FEEDS = {
+    "gemini-release-notes": "Gemini (Google Cloud)",
+    "gemini-enterprise-release-notes": "Gemini Enterprise",
+    "generative-ai-on-vertex-ai-release-notes": "Generative AI on Vertex AI",
+}
+
+SUBDOMAIN_ROOTS = ["openai.com", "anthropic.com", "claude.ai", "chatgpt.com"]
+
 # Optional: role to @mention per source (set the role ID, e.g. DISCORD_ROLE_ARENAS=1234567890)
 ROLE_ENV = {
     "openrouter": "DISCORD_ROLE_OPENROUTER",
@@ -63,6 +83,13 @@ ROLE_ENV = {
     "designarena": "DISCORD_ROLE_DESIGNARENA",
     "sitemaps": "DISCORD_ROLE_PAGES",
     "releases": "DISCORD_ROLE_RELEASES",
+    "api_openai": "DISCORD_ROLE_API_MODELS",
+    "api_anthropic": "DISCORD_ROLE_API_MODELS",
+    "api_gemini": "DISCORD_ROLE_API_MODELS",
+    "huggingface": "DISCORD_ROLE_HUGGINGFACE",
+    "subdomains": "DISCORD_ROLE_SUBDOMAINS",
+    "newrepos": "DISCORD_ROLE_NEWREPOS",
+    "gcp": "DISCORD_ROLE_GOOGLE_CLOUD",
 }
 BRAND = os.environ.get("RADAR_BRAND", "AI Radar • Study with US")
 
@@ -73,11 +100,18 @@ WEBHOOK_ENV = {
     "designarena": "DISCORD_WEBHOOK_ARENAS",
     "sitemaps": "DISCORD_WEBHOOK_PAGES",
     "releases": "DISCORD_WEBHOOK_RELEASES",
+    "api_openai": "DISCORD_WEBHOOK_API_MODELS",
+    "api_anthropic": "DISCORD_WEBHOOK_API_MODELS",
+    "api_gemini": "DISCORD_WEBHOOK_API_MODELS",
+    "huggingface": "DISCORD_WEBHOOK_HUGGINGFACE",
+    "subdomains": "DISCORD_WEBHOOK_SUBDOMAINS",
+    "newrepos": "DISCORD_WEBHOOK_NEWREPOS",
+    "gcp": "DISCORD_WEBHOOK_GOOGLE_CLOUD",
 }
 
 
-def http_get(url, timeout=40):
-    req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept": "*/*"})
+def http_get(url, timeout=40, headers=None):
+    req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept": "*/*", **(headers or {})})
     with urllib.request.urlopen(req, timeout=timeout) as resp:
         return resp.read().decode("utf-8", errors="replace")
 
@@ -134,7 +168,7 @@ def fetch_arenas():
         good += 1
         for rank, name, rating, votes, org in entries:
             items.append({
-                "key": f"{slug}::{name}",
+                "key": f"{slug}::{name}", "group": slug,
                 "title": name,
                 "url": f"https://arena.ai/leaderboard/{slug}",
                 "desc": "",
@@ -213,7 +247,7 @@ def fetch_sitemaps():
             path = "/" + u.split("//", 1)[-1].split("/", 1)[-1]
             if any(path.startswith(p) or p.rstrip("/") == path for p in cfg["include"]) and path.strip("/"):
                 items.append({
-                    "key": u, "title": path, "url": u, "desc": "",
+                    "key": u, "group": name, "title": path, "url": u, "desc": "",
                     "fields": [("Site", name)], "color": 0xFEE75C,
                     "label": f"New {name} page",
                 })
@@ -236,12 +270,151 @@ def fetch_releases():
                 continue  # skip noisy nightly builds
             body = re.sub(r"<[^>]+>", " ", html.unescape(e.findtext("a:content", "", ns)))
             items.append({
-                "key": e.findtext("a:id", "", ns),
+                "key": e.findtext("a:id", "", ns), "group": repo,
                 "title": f"{repo} {e.findtext('a:title', '', ns)}",
                 "url": link.get("href") if link is not None else f"https://github.com/{repo}/releases",
                 "desc": re.sub(r"\s+", " ", body).strip()[:300],
                 "fields": [("Repo", repo)], "color": 0x5865F2,
                 "label": "New release",
+            })
+    return items, good > 0
+
+
+# --- model APIs: each provider is its own source so adding a key later doesn't flood
+
+def _api_items(provider, ids, url):
+    return [{
+        "key": mid, "title": mid, "url": url, "desc": "",
+        "fields": [("Provider", provider), ("Model ID", f"`{mid}`")],
+        "color": 0xEB459E, "label": f"New {provider} API model",
+    } for mid in ids]
+
+
+def fetch_api_openai():
+    key = os.environ.get("OPENAI_API_KEY")
+    if not key:
+        return [], False
+    d = json.loads(http_get("https://api.openai.com/v1/models", headers={"Authorization": f"Bearer {key}"}))
+    ids = [m["id"] for m in d["data"]]
+    return _api_items("OpenAI", ids, "https://platform.openai.com/docs/models"), len(ids) > 5
+
+
+def fetch_api_anthropic():
+    key = os.environ.get("ANTHROPIC_API_KEY")
+    if not key:
+        return [], False
+    ids, after = [], None
+    for _ in range(10):
+        url = "https://api.anthropic.com/v1/models?limit=100" + (f"&after_id={after}" if after else "")
+        d = json.loads(http_get(url, headers={"x-api-key": key, "anthropic-version": "2023-06-01"}))
+        ids += [m["id"] for m in d["data"]]
+        if not d.get("has_more"):
+            break
+        after = d.get("last_id")
+    return _api_items("Anthropic", ids, "https://docs.anthropic.com/en/docs/about-claude/models"), len(ids) > 2
+
+
+def fetch_api_gemini():
+    key = os.environ.get("GEMINI_API_KEY")
+    if not key:
+        return [], False
+    ids, token = [], ""
+    for _ in range(10):
+        d = json.loads(http_get("https://generativelanguage.googleapis.com/v1beta/models?pageSize=1000"
+                                + (f"&pageToken={token}" if token else ""), headers={"x-goog-api-key": key}))
+        ids += [m["name"].removeprefix("models/") for m in d.get("models", [])]
+        token = d.get("nextPageToken")
+        if not token:
+            break
+    return _api_items("Gemini", ids, "https://ai.google.dev/gemini-api/docs/models"), len(ids) > 5
+
+
+def fetch_huggingface():
+    items, good = [], 0
+    for author in HF_AUTHORS:
+        try:
+            models = json.loads(http_get(
+                f"https://huggingface.co/api/models?author={author}&sort=createdAt&direction=-1&limit=20"))
+        except Exception as e:
+            print(f"  ! hf {author}: {e}", file=sys.stderr)
+            continue
+        good += 1
+        for m in models:
+            tag = m.get("pipeline_tag") or "n/a"
+            items.append({
+                "key": m["id"], "group": author, "title": m["id"], "url": f"https://huggingface.co/{m['id']}", "desc": "",
+                "fields": [("Organization", author), ("Type", tag), ("Created", (m.get("createdAt") or "")[:10])],
+                "color": 0xFFD21E, "label": "New Hugging Face model",
+            })
+    return items, good >= len(HF_AUTHORS) // 2
+
+
+def fetch_newrepos():
+    items, good = [], 0
+    headers = {"Accept": "application/vnd.github+json"}
+    if os.environ.get("GITHUB_TOKEN"):
+        headers["Authorization"] = f"Bearer {os.environ['GITHUB_TOKEN']}"
+    for org in GITHUB_ORGS:
+        try:
+            repos = json.loads(http_get(
+                f"https://api.github.com/orgs/{org}/repos?sort=created&direction=desc&per_page=30", headers=headers))
+        except Exception as e:
+            print(f"  ! github {org}: {e}", file=sys.stderr)
+            continue
+        good += 1
+        for r in repos:
+            items.append({
+                "key": r["full_name"], "group": org, "title": r["full_name"], "url": r["html_url"],
+                "desc": (r.get("description") or "")[:300],
+                "fields": [("Org", org), ("Language", r.get("language") or "n/a"), ("Created", r["created_at"][:10])],
+                "color": 0x24292F, "label": "New GitHub repo",
+            })
+    return items, good >= len(GITHUB_ORGS) // 2
+
+
+def fetch_subdomains():
+    # public certificate-transparency logs via crt.sh (slow, so a failure just skips this run)
+    items, good = [], 0
+    for root in SUBDOMAIN_ROOTS:
+        try:
+            certs = json.loads(http_get(f"https://crt.sh/?q=%25.{root}&output=json&exclude=expired", timeout=90))
+        except Exception as e:
+            print(f"  ! crt.sh {root}: {e}", file=sys.stderr)
+            continue
+        good += 1
+        names = set()
+        for c in certs:
+            for n in c.get("name_value", "").split("\n"):
+                n = n.strip().lower().removeprefix("*.")
+                if n.endswith(root) and n != root and "@" not in n:
+                    names.add(n)
+        for n in names:
+            items.append({
+                "key": n, "group": root, "title": n, "url": f"https://crt.sh/?q={n}", "desc": "",
+                "fields": [("Domain", root)], "color": 0x1ABC9C, "label": "New subdomain",
+            })
+    return items, good > 0
+
+
+def fetch_gcp():
+    items, good = [], 0
+    ns = {"a": "http://www.w3.org/2005/Atom"}
+    for feed, label in GCP_FEEDS.items():
+        try:
+            root = ET.fromstring(http_get(f"https://cloud.google.com/feeds/{feed}.xml"))
+        except Exception as e:
+            print(f"  ! gcp {feed}: {e}", file=sys.stderr)
+            continue
+        good += 1
+        for e in root.findall("a:entry", ns):
+            link = e.find("a:link", ns)
+            body = re.sub(r"<[^>]+>", " ", html.unescape(e.findtext("a:content", "", ns)))
+            items.append({
+                "key": e.findtext("a:id", "", ns), "group": feed,
+                "title": f"{label}: {e.findtext('a:title', '', ns)}",
+                "url": link.get("href") if link is not None else "https://cloud.google.com/release-notes",
+                "desc": re.sub(r"\s+", " ", body).strip()[:600],
+                "fields": [("Product", label)], "color": 0x4285F4, "label": "Google Cloud release notes",
             })
     return items, good > 0
 
@@ -252,6 +425,13 @@ SOURCES = {
     "designarena": fetch_designarena,
     "sitemaps": fetch_sitemaps,
     "releases": fetch_releases,
+    "api_openai": fetch_api_openai,
+    "api_anthropic": fetch_api_anthropic,
+    "api_gemini": fetch_api_gemini,
+    "huggingface": fetch_huggingface,
+    "newrepos": fetch_newrepos,
+    "subdomains": fetch_subdomains,
+    "gcp": fetch_gcp,
 }
 
 # ---------------------------------------------------------------- discord
@@ -329,7 +509,7 @@ def main():
             print(f"[{name}] failed: {e}", file=sys.stderr)
             continue
         if not ok:
-            print(f"[{name}] looks broken, keeping old state")
+            print(f"[{name}] skipped (no data or no API key), keeping old state")
             continue
 
         seen = set(state.get(name, []))
@@ -338,6 +518,16 @@ def main():
         # Drop duplicate keys inside a single fetch
         uniq = {i["key"]: i for i in new}
         new = list(uniq.values())
+
+        # A group (arena, org, domain, feed...) seen for the first time is baselined silently,
+        # so a flaky group that finally loads, or an org you add later, doesn't flood the channel.
+        gkey = f"{name}#groups"
+        present = {i["group"] for i in items if i.get("group")}
+        if gkey not in state and not first_run:
+            state[gkey] = sorted(present)  # upgrade from older state: current groups count as known
+        known_groups = set(state.get(gkey, []))
+        fresh = {i["key"] for i in new if i.get("group") and i["group"] not in known_groups}
+        new = [i for i in new if i["key"] not in fresh]
         print(f"[{name}] {len(items)} items, {len(new)} new" + (" (first run)" if first_run else ""))
 
         announce = new if (not first_run or args.announce_first) else []
@@ -359,7 +549,7 @@ def main():
             skipped = announce[MAX_POSTS_PER_SOURCE:]
             if skipped:  # too many at once: mention it, then treat them as seen
                 post_embed(hook, {
-                    "title": f"{len(skipped)} more new items not shown", "url": "https://arena.ai",
+                    "title": f"{len(skipped)} more new items not shown", "url": skipped[0]["url"],
                     "desc": "\n".join(f"• {s['title']}" for s in skipped[:15])[:1500],
                     "fields": [], "color": 0x99AAB5, "label": name,
                 })
@@ -369,7 +559,9 @@ def main():
             # First run (without --announce-first): remember everything so we don't spam.
             # Otherwise remember only what was posted; failed posts stay "new" and retry next run.
             keep = {i["key"] for i in items} if (first_run and not args.announce_first) else posted
-            state[name] = sorted(seen | keep)
+            state[name] = sorted(seen | keep | fresh)
+            if present:
+                state[gkey] = sorted(known_groups | present)
 
     if not args.dry_run:
         STATE_FILE.parent.mkdir(exist_ok=True)
