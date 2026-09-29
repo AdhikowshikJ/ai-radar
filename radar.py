@@ -711,6 +711,19 @@ def _fmt_snap(field, v):
     return f"{v:,}" if isinstance(v, int) else str(v)
 
 
+MIN_PRICE_CHANGE = 0.05  # ignore price moves smaller than 5%
+
+
+def _small_price_move(field, a, b):
+    if "price" not in field:
+        return False
+    try:
+        a, b = float(a), float(b)
+    except (TypeError, ValueError):
+        return False
+    return a > 0 and b > 0 and abs(b - a) / a < MIN_PRICE_CHANGE
+
+
 def track_changes(name, items, old_snap):
     """Compare items' "snap" values with last run. Returns (change_items, current_snap)."""
     cur = {i["key"]: i["snap"] for i in items if "snap" in i}
@@ -721,6 +734,13 @@ def track_changes(name, items, old_snap):
         if before is None or before == now:
             continue
         diffs = [(f, before.get(f), now.get(f)) for f in now if before.get(f) != now.get(f)]
+        small = [d for d in diffs if _small_price_move(*d)]
+        if small:
+            # keep the last announced price, so many tiny moves still add up to an alert
+            cur[k] = {**now, **{f: a for f, a, _ in small}}
+            diffs = [d for d in diffs if d not in small]
+        if not diffs:
+            continue
         base = by_key[k]
         changes.append({
             "key": f"chg::{k}", "model": k, "title": base["title"], "url": base["url"],
