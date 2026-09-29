@@ -26755,8 +26755,8 @@
 "~moonshotai/kimi-latest": {
 "Name": "MoonshotAI: Kimi Latest",
 "Context": 1048576,
-"Input price": "0.0000004",
-"Output price": "0.000009"
+"Input price": "0.0000003",
+"Output price": "0.000010696"
 },
 "~google/gemini-flash-latest": {
 "Name": "Google: Gemini Flash Latest",
