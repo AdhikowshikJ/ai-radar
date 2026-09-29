@@ -158,7 +158,7 @@ ROLE_ENV = {
     "newrepos": "DISCORD_ROLE_NEWREPOS",
     "gcp": "DISCORD_ROLE_CLOUD",
 }
-BRAND = os.environ.get("RADAR_BRAND", "AI Radar • Study with US")
+BRAND = os.environ.get("RADAR_BRAND", "AI Leaks")
 
 # source id -> env var holding that channel's webhook (falls back to DISCORD_WEBHOOK_URL)
 WEBHOOK_ENV = {
