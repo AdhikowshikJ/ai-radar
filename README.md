@@ -4,7 +4,7 @@ Free bot that posts to Discord when something new shows up:
 
 | Channel (suggested) | Source | Secret name |
 |---|---|---|
-| `#openrouter` | New models on OpenRouter | `DISCORD_WEBHOOK_OPENROUTER` |
+| `#openrouter` | New, changed (context / price / name) and removed models on OpenRouter | `DISCORD_WEBHOOK_OPENROUTER` |
 | `#arenas` | New models on arena.ai leaderboards (text, vision, image, video, search, document) **and Design Arena** | `DISCORD_WEBHOOK_ARENAS` |
 | `#subpages` | New pages on openai.com / anthropic.com (from their sitemaps) | `DISCORD_WEBHOOK_PAGES` |
 | `#repo-releases` | Releases of Codex, Gemini CLI, Claude Code, SDKs | `DISCORD_WEBHOOK_RELEASES` |

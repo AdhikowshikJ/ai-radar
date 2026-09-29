@@ -193,6 +193,9 @@ def fetch_openrouter():
             price = "n/a"
         ctx = m.get("context_length")
         items.append({
+            # "snap" = values we watch for changes (see track_changes)
+            "snap": {"Name": m.get("name") or m["id"], "Context": ctx,
+                     "Input price": p.get("prompt"), "Output price": p.get("completion")},
             "key": m["id"],
             "title": m.get("name") or m["id"],
             "url": f"https://openrouter.ai/{m['id']}",
@@ -682,6 +685,50 @@ def webhook_for(source):
     return None
 
 
+# ---------------------------------------------------------------- change tracking
+
+
+def _fmt_snap(field, v):
+    if v is None or v == "":
+        return "n/a"
+    if "price" in field:
+        try:
+            f = float(v) * 1_000_000
+            return "Free" if f == 0 else f"${f:g} / 1M"
+        except (TypeError, ValueError):
+            return str(v)
+    return f"{v:,}" if isinstance(v, int) else str(v)
+
+
+def track_changes(name, items, old_snap):
+    """Compare items' "snap" values with last run. Returns (change_items, current_snap)."""
+    cur = {i["key"]: i["snap"] for i in items if "snap" in i}
+    by_key = {i["key"]: i for i in items}
+    changes = []
+    for k, now in cur.items():
+        before = old_snap.get(k)
+        if before is None or before == now:
+            continue
+        diffs = [(f, before.get(f), now.get(f)) for f in now if before.get(f) != now.get(f)]
+        base = by_key[k]
+        changes.append({
+            "key": f"chg::{k}", "model": k, "title": base["title"], "url": base["url"],
+            "desc": "\n".join(f"• **Old** {f}: **{_fmt_snap(f, a)}**\n• **New** {f}: **{_fmt_snap(f, b)}**"
+                              for f, a, b in diffs),
+            "fields": [("Model ID", f"`{k}`")], "color": 0xF39C12, "label": "Changed OpenRouter model",
+        })
+    # removals: skip if the list suddenly shrank a lot (probably an API hiccup, not real removals)
+    gone = [k for k in old_snap if k not in cur]
+    if gone and len(cur) >= 0.9 * len(old_snap):
+        for k in gone:
+            changes.append({
+                "key": f"rm::{k}", "model": k, "title": old_snap[k].get("Name") or k,
+                "url": f"https://openrouter.ai/{k}", "desc": "No longer listed on OpenRouter.",
+                "fields": [("Model ID", f"`{k}`")], "color": 0x747F8D, "label": "Removed from OpenRouter",
+            })
+    return changes, cur
+
+
 # ---------------------------------------------------------------- schedule
 # The workflow fires every 5 min. Each source runs on its own interval, decided from the
 # clock (no extra state, so no commit every 5 min). If GitHub skips a slot, slower sources
@@ -757,6 +804,16 @@ def main():
         print(f"[{name}] {len(items)} items, {len(new)} new" + (" (first run)" if first_run else ""))
 
         announce = new if (not first_run or args.announce_first) else []
+        skey = f"{name}#snap"
+        changes, cur_snap = [], None
+        if any("snap" in i for i in items):
+            if skey in state:
+                changes, cur_snap = track_changes(name, items, state[skey])
+                announce = announce + changes
+            else:
+                cur_snap = {i["key"]: i["snap"] for i in items if "snap" in i}  # first time: baseline
+            if changes:
+                print(f"[{name}] {len(changes)} changed/removed")
         hook = webhook_for(name)
         posted = set()
         if announce and args.dry_run:
@@ -788,6 +845,13 @@ def main():
             state[name] = sorted(seen | keep | fresh)
             if present:
                 state[gkey] = sorted(known_groups | present)
+            if cur_snap is not None:
+                # keep the old values for changes that failed to post, so they retry next run
+                snap = dict(cur_snap)
+                for c in changes:
+                    if c["key"] not in posted:
+                        snap[c["model"]] = state[skey][c["model"]]
+                state[skey] = snap
 
     if not args.dry_run:
         STATE_FILE.parent.mkdir(exist_ok=True)
