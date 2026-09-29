@@ -52,6 +52,7 @@
 "bytedance/ui-tars-1.5-7b",
 "chg::deepseek/deepseek-v4-flash",
 "chg::deepseek/deepseek-v4-pro",
+"chg::deepseek/deepseek-v4-pro-0813",
 "chg::qwen/qwen3.8-27b",
 "chg::tencent/hy3",
 "chg::z-ai/glm-5.1",
@@ -26181,7 +26182,7 @@
 "deepseek/deepseek-v4-pro-0813": {
 "Name": "DeepSeek: DeepSeek V4 Pro 0813",
 "Context": 1048576,
-"Input price": "0.00000048",
+"Input price": "0.0000003999",
 "Output price": "0.0000042"
 },
 "x-ai/grok-4.6": {
