@@ -54,6 +54,7 @@
 "chg::deepseek/deepseek-v4-pro",
 "chg::qwen/qwen3.8-27b",
 "chg::z-ai/glm-5.1",
+"chg::~z-ai/glm-latest",
 "cognitivecomputations/dolphin-mistral-24b-venice-edition",
 "cohere/command-a",
 "cohere/command-a-plus",
@@ -12614,7 +12615,7 @@
 "Name": "Z.ai: GLM Latest",
 "Context": 1310720,
 "Input price": "0.00000019",
-"Output price": "0.000004"
+"Output price": "0.0000044"
 },
 "tencent/hy-mt2-7b": {
 "Name": "Tencent: Hy-MT2-7B",
@@ -13291,8 +13292,8 @@
 "deepseek/deepseek-v4-flash": {
 "Name": "DeepSeek: DeepSeek V4 Flash 0423",
 "Context": 1048576,
-"Input price": "0.00000008694",
-"Output price": "0.00000017388"
+"Input price": "0.00000008246",
+"Output price": "0.00000016492"
 },
 "tencent/hy3-preview": {
 "Name": "Tencent: Hy3 preview",
