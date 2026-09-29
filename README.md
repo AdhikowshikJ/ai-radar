@@ -12,7 +12,12 @@ Free bot that posts to Discord when something new shows up:
 | `#huggingface` | New models uploaded by big labs (DeepSeek, Qwen, Meta, Mistral, Google, OpenAI…) | `DISCORD_WEBHOOK_HUGGINGFACE` |
 | `#subdomains` | New subdomains of openai.com, anthropic.com, claude.ai, chatgpt.com (certificate logs via crt.sh) | `DISCORD_WEBHOOK_SUBDOMAINS` |
 | `#new-repos` | New public GitHub repos from AI labs | `DISCORD_WEBHOOK_NEWREPOS` |
-| `#google-cloud` | Google Cloud release notes: Gemini, Gemini Enterprise, Generative AI on Vertex | `DISCORD_WEBHOOK_GOOGLE_CLOUD` |
+| `#cloud` | AWS Bedrock (new models on AWS), Azure AI Foundry updates, Google Cloud Gemini/Vertex release notes | `DISCORD_WEBHOOK_CLOUD` (older `DISCORD_WEBHOOK_GOOGLE_CLOUD` still works for Google) |
+| `#tools` | Cursor changelog, Codex changelog, Antigravity changelog, Gemini API changelog | `DISCORD_WEBHOOK_TOOLS` |
+| `#benchmarks` | New model results on 80+ benchmarks from Epoch AI (GPQA, SWE-bench Verified, FrontierMath…) | `DISCORD_WEBHOOK_BENCHMARKS` |
+| `#status` | New components on the OpenAI/Anthropic status pages (often = new product) | `DISCORD_WEBHOOK_STATUS` (falls back to `#subdomains`) |
+
+`#subpages` also watches cursor.com, antigravity.google, deepseek.com, z.ai, mistral.ai and minimax.io.
 
 Want everything in ONE channel? Just add a single secret `DISCORD_WEBHOOK_URL`. It's used for any source without its own webhook.
 
@@ -47,6 +52,9 @@ Listing models doesn't generate tokens, but check each provider's current terms.
 - `OPENAI_API_KEY` from platform.openai.com → API keys
 - `ANTHROPIC_API_KEY` from console.anthropic.com → API keys
 - `GEMINI_API_KEY` from aistudio.google.com → Get API key
+- `XAI_API_KEY` (console.x.ai), `DEEPSEEK_API_KEY` (platform.deepseek.com), `MISTRAL_API_KEY` (console.mistral.ai)
+- `MOONSHOT_API_KEY` (platform.moonshot.ai, Kimi), `MINIMAX_API_KEY` (platform.minimax.io)
+- `DASHSCOPE_API_KEY` (Alibaba Model Studio international, Qwen), `ZAI_API_KEY` (z.ai, GLM)
 
 Tip: use a separate key for the radar so you can revoke it anytime.
 
@@ -75,6 +83,8 @@ Everything is at the top of `radar.py`:
 
 ## Known limits
 - arena.ai has no official API, so the Arena part reads the page's embedded data. If they redesign the site it can break. The bot notices when parsing fails and skips (with a warning in the Actions log) rather than spamming.
+- Benchmark data © Epoch AI, CC BY 4.0 (credited in posts via the link to epoch.ai/benchmarks).
+- The Chinese and xAI API endpoints were checked to exist (they answer "unauthorized" without a key) but haven't been tested with real keys.
 - crt.sh (subdomains) is often slow or down; the bot just skips it and tries again next run.
 - New orgs/domains/feeds you add are remembered silently the first time, so they never flood a channel.
 - The `agent` and `webdev` arenas aren't tracked yet because their pages load data differently.

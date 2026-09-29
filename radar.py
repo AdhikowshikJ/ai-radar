@@ -46,6 +46,13 @@ SITEMAPS = {
         "url": "https://www.anthropic.com/sitemap.xml",
         "include": ("/news/", "/research/", "/claude", "/engineering/", "/customers/"),
     },
+    # smaller sites: watch every page
+    "cursor": {"url": "https://cursor.com/sitemap.xml", "include": ("/",), "min": 3},
+    "antigravity": {"url": "https://antigravity.google/sitemap.xml", "include": ("/",), "min": 3},
+    "deepseek": {"url": "https://www.deepseek.com/sitemap.xml", "include": ("/",), "min": 5},
+    "z.ai": {"url": "https://z.ai/sitemap.xml", "include": ("/",), "min": 5},
+    "mistral": {"url": "https://mistral.ai/sitemap.xml", "include": ("/news/", "/models", "/products/"), "min": 5},
+    "minimax": {"url": "https://www.minimax.io/sitemap.xml", "include": ("/",), "min": 3},
 }
 
 RELEASE_REPOS = [
@@ -74,6 +81,39 @@ GCP_FEEDS = {
     "generative-ai-on-vertex-ai-release-notes": "Generative AI on Vertex AI",
 }
 
+# OpenAI-compatible "list models" endpoints: id -> (name, url, env var for the key, docs link)
+OPENAI_COMPAT_APIS = {
+    "openai": ("OpenAI", "https://api.openai.com/v1/models", "OPENAI_API_KEY", "https://platform.openai.com/docs/models"),
+    "xai": ("xAI", "https://api.x.ai/v1/models", "XAI_API_KEY", "https://docs.x.ai/docs/models"),
+    "deepseek": ("DeepSeek", "https://api.deepseek.com/models", "DEEPSEEK_API_KEY", "https://api-docs.deepseek.com/"),
+    "mistral": ("Mistral", "https://api.mistral.ai/v1/models", "MISTRAL_API_KEY", "https://docs.mistral.ai/getting-started/models/"),
+    "moonshot": ("Moonshot (Kimi)", "https://api.moonshot.ai/v1/models", "MOONSHOT_API_KEY", "https://platform.moonshot.ai/docs"),
+    "minimax": ("MiniMax", "https://api.minimax.io/v1/models", "MINIMAX_API_KEY", "https://platform.minimax.io/docs"),
+    "qwen": ("Qwen (Alibaba)", "https://dashscope-intl.aliyuncs.com/compatible-mode/v1/models", "DASHSCOPE_API_KEY",
+             "https://www.alibabacloud.com/help/en/model-studio/models"),
+    "zai": ("Z.ai (GLM)", "https://api.z.ai/api/paas/v4/models", "ZAI_API_KEY", "https://docs.z.ai/"),
+}
+
+# RSS/Atom feeds: source id -> (label, url, regex that title/categories must match or None, color)
+FEEDS = {
+    "bedrock": ("AWS Bedrock", "https://aws.amazon.com/about-aws/whats-new/recent/feed/", r"bedrock", 0xFF9900),
+    "azure": ("Azure AI Foundry", "https://www.microsoft.com/releasecommunications/api/v2/azure/rss",
+              r"microsoft foundry|azure openai|foundry models|ai \+ machine learning", 0x0078D4),
+    "cursor": ("Cursor changelog", "https://cursor.com/changelog/rss.xml", None, 0x000000),
+}
+
+# Changelog pages without feeds: we track their headings. (url, heading must match, heading to skip)
+CHANGELOG_PAGES = {
+    "Codex": ("https://developers.openai.com/codex/changelog", r"\d", r"^Codex CLI"),  # CLI versions come via releases
+    "Antigravity": ("https://antigravity.google/docs/changelog", r"\d", None),
+    "Gemini API": ("https://ai.google.dev/gemini-api/docs/changelog", r"\d{4}", None),
+}
+
+STATUS_PAGES = {
+    "OpenAI": "https://status.openai.com/api/v2/components.json",
+    "Anthropic": "https://status.anthropic.com/api/v2/components.json",
+}
+
 SUBDOMAIN_ROOTS = ["openai.com", "anthropic.com", "claude.ai", "chatgpt.com"]
 
 # Optional: role to @mention per source (set the role ID, e.g. DISCORD_ROLE_ARENAS=1234567890)
@@ -83,13 +123,19 @@ ROLE_ENV = {
     "designarena": "DISCORD_ROLE_DESIGNARENA",
     "sitemaps": "DISCORD_ROLE_PAGES",
     "releases": "DISCORD_ROLE_RELEASES",
-    "api_openai": "DISCORD_ROLE_API_MODELS",
     "api_anthropic": "DISCORD_ROLE_API_MODELS",
     "api_gemini": "DISCORD_ROLE_API_MODELS",
+    **{f"api_{k}": "DISCORD_ROLE_API_MODELS" for k in OPENAI_COMPAT_APIS},
+    "bedrock": "DISCORD_ROLE_CLOUD",
+    "azure": "DISCORD_ROLE_CLOUD",
+    "cursor": "DISCORD_ROLE_TOOLS",
+    "changelogs": "DISCORD_ROLE_TOOLS",
+    "benchmarks": "DISCORD_ROLE_BENCHMARKS",
+    "status": "DISCORD_ROLE_STATUS",
     "huggingface": "DISCORD_ROLE_HUGGINGFACE",
     "subdomains": "DISCORD_ROLE_SUBDOMAINS",
     "newrepos": "DISCORD_ROLE_NEWREPOS",
-    "gcp": "DISCORD_ROLE_GOOGLE_CLOUD",
+    "gcp": "DISCORD_ROLE_CLOUD",
 }
 BRAND = os.environ.get("RADAR_BRAND", "AI Radar • Study with US")
 
@@ -100,20 +146,30 @@ WEBHOOK_ENV = {
     "designarena": "DISCORD_WEBHOOK_ARENAS",
     "sitemaps": "DISCORD_WEBHOOK_PAGES",
     "releases": "DISCORD_WEBHOOK_RELEASES",
-    "api_openai": "DISCORD_WEBHOOK_API_MODELS",
     "api_anthropic": "DISCORD_WEBHOOK_API_MODELS",
     "api_gemini": "DISCORD_WEBHOOK_API_MODELS",
+    **{f"api_{k}": "DISCORD_WEBHOOK_API_MODELS" for k in OPENAI_COMPAT_APIS},
+    "bedrock": "DISCORD_WEBHOOK_CLOUD",
+    "azure": "DISCORD_WEBHOOK_CLOUD",
+    "cursor": "DISCORD_WEBHOOK_TOOLS",
+    "changelogs": "DISCORD_WEBHOOK_TOOLS",
+    "benchmarks": "DISCORD_WEBHOOK_BENCHMARKS",
+    "status": ("DISCORD_WEBHOOK_STATUS", "DISCORD_WEBHOOK_SUBDOMAINS"),
     "huggingface": "DISCORD_WEBHOOK_HUGGINGFACE",
     "subdomains": "DISCORD_WEBHOOK_SUBDOMAINS",
     "newrepos": "DISCORD_WEBHOOK_NEWREPOS",
-    "gcp": "DISCORD_WEBHOOK_GOOGLE_CLOUD",
+    "gcp": ("DISCORD_WEBHOOK_CLOUD", "DISCORD_WEBHOOK_GOOGLE_CLOUD"),
 }
 
 
 def http_get(url, timeout=40, headers=None):
     req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept": "*/*", **(headers or {})})
     with urllib.request.urlopen(req, timeout=timeout) as resp:
-        return resp.read().decode("utf-8", errors="replace")
+        raw = resp.read()
+    if raw[:2] == b"\x1f\x8b":  # some servers gzip even when we don't ask
+        import gzip
+        raw = gzip.decompress(raw)
+    return raw.decode("utf-8", errors="replace")
 
 
 # ---------------------------------------------------------------- sources
@@ -239,7 +295,7 @@ def fetch_sitemaps():
         except Exception as e:
             print(f"  ! sitemap {name}: {e}", file=sys.stderr)
             continue
-        if len(urls) < 20:
+        if len(urls) < cfg.get("min", 20):
             print(f"  ! sitemap {name}: only {len(urls)} urls, skipping", file=sys.stderr)
             continue
         good += 1
@@ -290,13 +346,17 @@ def _api_items(provider, ids, url):
     } for mid in ids]
 
 
-def fetch_api_openai():
-    key = os.environ.get("OPENAI_API_KEY")
-    if not key:
-        return [], False
-    d = json.loads(http_get("https://api.openai.com/v1/models", headers={"Authorization": f"Bearer {key}"}))
-    ids = [m["id"] for m in d["data"]]
-    return _api_items("OpenAI", ids, "https://platform.openai.com/docs/models"), len(ids) > 5
+def make_openai_compat_fetcher(pid):
+    name, url, env, docs = OPENAI_COMPAT_APIS[pid]
+
+    def fetch():
+        key = os.environ.get(env)
+        if not key:
+            return [], False
+        d = json.loads(http_get(url, headers={"Authorization": f"Bearer {key}"}))
+        ids = [m["id"] for m in d.get("data", [])]
+        return _api_items(name, ids, docs), len(ids) > 0
+    return fetch
 
 
 def fetch_api_anthropic():
@@ -419,19 +479,150 @@ def fetch_gcp():
     return items, good > 0
 
 
+def _parse_feed(text):
+    """RSS or Atom -> list of dicts(id, title, link, summary, categories)."""
+    root = ET.fromstring(text)
+    a = "{http://www.w3.org/2005/Atom}"
+    out = []
+    for it in root.iter("item"):  # RSS
+        out.append({
+            "id": it.findtext("guid") or it.findtext("link") or it.findtext("title"),
+            "title": it.findtext("title", ""), "link": it.findtext("link", ""),
+            "summary": it.findtext("description", ""),
+            "categories": [c.text or "" for c in it.findall("category")],
+        })
+    for it in root.iter(a + "entry"):  # Atom
+        link = it.find(a + "link")
+        out.append({
+            "id": it.findtext(a + "id"), "title": it.findtext(a + "title", ""),
+            "link": link.get("href", "") if link is not None else "",
+            "summary": it.findtext(a + "content", "") or it.findtext(a + "summary", ""),
+            "categories": [c.get("term", "") for c in it.findall(a + "category")],
+        })
+    return out
+
+
+def _clean(htmltext, n):
+    t = re.sub(r"<[^>]+>", " ", html.unescape(htmltext or ""))
+    return re.sub(r"\s+", " ", t).strip()[:n]
+
+
+def make_feed_fetcher(fid):
+    label, url, pattern, color = FEEDS[fid]
+
+    def fetch():
+        entries = _parse_feed(http_get(url, timeout=60))
+        items = []
+        for e in entries:
+            hay = (e["title"] + " " + " ".join(e["categories"])).lower()
+            if pattern and not re.search(pattern, hay):
+                continue
+            items.append({
+                "key": e["id"], "title": e["title"], "url": e["link"] or url,
+                "desc": _clean(e["summary"], 400), "fields": [("Source", label)],
+                "color": color, "label": label,
+            })
+        return items, len(entries) > 0
+    return fetch
+
+
+def fetch_changelogs():
+    items, good = [], 0
+    for name, (url, must, skip) in CHANGELOG_PAGES.items():
+        try:
+            page = http_get(url, timeout=60)
+        except Exception as e:
+            print(f"  ! changelog {name}: {e}", file=sys.stderr)
+            continue
+        # split the page at each heading; text until the next heading is that entry's body
+        parts = re.split(r"<h[1-4][^>]*>(.*?)</h[1-4]>", page, flags=re.S)
+        entries = {}
+        for i in range(1, len(parts) - 1, 2):
+            h = _clean(parts[i], 200)
+            if (h and re.search(must, h) and not (skip and re.search(skip, h))
+                    and not re.fullmatch(r"[A-Z][a-z]+ \d{4}", h) and h not in entries):  # skip "September 2026"
+                entries[h] = _clean(parts[i + 1], 500)
+        if len(entries) < 3:
+            print(f"  ! changelog {name}: only {len(entries)} entries, skipping", file=sys.stderr)
+            continue
+        good += 1
+        for h, body in entries.items():
+            items.append({
+                "key": f"{name}::{h}", "group": name, "title": f"{name}: {h}", "url": url, "desc": body,
+                "fields": [("Product", name)], "color": 0x2B2D31, "label": f"{name} changelog",
+            })
+    return items, good > 0
+
+
+def fetch_benchmarks():
+    import csv
+    import io
+    import zipfile
+    req = urllib.request.Request("https://epoch.ai/data/benchmark_data.zip", headers={"User-Agent": UA})
+    with urllib.request.urlopen(req, timeout=120) as r:
+        z = zipfile.ZipFile(io.BytesIO(r.read()))
+    items = []
+    for fname in z.namelist():
+        if not fname.endswith(".csv"):
+            continue
+        bench = fname[:-4].replace("_", " ").title().replace("Swe", "SWE").replace("Gpqa", "GPQA")
+        rows = csv.DictReader(io.TextIOWrapper(z.open(fname), "utf-8", errors="replace"))
+        for row in rows:
+            model = row.get("Model version") or row.get("model") or ""
+            if not model:
+                continue
+            score = row.get("Best score (across scorers)") or row.get("mean_score") or ""
+            try:
+                score = f"{float(score) * 100:.1f}%" if float(score) <= 1 else f"{float(score):g}"
+            except ValueError:
+                pass
+            items.append({
+                "key": f"{fname}::{model}", "group": fname, "title": f"{model} on {bench}",
+                "url": "https://epoch.ai/benchmarks", "desc": "",
+                "fields": [("Benchmark", bench), ("Score", score or "n/a"),
+                           ("Organization", row.get("Organization") or "?"),
+                           ("Released", row.get("Release date") or "n/a")],
+                "color": 0xF1C40F, "label": "New benchmark result (Epoch AI)",
+            })
+    return items, len(items) > 100
+
+
+def fetch_status():
+    items, good = [], 0
+    for name, url in STATUS_PAGES.items():
+        try:
+            comps = json.loads(http_get(url))["components"]
+        except Exception as e:
+            print(f"  ! status {name}: {e}", file=sys.stderr)
+            continue
+        good += 1
+        for c in comps:
+            items.append({
+                "key": c["id"], "group": name, "title": f"{name} status: {c['name']}",
+                "url": url.split("/api/")[0], "desc": _clean(c.get("description"), 300),
+                "fields": [("Company", name), ("Status", c.get("status", "?"))],
+                "color": 0x95A5A6, "label": "New status-page component",
+            })
+    return items, good > 0
+
+
 SOURCES = {
     "openrouter": fetch_openrouter,
     "arenas": fetch_arenas,
     "designarena": fetch_designarena,
     "sitemaps": fetch_sitemaps,
     "releases": fetch_releases,
-    "api_openai": fetch_api_openai,
+    **{f"api_{k}": make_openai_compat_fetcher(k) for k in OPENAI_COMPAT_APIS},
     "api_anthropic": fetch_api_anthropic,
     "api_gemini": fetch_api_gemini,
     "huggingface": fetch_huggingface,
     "newrepos": fetch_newrepos,
     "subdomains": fetch_subdomains,
     "gcp": fetch_gcp,
+    **{k: make_feed_fetcher(k) for k in FEEDS},
+    "changelogs": fetch_changelogs,
+    "benchmarks": fetch_benchmarks,
+    "status": fetch_status,
 }
 
 # ---------------------------------------------------------------- discord
@@ -484,7 +675,11 @@ def post_embed(webhook, item, role_id=None):
 
 
 def webhook_for(source):
-    return os.environ.get(WEBHOOK_ENV[source]) or os.environ.get("DISCORD_WEBHOOK_URL")
+    names = WEBHOOK_ENV[source]
+    for n in ((names,) if isinstance(names, str) else names) + ("DISCORD_WEBHOOK_URL",):
+        if os.environ.get(n):
+            return os.environ[n]
+    return None
 
 
 # ---------------------------------------------------------------- main
@@ -524,7 +719,8 @@ def main():
         gkey = f"{name}#groups"
         present = {i["group"] for i in items if i.get("group")}
         if gkey not in state and not first_run:
-            state[gkey] = sorted(present)  # upgrade from older state: current groups count as known
+            # upgrade from older state: a group is known only if we've already seen some of its items
+            state[gkey] = sorted({i["group"] for i in items if i.get("group") and i["key"] in seen})
         known_groups = set(state.get(gkey, []))
         fresh = {i["key"] for i in new if i.get("group") and i["group"] not in known_groups}
         new = [i for i in new if i["key"] not in fresh]
@@ -539,7 +735,7 @@ def main():
             if len(announce) > MAX_POSTS_PER_SOURCE:
                 print(f"   ...and {len(announce) - MAX_POSTS_PER_SOURCE} more")
         elif announce and not hook:
-            print(f"[{name}] no webhook set ({WEBHOOK_ENV[name]}), not marking as seen")
+            print(f"[{name}] no webhook set ({WEBHOOK_ENV[name]}), will post once it's added")
             continue
         elif announce:
             for i in announce[:MAX_POSTS_PER_SOURCE]:
