@@ -48,7 +48,7 @@ Repo → **Actions** tab → enable workflows → **AI Radar** → **Run workflo
 - From the second run on, you only get NEW things.
 
 ## How often each tracker checks
-The workflow wakes up every 5 minutes (GitHub often runs it late or skips a slot when busy):
+cron-job.org triggers the workflow every 5 minutes (GitHub's own schedule is only a 30-min backup, because it often runs late or skips):
 - **Every 5 min:** OpenRouter, all model APIs, GitHub releases, Cursor, Bedrock, Azure, Google Cloud
 - **Every 15 min:** sitemaps, Hugging Face, new GitHub repos, changelogs, Design Arena
 - **Every 30 min:** arena.ai, Epoch benchmarks, subdomains, status pages
@@ -98,3 +98,17 @@ Everything is at the top of `radar.py`:
 - The `agent` and `webdev` arenas aren't tracked yet because their pages load data differently.
 - OpenAI/Anthropic pages appear in sitemaps when published, sometimes just before an announcement.
 - GitHub pauses scheduled workflows after 60 days of no repo activity. The state commits count as activity, so this normally won't happen.
+
+## Reliable 5-minute trigger with cron-job.org (free)
+1. GitHub → profile picture → **Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token**
+   - Repository access: **Only select repositories → ai-radar**
+   - Permissions → Repository permissions → **Actions: Read and write** (nothing else)
+2. cron-job.org → **Create cronjob**
+   - URL: `https://api.github.com/repos/AdhikowshikJ/ai-radar/actions/workflows/radar.yml/dispatches`
+   - Schedule: every 5 minutes
+   - Advanced → Request method **POST**
+   - Headers: `Accept: application/vnd.github+json`, `Authorization: Bearer <your token>`, `X-GitHub-Api-Version: 2022-11-28`, `Content-Type: application/json`
+   - Request body: `{"ref":"main","inputs":{"mode":"scheduled"}}`
+3. **Test run** in cron-job.org should return **204**. A new "AI Radar" run appears in the Actions tab.
+
+`"mode":"scheduled"` matters: without it every trigger checks all trackers (that's what the manual button does).

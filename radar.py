@@ -778,8 +778,8 @@ def main():
     state = json.loads(STATE_FILE.read_text()) if STATE_FILE.exists() else {}
     if args.only:
         wanted = args.only.split(",")
-    elif args.all or os.environ.get("GITHUB_EVENT_NAME") == "workflow_dispatch":
-        wanted = list(SOURCES)  # manual runs check everything
+    elif args.all or os.environ.get("RADAR_MODE") == "all":
+        wanted = list(SOURCES)  # manual "Run workflow" checks everything
     else:
         wanted = due_sources()
     print(f"sources this run: {', '.join(wanted)}")
