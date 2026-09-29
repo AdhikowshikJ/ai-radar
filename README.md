@@ -52,7 +52,7 @@ Repo → **Actions** tab → enable workflows → **AI Radar** → **Run workflo
 
 ## How often each tracker checks
 cron-job.org triggers the workflow every 5 minutes (GitHub's own schedule is only a 30-min backup, because it often runs late or skips):
-- **Every 5 min:** OpenRouter, all model APIs, GitHub releases, Cursor, Bedrock, Azure, Google Cloud
+- **Every 5 min:** fast RSS checks for Google Blog, OpenAI, DeepMind, Mistral and the Google Developers Blog (same `#subpages` channel, never duplicated with the sitemap check), OpenRouter, all model APIs, GitHub releases, Cursor, Bedrock, Azure, Google Cloud
 - **Every 15 min:** sitemaps, Hugging Face, new GitHub repos, changelogs, Design Arena
 - **Every 30 min:** arena.ai, Epoch benchmarks, subdomains, status pages
 

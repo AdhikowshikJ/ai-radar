@@ -89,6 +89,16 @@ GCP_FEEDS = {
     "generative-ai-on-vertex-ai-release-notes": "Generative AI on Vertex AI",
 }
 
+# Fast RSS checks for the busiest sites (every 5 min). Same group names as SITEMAPS so posts
+# look the same; a page is only ever posted once, by whichever check sees it first.
+FAST_PAGE_FEEDS = {
+    "google blog": "https://blog.google/rss/",
+    "openai": "https://openai.com/news/rss.xml",
+    "deepmind": "https://deepmind.google/blog/rss.xml",
+    "mistral.ai": "https://mistral.ai/rss.xml",
+    "google developers blog": "https://developers.googleblog.com/feeds/posts/default",
+}
+
 # OpenAI-compatible "list models" endpoints: id -> (name, url, env var for the key, docs link)
 OPENAI_COMPAT_APIS = {
     "openai": ("OpenAI", "https://api.openai.com/v1/models", "OPENAI_API_KEY", "https://platform.openai.com/docs/models"),
@@ -130,6 +140,7 @@ ROLE_ENV = {
     "arenas": "DISCORD_ROLE_ARENAS",
     "designarena": "DISCORD_ROLE_DESIGNARENA",
     "sitemaps": "DISCORD_ROLE_PAGES",
+    "fastpages": "DISCORD_ROLE_PAGES",
     "releases": "DISCORD_ROLE_RELEASES",
     "api_anthropic": "DISCORD_ROLE_API_MODELS",
     "api_gemini": "DISCORD_ROLE_API_MODELS",
@@ -155,6 +166,7 @@ WEBHOOK_ENV = {
     "arenas": "DISCORD_WEBHOOK_ARENAS",
     "designarena": "DISCORD_WEBHOOK_ARENAS",
     "sitemaps": "DISCORD_WEBHOOK_PAGES",
+    "fastpages": "DISCORD_WEBHOOK_PAGES",
     "releases": "DISCORD_WEBHOOK_RELEASES",
     "api_anthropic": "DISCORD_WEBHOOK_API_MODELS",
     "api_gemini": "DISCORD_WEBHOOK_API_MODELS",
@@ -335,6 +347,35 @@ def fetch_sitemaps():
                     "fields": [("Site", name)], "color": 0xFEE75C,
                     "label": f"New {name} page",
                 })
+    return items, good > 0
+
+
+def norm_url(u):
+    """Compare URLs loosely: no scheme/www/query/fragment/trailing slash, lowercase host."""
+    p = urllib.parse.urlparse(u.strip())
+    host = (p.hostname or "").lower().removeprefix("www.")
+    return f"{host}{p.path.rstrip('/')}"
+
+
+def fetch_fastpages():
+    items, good = [], 0
+    for site, url in FAST_PAGE_FEEDS.items():
+        try:
+            entries = _parse_feed(http_get(url, timeout=40))
+        except Exception as e:
+            print(f"  ! feed {site}: {e}", file=sys.stderr)
+            continue
+        if not entries:
+            continue
+        good += 1
+        for e in entries:
+            link = e["link"]
+            if not link:
+                continue
+            items.append({
+                "key": norm_url(link), "group": site, "title": e["title"] or link, "url": link,
+                "desc": "", "fields": [("Site", site)], "color": 0xFEE75C, "label": f"New {site} page",
+            })
     return items, good > 0
 
 
@@ -677,6 +718,7 @@ SOURCES = {
     "designarena": fetch_designarena,
     "sitemaps": fetch_sitemaps,
     "releases": fetch_releases,
+    "fastpages": fetch_fastpages,
     **{f"api_{k}": make_openai_compat_fetcher(k) for k in OPENAI_COMPAT_APIS},
     "api_anthropic": fetch_api_anthropic,
     "api_gemini": fetch_api_gemini,
@@ -945,7 +987,7 @@ def track_changes(name, items, old_snap):
 
 # ---------------------------------------------------------------- batching
 # For these sources, all new items from the same site/domain in one run go into ONE message.
-BATCH_SOURCES = {"sitemaps": "pages", "subdomains": "subdomains"}
+BATCH_SOURCES = {"sitemaps": "pages", "fastpages": "pages", "subdomains": "subdomains"}
 
 
 def batch_items(name, items):
@@ -957,7 +999,7 @@ def batch_items(name, items):
         noun = BATCH_SOURCES[name]
         lines, used = [], 0
         for m in members:
-            line = f"• {m['url'] if name == 'sitemaps' else m['title']}"
+            line = f"• {m['url'] if noun == 'pages' else m['title']}"
             if used + len(line) > 3300:
                 lines.append(f"…and {len(members) - len(lines)} more")
                 break
@@ -981,7 +1023,7 @@ def batch_items(name, items):
 FAST_MIN, MEDIUM_MIN, SLOW_MIN = 5, 15, 30
 SCHEDULE_MIN = {
     # every 5 min: light and where being first matters
-    "openrouter": FAST_MIN, "releases": FAST_MIN, "cursor": FAST_MIN,
+    "openrouter": FAST_MIN, "releases": FAST_MIN, "cursor": FAST_MIN, "fastpages": FAST_MIN,
     "bedrock": FAST_MIN, "azure": FAST_MIN, "gcp": FAST_MIN,
     **{k: FAST_MIN for k in SOURCES if k.startswith("api_")},
     # every 15 min: many requests per run
@@ -1037,6 +1079,11 @@ def main():
         seen = set(state.get(name, []))
         first_run = name not in state
         new = [i for i in items if i["key"] not in seen]
+        # the sitemap check and the fast RSS check share pages: never post one twice
+        if name in ("sitemaps", "fastpages"):
+            other = state.get("fastpages" if name == "sitemaps" else "sitemaps", [])
+            already = {norm_url(k) if name == "fastpages" else k for k in other}
+            new = [i for i in new if (i["key"] if name == "fastpages" else norm_url(i["key"])) not in already]
         # Drop duplicate keys inside a single fetch
         uniq = {i["key"]: i for i in new}
         new = list(uniq.values())
