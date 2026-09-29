@@ -50,6 +50,9 @@
 "bytedance-seed/seed-2.0-lite",
 "bytedance-seed/seed-2.0-mini",
 "bytedance/ui-tars-1.5-7b",
+"chg::deepseek/deepseek-v4-flash",
+"chg::deepseek/deepseek-v4-pro",
+"chg::qwen/qwen3.8-27b",
 "cognitivecomputations/dolphin-mistral-24b-venice-edition",
 "cohere/command-a",
 "cohere/command-a-plus",
@@ -12633,7 +12636,7 @@
 "qwen/qwen3.8-27b": {
 "Name": "Qwen: Qwen3.8 27B",
 "Context": 1000000,
-"Input price": "0.0000000428",
+"Input price": "0.0000000407",
 "Output price": "0.0000044"
 },
 "qwen/qwen3.8-27b:free": {
@@ -13281,14 +13284,14 @@
 "deepseek/deepseek-v4-pro": {
 "Name": "DeepSeek: DeepSeek V4 Pro 0423",
 "Context": 1048576,
-"Input price": "0.00000095526",
-"Output price": "0.00000191052"
+"Input price": "0.000000953172",
+"Output price": "0.000001906344"
 },
 "deepseek/deepseek-v4-flash": {
 "Name": "DeepSeek: DeepSeek V4 Flash 0423",
 "Context": 1048576,
-"Input price": "0.00000014",
-"Output price": "0.00000028"
+"Input price": "0.00000008848",
+"Output price": "0.00000017696"
 },
 "tencent/hy3-preview": {
 "Name": "Tencent: Hy3 preview",
