@@ -26566,7 +26566,7 @@
 "Name": "Z.ai: GLM 5.2",
 "Context": 1048576,
 "Input price": "0.0000002339",
-"Output price": "0.0000044"
+"Output price": "0.00000399"
 },
 "openrouter/fusion": {
 "Name": "OpenRouter: Fusion",
