@@ -53,6 +53,7 @@
 "chg::deepseek/deepseek-v4-flash",
 "chg::deepseek/deepseek-v4-pro",
 "chg::qwen/qwen3.8-27b",
+"chg::z-ai/glm-5.1",
 "cognitivecomputations/dolphin-mistral-24b-venice-edition",
 "cohere/command-a",
 "cohere/command-a-plus",
@@ -13290,8 +13291,8 @@
 "deepseek/deepseek-v4-flash": {
 "Name": "DeepSeek: DeepSeek V4 Flash 0423",
 "Context": 1048576,
-"Input price": "0.00000008848",
-"Output price": "0.00000017696"
+"Input price": "0.00000008694",
+"Output price": "0.00000017388"
 },
 "tencent/hy3-preview": {
 "Name": "Tencent: Hy3 preview",
@@ -13350,8 +13351,8 @@
 "z-ai/glm-5.1": {
 "Name": "Z.ai: GLM 5.1",
 "Context": 204800,
-"Input price": "0.0000014",
-"Output price": "0.0000044"
+"Input price": "0.0000009646",
+"Output price": "0.0000030316"
 },
 "google/gemma-4-26b-a4b-it": {
 "Name": "Google: Gemma 4 26B A4B ",
