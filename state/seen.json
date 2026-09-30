@@ -25935,7 +25935,7 @@
 "~deepseek/deepseek-pro-latest": {
 "Name": "DeepSeek: DeepSeek Pro Latest",
 "Context": 1048576,
-"Input price": "0.00000025",
+"Input price": "0.0000002",
 "Output price": "0.0000035"
 },
 "~deepseek/deepseek-flash-latest": {
