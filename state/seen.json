@@ -25935,14 +25935,14 @@
 "~deepseek/deepseek-pro-latest": {
 "Name": "DeepSeek: DeepSeek Pro Latest",
 "Context": 1048576,
-"Input price": "0.0000003",
+"Input price": "0.00000025",
 "Output price": "0.0000035"
 },
 "~deepseek/deepseek-flash-latest": {
 "Name": "DeepSeek: DeepSeek Flash Latest",
 "Context": 1048576,
-"Input price": "0.00000003",
-"Output price": "0.0000005"
+"Input price": "0.0000000249",
+"Output price": "0.00000044"
 },
 "inference-net/schematron-v2-turbo": {
 "Name": "Inference.net: Schematron V2 Turbo",
@@ -26170,7 +26170,7 @@
 "Name": "Z.ai: GLM Latest",
 "Context": 1048576,
 "Input price": "0.000000119",
-"Output price": "0.0000015"
+"Output price": "0.000004"
 },
 "tencent/hy-mt2-7b": {
 "Name": "Tencent: Hy-MT2-7B",
@@ -26296,13 +26296,13 @@
 "Name": "DeepSeek: DeepSeek V4 Flash Latest",
 "Context": 1048576,
 "Input price": "0.00000001",
-"Output price": "0.00000064"
+"Output price": "0.00000128"
 },
 "deepseek/deepseek-v4-flash-0731": {
 "Name": "DeepSeek: DeepSeek V4 Flash 0731",
 "Context": 1048576,
 "Input price": "0.00000001",
-"Output price": "0.00000064"
+"Output price": "0.00000128"
 },
 "thinkingmachines/inkling-small": {
 "Name": "Thinking Machines: Inkling Small",
