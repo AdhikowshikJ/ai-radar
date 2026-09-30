@@ -25941,8 +25941,8 @@
 "~deepseek/deepseek-flash-latest": {
 "Name": "DeepSeek: DeepSeek Flash Latest",
 "Context": 1048576,
-"Input price": "0.0000000249",
-"Output price": "0.00000044"
+"Input price": "0.00000002",
+"Output price": "0.0000006"
 },
 "inference-net/schematron-v2-turbo": {
 "Name": "Inference.net: Schematron V2 Turbo",
