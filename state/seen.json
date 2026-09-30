@@ -57,6 +57,7 @@
 "chg::deepseek/deepseek-v4.1-flash",
 "chg::google/gemma-4-26b-a4b-it",
 "chg::meta/muse-glimmer-30b",
+"chg::moonshotai/kimi-k3",
 "chg::qwen/qwen3-30b-a3b",
 "chg::qwen/qwen3.8-27b",
 "chg::tencent/hy3",
@@ -19313,7 +19314,8 @@
 "99aadd4a09e4b02f87fd104b5246dbf38faf3249",
 "acff23730db7e664551e9a21a6c4285ac943a02e",
 "b2f55a5020da0f7599dd1fe8b9deef2d51198fc4",
-"bc6ab9a44e78025c2e4ea6604fd4bb4e60752b4c"
+"bc6ab9a44e78025c2e4ea6604fd4bb4e60752b4c",
+"cab3a2b5bb41c3346f0691aeacd16861ccf06558"
 ],
 "azure": [
 "563331",
@@ -26421,8 +26423,8 @@
 "moonshotai/kimi-k3": {
 "Name": "MoonshotAI: Kimi K3",
 "Context": 1048576,
-"Input price": "0.000003",
-"Output price": "0.000015"
+"Input price": "0.00000028",
+"Output price": "0.00001"
 },
 "moonshotai/kimi-k3:batch": {
 "Name": "MoonshotAI: Kimi K3 (batch)",
@@ -26601,7 +26603,7 @@
 "z-ai/glm-5.2": {
 "Name": "Z.ai: GLM 5.2",
 "Context": 1048576,
-"Input price": "0.00000052",
+"Input price": "0.0000003249",
 "Output price": "0.00000399"
 },
 "openrouter/fusion": {
@@ -26787,8 +26789,8 @@
 "~moonshotai/kimi-latest": {
 "Name": "MoonshotAI: Kimi Latest",
 "Context": 1048576,
-"Input price": "0.0000001941",
-"Output price": "0.0000073625"
+"Input price": "0.00000028",
+"Output price": "0.00001"
 },
 "~google/gemini-flash-latest": {
 "Name": "Google: Gemini Flash Latest",
@@ -26931,8 +26933,8 @@
 "google/gemma-4-26b-a4b-it": {
 "Name": "Google: Gemma 4 26B A4B ",
 "Context": 262144,
-"Input price": "0.00000009",
-"Output price": "0.0000003"
+"Input price": "0.0000000765",
+"Output price": "0.000000255"
 },
 "google/gemma-4-26b-a4b-it:free": {
 "Name": "Google: Gemma 4 26B A4B  (free)",
@@ -30284,8 +30286,10 @@
 "blog.google/company-news/outreach-and-initiatives/public-policy/america-gov-google-public-sector",
 "blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-3-8-flash-developers",
 "blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-3-8-live-with-live-avatar",
+"blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-4-argon",
 "blog.google/innovation-and-ai/models-and-research/google-labs/six-new-tools-built-by-creatives",
 "blog.google/innovation-and-ai/models-and-research/google-research/google-project-suncatcher-facts",
+"blog.google/innovation-and-ai/models-and-research/google-research/google-science-ai-flu-forecasts",
 "blog.google/innovation-and-ai/products/gemini-app/new-connected-apps-gemini",
 "blog.google/innovation-and-ai/technology/ai/winner-future-vision-xprize",
 "blog.google/innovation-and-ai/technology/research/google-beam-expansion",
@@ -30333,6 +30337,7 @@
 "deepmind.google/blog/gemini-3-5-frontier-intelligence-with-action",
 "deepmind.google/blog/gemini-3-deep-think-advancing-science-research-and-engineering",
 "deepmind.google/blog/gemini-3-flash-frontier-intelligence-built-for-speed",
+"deepmind.google/blog/gemini-4-argon-our-next-era-of-frontier-intelligence",
 "deepmind.google/blog/gemini-for-science-ai-experiments-and-tools-for-a-new-era-of-discovery",
 "deepmind.google/blog/gemini-omni-1-1-flash-lets-you-build-with-more-control",
 "deepmind.google/blog/gemini-robotics-2-brings-whole-body-intelligence-to-robots",
@@ -32113,6 +32118,7 @@
 "gpt-5.6-sol-xhigh",
 "gpt-5.6-terra",
 "gpt-6-astra",
+"gpt-6-astra-max",
 "gpt-6-luna",
 "gpt-6-sol",
 "gpt-6.1-sol",
