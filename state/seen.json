@@ -25944,7 +25944,7 @@
 "Name": "DeepSeek: DeepSeek Flash Latest",
 "Context": 1048576,
 "Input price": "0.00000002",
-"Output price": "0.0000006"
+"Output price": "0.000000396"
 },
 "inference-net/schematron-v2-turbo": {
 "Name": "Inference.net: Schematron V2 Turbo",
@@ -26003,8 +26003,8 @@
 "deepseek/deepseek-v4.1-flash": {
 "Name": "DeepSeek: DeepSeek V4.1 Flash",
 "Context": 1048576,
-"Input price": "0.00000003",
-"Output price": "0.0000005"
+"Input price": "0.0000000198",
+"Output price": "0.000000396"
 },
 "deepseek/deepseek-v4.1-flash:batch": {
 "Name": "DeepSeek: DeepSeek V4.1 Flash (batch)",
@@ -26124,7 +26124,7 @@
 "Name": "Z.ai: GLM Flash Latest",
 "Context": 1048576,
 "Input price": "0.00000002",
-"Output price": "0.0000003"
+"Output price": "0.0000002475"
 },
 "qwen/qwen3.8-flash": {
 "Name": "Qwen: Qwen3.8 Flash",
@@ -26298,7 +26298,7 @@
 "Name": "DeepSeek: DeepSeek V4 Flash Latest",
 "Context": 1048576,
 "Input price": "0.00000001",
-"Output price": "0.00000128"
+"Output price": "0.00000013068"
 },
 "deepseek/deepseek-v4-flash-0731": {
 "Name": "DeepSeek: DeepSeek V4 Flash 0731",
