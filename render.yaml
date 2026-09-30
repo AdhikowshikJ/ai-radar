@@ -7,6 +7,9 @@ services:
     buildCommand: "true"
     startCommand: python3 -u radar.py --serve
     healthCheckPath: /
+    buildFilter:              # don't redeploy for memory saves (state/ changes)
+      ignoredPaths:
+        - state/**
     envVars:
       - key: RADAR_STATE_REPO
         value: AdhikowshikJ/ai-radar

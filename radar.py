@@ -1459,6 +1459,9 @@ def _process(name, items, state, args):
 # bot keeps its memory in the GitHub repo instead (gzipped, so it stays small) and saves it
 # every few minutes and on shutdown.
 STATE_REPO = os.environ.get("RADAR_STATE_REPO", "AdhikowshikJ/ai-radar")
+# Memory lives on its own branch: hosts like Render redeploy on every commit to main, so saving
+# there would restart the bot after every save.
+STATE_BRANCH = os.environ.get("RADAR_STATE_BRANCH", "radar-state")
 STATE_REMOTE_PATH = "state/remote-seen.json.gz"
 STATE_TOKEN = os.environ.get("RADAR_STATE_TOKEN")
 REMOTE_SAVE_SECONDS = int(os.environ.get("RADAR_SAVE_SECONDS", "300"))
@@ -1467,7 +1470,7 @@ _remote = {"sha": None, "hash": None, "saved_at": 0}
 
 def _gh(method, path, body=None):
     req = urllib.request.Request(
-        f"https://api.github.com/repos/{STATE_REPO}/contents/{path}", method=method,
+        f"https://api.github.com/repos/{STATE_REPO}/{path}", method=method,
         data=json.dumps(body).encode() if body is not None else None,
         headers={"Authorization": f"Bearer {STATE_TOKEN}", "Accept": "application/vnd.github+json",
                  "User-Agent": UA, "X-GitHub-Api-Version": "2022-11-28"})
@@ -1475,19 +1478,40 @@ def _gh(method, path, body=None):
         return json.loads(r.read() or b"{}")
 
 
-def load_remote_state():
-    import base64
-    import gzip
+def _state_digest(state):
+    import hashlib
+    data = json.dumps(state, separators=(",", ":"), sort_keys=True).encode()
+    return data, hashlib.sha256(data).hexdigest()
+
+
+def _ensure_state_branch():
     try:
-        meta = _gh("GET", STATE_REMOTE_PATH)
-        _remote["sha"] = meta["sha"]
-        state = json.loads(gzip.decompress(base64.b64decode(meta["content"])))
-        print(f"loaded remote state ({len(state)} keys)")
-        return state
+        _gh("GET", f"git/ref/heads/{STATE_BRANCH}")
     except urllib.error.HTTPError as e:
         if e.code != 404:
             raise
-    # first time: start from the state GitHub Actions left in the repo
+        main_sha = _gh("GET", "git/ref/heads/main")["object"]["sha"]
+        _gh("POST", "git/refs", {"ref": f"refs/heads/{STATE_BRANCH}", "sha": main_sha})
+        print(f"created branch {STATE_BRANCH} for the bot's memory")
+
+
+def load_remote_state():
+    import base64
+    import gzip
+    _ensure_state_branch()
+    for ref in (STATE_BRANCH, "main"):  # main = where an older version saved it
+        try:
+            meta = _gh("GET", f"contents/{STATE_REMOTE_PATH}?ref={ref}")
+        except urllib.error.HTTPError as e:
+            if e.code != 404:
+                raise
+            continue
+        state = json.loads(gzip.decompress(base64.b64decode(meta["content"])))
+        if ref == STATE_BRANCH:
+            _remote["sha"] = meta["sha"]
+            _remote["hash"] = _state_digest(state)[1]  # unchanged memory is never re-saved
+        print(f"loaded remote state from {ref} ({len(state)} keys)")
+        return state
     raw = http_get(f"https://raw.githubusercontent.com/{STATE_REPO}/main/state/seen.json", timeout=90)
     print("no remote state yet, starting from state/seen.json")
     return json.loads(raw)
@@ -1496,17 +1520,16 @@ def load_remote_state():
 def save_remote_state(state, force=False):
     import base64
     import gzip
-    import hashlib
     with STATE_LOCK:
-        data = json.dumps(state, separators=(",", ":"), sort_keys=True).encode()
-    digest = hashlib.sha256(data).hexdigest()
+        data, digest = _state_digest(state)
     if digest == _remote["hash"] or (not force and time.time() - _remote["saved_at"] < REMOTE_SAVE_SECONDS):
         return
-    body = {"message": "radar: save state", "content": base64.b64encode(gzip.compress(data, 9)).decode()}
+    body = {"message": "radar: save state", "branch": STATE_BRANCH,
+            "content": base64.b64encode(gzip.compress(data, 9, mtime=0)).decode()}
     if _remote["sha"]:
         body["sha"] = _remote["sha"]
     try:
-        _remote["sha"] = _gh("PUT", STATE_REMOTE_PATH, body)["content"]["sha"]
+        _remote["sha"] = _gh("PUT", f"contents/{STATE_REMOTE_PATH}", body)["content"]["sha"]
         _remote["hash"], _remote["saved_at"] = digest, time.time()
         print("saved remote state")
     except Exception as e:
