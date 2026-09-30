@@ -528,8 +528,11 @@ def fetch_huggingface():
 def fetch_newrepos():
     items, good = [], 0
     headers = {"Accept": "application/vnd.github+json"}
-    if os.environ.get("GITHUB_TOKEN"):
-        headers["Authorization"] = f"Bearer {os.environ['GITHUB_TOKEN']}"
+    # unauthenticated GitHub API = 60 requests/hour per IP (shared on hosts like Render);
+    # any token = 5,000/hour. Public org repo lists need no special permission.
+    token = os.environ.get("GITHUB_TOKEN") or os.environ.get("RADAR_STATE_TOKEN")
+    if token:
+        headers["Authorization"] = f"Bearer {token}"
     for org in GITHUB_ORGS:
         try:
             repos = json.loads(http_get(
