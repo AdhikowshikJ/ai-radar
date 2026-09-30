@@ -19290,6 +19290,7 @@
 "6cea47503efae2004c7fe196819b2a94f5b97d47",
 "6fd1598d6f0a60355bc3f5ad482ace869bd145c7",
 "76817841d340406a63408aaf904002a4f5531889",
+"99aadd4a09e4b02f87fd104b5246dbf38faf3249",
 "acff23730db7e664551e9a21a6c4285ac943a02e",
 "b2f55a5020da0f7599dd1fe8b9deef2d51198fc4",
 "bc6ab9a44e78025c2e4ea6604fd4bb4e60752b4c"
@@ -26238,8 +26239,8 @@
 "deepseek/deepseek-v4-pro-0813": {
 "Name": "DeepSeek: DeepSeek V4 Pro 0813",
 "Context": 1048576,
-"Input price": "0.00000066",
-"Output price": "0.00000198"
+"Input price": "0.00000132",
+"Output price": "0.00000396"
 },
 "x-ai/grok-4.6": {
 "Name": "SpaceXAI: Grok 4.6",
