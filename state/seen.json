@@ -26294,14 +26294,14 @@
 "~deepseek/deepseek-v4-flash-latest": {
 "Name": "DeepSeek: DeepSeek V4 Flash Latest",
 "Context": 1048576,
-"Input price": "0.00000001",
-"Output price": "0.00000064"
+"Input price": "0.000000012",
+"Output price": "0.00000125"
 },
 "deepseek/deepseek-v4-flash-0731": {
 "Name": "DeepSeek: DeepSeek V4 Flash 0731",
 "Context": 1048576,
-"Input price": "0.00000001",
-"Output price": "0.00000064"
+"Input price": "0.000000018",
+"Output price": "0.00000032"
 },
 "thinkingmachines/inkling-small": {
 "Name": "Thinking Machines: Inkling Small",
