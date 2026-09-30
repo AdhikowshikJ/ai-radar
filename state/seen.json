@@ -26167,7 +26167,7 @@
 "Name": "Z.ai: GLM Latest",
 "Context": 1048576,
 "Input price": "0.000000119",
-"Output price": "0.000004"
+"Output price": "0.0000015"
 },
 "tencent/hy-mt2-7b": {
 "Name": "Tencent: Hy-MT2-7B",
