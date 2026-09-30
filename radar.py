@@ -151,6 +151,9 @@ ROLE_ENV = {
     "changelogs": "DISCORD_ROLE_TOOLS",
     "benchmarks": "DISCORD_ROLE_BENCHMARKS",
     "status": "DISCORD_ROLE_STATUS",
+    "designarena_registry": "DISCORD_ROLE_DESIGNARENA",
+    "sdk_models": "DISCORD_ROLE_API_MODELS",
+    "litellm": "DISCORD_ROLE_API_MODELS",
     "arcprize": "DISCORD_ROLE_BENCHMARKS",
     "artificialanalysis": "DISCORD_ROLE_BENCHMARKS",
     "huggingface": "DISCORD_ROLE_HUGGINGFACE",
@@ -177,6 +180,9 @@ WEBHOOK_ENV = {
     "changelogs": "DISCORD_WEBHOOK_TOOLS",
     "benchmarks": "DISCORD_WEBHOOK_BENCHMARKS",
     "status": ("DISCORD_WEBHOOK_STATUS", "DISCORD_WEBHOOK_SUBDOMAINS"),
+    "designarena_registry": "DISCORD_WEBHOOK_ARENAS",
+    "sdk_models": "DISCORD_WEBHOOK_API_MODELS",
+    "litellm": "DISCORD_WEBHOOK_API_MODELS",
     "arcprize": "DISCORD_WEBHOOK_BENCHMARKS",
     "artificialanalysis": "DISCORD_WEBHOOK_BENCHMARKS",
     "huggingface": "DISCORD_WEBHOOK_HUGGINGFACE",
@@ -717,6 +723,79 @@ def fetch_artificialanalysis():
     return list(items.values()), len(items) > 100
 
 
+def fetch_designarena_registry():
+    """Every model Design Arena has added to battles (appears here before the leaderboard)."""
+    reg = json.loads(http_get("https://www.designarena.ai/api/registry", timeout=40))
+    providers = reg.get("providers", {})
+    items = []
+    for k, v in reg.get("models", {}).items():
+        if v.get("active") is False:
+            continue  # inactive = taken out of battles; reported as removed
+        p = providers.get(v.get("provider") or "", {})
+        org = p.get("displayName") or v.get("provider") or "?"
+        if org == "Anonymous" or "mystery" in p.get("logoName", ""):
+            org = "?"
+        name = v.get("displayName") or k
+        same = re.sub(r"[^a-z0-9]", "", name.lower()) == re.sub(r"[^a-z0-9]", "", k.lower())
+        arenas = sorted({a for lst in (v.get("arenas") or {}).values() for a in (lst or [])})
+        fields = [("Organization", org)]
+        if v.get("inputModalities"):
+            fields.append(("Input", ", ".join(v["inputModalities"])))
+        if arenas:
+            fields.append(("Arenas", ", ".join(arenas[:8]) + (" …" if len(arenas) > 8 else "")))
+        items.append({
+            "key": k, "title": name if same else f"{name} (id: {k})",
+            "url": "https://www.designarena.ai/leaderboard", "desc": "", "fields": fields,
+            "color": 0x57F287, "label": "New Design Arena model", "icon": "designarena.ai",
+        })
+    return items, len(items) > 100
+
+
+# SDK files that list model IDs (new IDs often land here before launch)
+SDK_MODEL_FILES = {
+    "OpenAI SDK": "https://raw.githubusercontent.com/openai/openai-python/main/src/openai/types/shared/chat_model.py",
+    "Anthropic SDK": "https://raw.githubusercontent.com/anthropics/anthropic-sdk-python/main/src/anthropic/types/model_param.py",
+}
+
+
+def fetch_sdk_models():
+    items, good = [], 0
+    for group, url in SDK_MODEL_FILES.items():
+        try:
+            text = http_get(url)
+        except Exception as e:
+            print(f"  ! {group}: {e}", file=sys.stderr)
+            continue
+        ids = [x for x in re.findall(r'"([a-z0-9][a-z0-9.\-:/]{2,})"', text) if not x.startswith("__")]
+        if len(ids) < 5:
+            continue
+        good += 1
+        for mid in dict.fromkeys(ids):
+            items.append({
+                "key": f"{group}::{mid}", "group": group, "title": f"`{mid}`",
+                "url": url.replace("raw.githubusercontent.com", "github.com").replace("/main/", "/blob/main/"),
+                "desc": "", "fields": [], "color": 0xEB459E, "label": f"New {group} model ID",
+                "icon": "openai.com" if "OpenAI" in group else "anthropic.com",
+            })
+    return items, good > 0
+
+
+def fetch_litellm():
+    d = json.loads(http_get(
+        "https://raw.githubusercontent.com/BerriAI/litellm/main/model_prices_and_context_window.json", timeout=60))
+    items = []
+    for mid, v in d.items():
+        if mid == "sample_spec" or not isinstance(v, dict):
+            continue
+        prov = v.get("litellm_provider") or "?"
+        items.append({
+            "key": mid, "group": "LiteLLM", "title": f"`{mid}` ({prov})",
+            "url": "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+            "desc": "", "fields": [], "color": 0xEB459E, "label": "New LiteLLM model ID", "icon": "litellm.ai",
+        })
+    return items, len(items) > 500
+
+
 def fetch_status():
     items, good = [], 0
     for name, url in STATUS_PAGES.items():
@@ -739,7 +818,6 @@ def fetch_status():
 SOURCES = {
     "openrouter": fetch_openrouter,
     "arenas": fetch_arenas,
-    "designarena": fetch_designarena,
     "sitemaps": fetch_sitemaps,
     "releases": fetch_releases,
     "fastpages": fetch_fastpages,
@@ -752,8 +830,10 @@ SOURCES = {
     "gcp": fetch_gcp,
     **{k: make_feed_fetcher(k) for k in FEEDS},
     "changelogs": fetch_changelogs,
-    "benchmarks": fetch_benchmarks,
     "status": fetch_status,
+    "designarena_registry": fetch_designarena_registry,
+    "sdk_models": fetch_sdk_models,
+    "litellm": fetch_litellm,
     "arcprize": fetch_arcprize,
     "artificialanalysis": fetch_artificialanalysis,
 }
@@ -872,79 +952,229 @@ def lb_designarena():
     return sorted(rows.values(), key=lambda r: -r["score"])
 
 
-# id -> (title, subtitle, link, fetch, channel source, color, fmt for score)
+def _board(bid, title, subtitle, url, rows, channel, color, fmt, icon=None):
+    return {"id": bid, "title": title, "subtitle": subtitle, "url": url, "rows": rows,
+            "channel": channel, "color": color, "fmt": fmt, "icon": icon}
+
+
+def boards_epoch():
+    """One top-20 board per Epoch AI benchmark (FrontierMath, GPQA, SWE-bench Verified, ...)."""
+    import csv
+    import io
+    import zipfile
+    req = urllib.request.Request("https://epoch.ai/data/benchmark_data.zip", headers={"User-Agent": UA})
+    with urllib.request.urlopen(req, timeout=120) as r:
+        z = zipfile.ZipFile(io.BytesIO(r.read()))
+    nice = {"Frontiermath": "FrontierMath", "Gpqa": "GPQA", "Swe": "SWE", "Hle": "HLE", "Aime": "AIME",
+            "Arc Agi": "ARC-AGI", "Otis": "OTIS", "Critpt": "CritPt", "Ale": "ALE", "Apex": "APEX",
+            "Webdev": "WebDev", "Simpleqa": "SimpleQA", "Scicode": "SciCode", "Gdp": "GDP", "Pdf": "PDF"}
+    skip_cols = {"Model version", "Release date", "Organization", "Country", "Provider", "Company", "id",
+                 "Training compute (FLOP)", "Training compute notes", "Log viewer", "Logs", "Started at"}
+    boards = []
+    for fname in z.namelist():
+        if not fname.endswith(".csv"):
+            continue
+        rows_raw = list(csv.DictReader(io.TextIOWrapper(z.open(fname), "utf-8", errors="replace")))
+        if not rows_raw:
+            continue
+        cols = [c for c in rows_raw[0] if c not in skip_cols]
+        # score = first column that is numeric for most rows (Epoch's columns differ per benchmark)
+        def numeric(c):
+            ok = 0
+            for r in rows_raw:
+                try:
+                    float(r.get(c) or "x"); ok += 1
+                except ValueError:
+                    pass
+            return ok >= 0.6 * len(rows_raw)
+        prefer = ["Best score (across scorers)", "mean_score"]
+        score_col = next((c for c in prefer if c in cols and numeric(c)), None) or \
+            next((c for c in cols if numeric(c) and not re.search(r"err|ci|cost|token|std", c, re.I)), None)
+        if not score_col:
+            continue
+        err_col = next((c for c in cols if re.search(r"stderr|standard error|95% ci \(±\)", c, re.I)), None)
+        pct = all(0 <= float(r[score_col]) <= 1 for r in rows_raw if (r.get(score_col) or "").replace(".", "", 1).isdigit())
+        best = {}
+        for r in rows_raw:
+            try:
+                sc = float(r.get(score_col) or "x")
+            except ValueError:
+                continue
+            model = r.get("Model version") or ""
+            if not model:
+                continue
+            name = re.sub(r"_([a-z0-9\-]+)$", r" (\1)", model)
+            err = r.get(err_col) if err_col else None
+            if model not in best or sc > best[model]["score"]:
+                best[model] = {"id": model, "name": name, "score": sc * (100 if pct else 1),
+                               "err": float(err) * (100 if pct else 1) if err and err.replace(".", "", 1).isdigit() else None}
+        rows = sorted(best.values(), key=lambda x: -x["score"])
+        title = fname[:-4].replace("_external", "").replace("_", " ").title()
+        for k, v in nice.items():
+            title = title.replace(k, v)
+        title = re.sub(r" V(\d)$", r" (v\1)", title)
+        boards.append(_board(f"lb_epoch::{fname}", title, f"Epoch AI benchmark data ({score_col}).",
+                             "https://epoch.ai/benchmarks", rows, "benchmarks", 0xF1C40F,
+                             "{:.1f}%" if pct else "{:.1f}", icon="epoch.ai"))
+    return boards
+
+
+VALS_BENCHMARKS = ["vals_index", "terminal-bench-4", "vibe-code", "programbench", "srebench", "legal_bench",
+                   "tax_agent_bench", "proof_bench", "ioi", "web_search", "cua_bench", "skillsbench",
+                   "time_horizon_index", "rsi_index", "cyber", "code-migration", "medcode", "sage"]
+
+
+def _astro(v):
+    """Decode Astro's serialized props ([type, value] pairs)."""
+    if isinstance(v, list) and len(v) == 2 and isinstance(v[0], int):
+        t, x = v
+        if t == 0:
+            return {k: _astro(y) for k, y in x.items()} if isinstance(x, dict) else x
+        if t == 1:
+            return [_astro(y) for y in x]
+        return x
+    if isinstance(v, dict):
+        return {k: _astro(y) for k, y in v.items()}
+    return v
+
+
+def _pretty_model(mid):
+    name = mid.split("/", 1)[-1].replace("-", " ").replace("_", " ")
+    name = re.sub(r"(\d) (\d)", r"\1.\2", name).title()
+    for a, b in {"Gpt ": "GPT-", "Glm ": "GLM-", "Mimo": "MiMo", "Deepseek": "DeepSeek"}.items():
+        name = name.replace(a, b)
+    return name
+
+
+def boards_vals():
+    boards = []
+    for slug in VALS_BENCHMARKS:
+        url = f"https://www.vals.ai/benchmarks/{slug}"
+        try:
+            raw = http_get(url, timeout=60)
+        except Exception as e:
+            print(f"  ! vals {slug}: {e}", file=sys.stderr)
+            continue
+        page = html.unescape(raw)
+        title = re.search(r"<title>(.*?) Leaderboard", page)
+        title = title.group(1).strip() if title else slug
+        rows = []
+        table = re.search(r'<table id="[^"]*accessibility-table".*?</table>', page, re.S)
+        if table:  # the Vals Index page has a plain table
+            for _r, mslug, name, acc in re.findall(
+                    r'<tr>\s*<td>(\d+)</td>\s*<th scope="row">\s*<a href="/models/([^"]+)">([^<]+)</a>\s*</th>\s*'
+                    r'<td>([\d.]+)%</td>', table.group(0)):
+                rows.append({"id": mslug, "name": name.strip(), "score": float(acc)})
+            desc = "Vals AI composite index."
+        else:     # other pages: overall task inside the benchmark component's props
+            desc = "Vals AI benchmark."
+            for m in re.finditer(r"<astro-island ([^>]*)>", raw):
+                attrs = html.unescape(m.group(1))
+                if "BenchmarkViewComponent" not in attrs:
+                    continue
+                props = {k: _astro(v) for k, v in json.loads(
+                    html.unescape(re.search(r'props="([^"]*)"', m.group(1)).group(1))).items()}
+                view = props.get("benchmarkView") or {}
+                overall = ((view.get("default") or view).get("tasks") or {}).get("overall") or {}
+                for mid, r in overall.items():
+                    acc = (r or {}).get("accuracy")
+                    if isinstance(acc, (int, float)) and acc > 0:
+                        err = r.get("stderr")
+                        rows.append({"id": mid, "name": _pretty_model(mid), "score": float(acc),
+                                     "err": float(err) if isinstance(err, (int, float)) and err > 0 else None})
+                desc = props.get("shortDescription") or desc
+                break
+        rows.sort(key=lambda r: -r["score"])
+        boards.append(_board(f"lb_vals::{slug}", title, desc, url, rows, "benchmarks", 0x1F7A4D,
+                             "{:.2f}%", icon="vals.ai"))
+    return boards
+
+
+def _single(bid, title, subtitle, url, fetch, channel, color, fmt):
+    return lambda: [_board(bid, title, subtitle, url, fetch(), channel, color, fmt)]
+
+
+# board provider id -> function returning a list of boards
 LEADERBOARDS = {
-    "lb_aa_index": ("Artificial Analysis Intelligence",
-                    "A comprehensive suite of evaluations across reasoning, knowledge, maths and programming.",
-                    "https://artificialanalysis.ai/leaderboards/models", lb_artificialanalysis,
-                    "benchmarks", 0xE67E22, "{:.1f}"),
-    "lb_arena_text": ("Text Arena leaderboard", "Human-preference Elo from arena.ai (overall, text).",
-                      "https://arena.ai/leaderboard/text", lb_arena("text"), "arenas", 0x57F287, "{:.0f}"),
-    "lb_arena_vision": ("Vision Arena leaderboard", "Human-preference Elo from arena.ai (overall, vision).",
-                        "https://arena.ai/leaderboard/vision", lb_arena("vision"), "arenas", 0x57F287, "{:.0f}"),
-    "lb_designarena_main": ("Design Arena leaderboard", "Elo from designarena.ai (all categories).",
-                       "https://www.designarena.ai/leaderboard", lb_designarena, "arenas", 0x57F287, "{:.0f}"),
+    "lb_aa_index": _single("lb_aa_index", "Artificial Analysis Intelligence",
+                           "A comprehensive suite of evaluations across reasoning, knowledge, maths and programming.",
+                           "https://artificialanalysis.ai/leaderboards/models", lb_artificialanalysis,
+                           "benchmarks", 0xE67E22, "{:.1f}"),
+    "lb_arena_text": _single("lb_arena_text", "Text Arena leaderboard", "Human-preference Elo from arena.ai (overall, text).",
+                             "https://arena.ai/leaderboard/text", lb_arena("text"), "arenas", 0x57F287, "{:.0f}"),
+    "lb_arena_vision": _single("lb_arena_vision", "Vision Arena leaderboard", "Human-preference Elo from arena.ai (overall, vision).",
+                               "https://arena.ai/leaderboard/vision", lb_arena("vision"), "arenas", 0x57F287, "{:.0f}"),
+    "lb_designarena_main": _single("lb_designarena_main", "Design Arena leaderboard", "Elo from designarena.ai (all categories).",
+                                   "https://www.designarena.ai/leaderboard", lb_designarena, "arenas", 0x57F287, "{:.0f}"),
+    "lb_epoch": boards_epoch,
+    "lb_vals": boards_vals,
 }
-LB_TOP, LB_MEMORY = 20, 50  # show top 20; remember top 50 so we can say where risers came from
+LB_TOP, LB_MEMORY, LB_MIN_ROWS = 20, 50, 5  # show top 20; remember top 50 for arrows; skip tiny boards
 MEDALS = {1: "🥇", 2: "🥈", 3: "🥉"}
 
 
-def render_leaderboard(lb_id, rows, prev):
-    title, subtitle, link, _f, _src, color, fmt = LEADERBOARDS[lb_id]
+def render_board(b, prev):
     lines = []
-    for i, r in enumerate(rows[:LB_TOP], 1):
-        move = ""
+    for i, r in enumerate(b["rows"][:LB_TOP], 1):
         if r["id"] not in prev:
             move = " 🆕 **NEW**"
         else:
             p = prev.index(r["id"]) + 1
             move = f" 🔼{p - i}" if p > i else (f" 🔽{i - p}" if p < i else "")
-        rank = MEDALS.get(i, f"{i}.")
-        lines.append(f"{rank} {r['name']} [`{fmt.format(r['score'])}`]{move}")
+        score = b["fmt"].format(r["score"])
+        if r.get("err") is not None:
+            score += f" ±{b['fmt'].format(r['err'])}"
+        lines.append(f"{MEDALS.get(i, f'{i}.')} {r['name']} [`{score}`]{move}")
     now = int(time.time())
     return {
         "embeds": [{
-            "title": title, "url": link, "color": color,
-            "description": (f"{subtitle}\n**Updated:** <t:{now}:R>\n\n" + "\n".join(lines))[:4000],
-            "thumbnail": {"url": icon_url({"url": link})},
+            "title": b["title"], "url": b["url"], "color": b["color"],
+            "description": (f"{b['subtitle']}\n**Updated:** <t:{now}:R>\n\n" + "\n".join(lines))[:4000],
+            "thumbnail": {"url": icon_url({"url": b["url"], "icon": b.get("icon")})},
             "footer": {"text": BRAND}, "timestamp": datetime.now(timezone.utc).isoformat(),
         }],
         "allowed_mentions": {"parse": []},
     }
 
 
-def run_leaderboard(lb_id, state, dry_run):
-    _t, _s, _l, fetch, src, _c, _fmt = LEADERBOARDS[lb_id]
-    try:
-        rows = fetch()
-    except Exception as e:
-        print(f"[{lb_id}] failed: {e}", file=sys.stderr)
+def run_board(b, state, dry_run):
+    bid, rows = b["id"], b["rows"]
+    if len(rows) < LB_MIN_ROWS:
         return
-    if len(rows) < LB_TOP:
-        print(f"[{lb_id}] only {len(rows)} rows, skipping")
-        return
-    key = f"{lb_id}#ranking"
+    key = f"{bid}#ranking"
+    top = min(LB_TOP, len(rows))
     ids = [r["id"] for r in rows[:LB_MEMORY]]
     prev = state.get(key)
     if prev is None:
-        print(f"[{lb_id}] first run, remembering ranking")
+        print(f"[{bid}] first run, remembering ranking")
         if not dry_run:
             state[key] = ids
         return
-    if ids[:LB_TOP] == prev[:LB_TOP]:
-        print(f"[{lb_id}] top {LB_TOP} unchanged")
+    if ids[:top] == prev[:top]:
         return
-    print(f"[{lb_id}] top {LB_TOP} changed")
-    payload = render_leaderboard(lb_id, rows, prev)
+    print(f"[{bid}] top {top} changed")
+    payload = render_board(b, prev)
     if dry_run:
-        print(payload["embeds"][0]["description"])
+        print(payload["embeds"][0]["description"][:600])
         return
-    hook = webhook_for(src)
+    hook = webhook_for(b["channel"])
     if not hook:
-        print(f"[{lb_id}] no webhook set, will post once it's added")
+        print(f"[{bid}] no webhook set, will post once it's added")
         return
     if post_payload(hook, payload):
         state[key] = ids
+    time.sleep(1)
+
+
+def run_leaderboard(lb_id, state, dry_run):
+    try:
+        boards = LEADERBOARDS[lb_id]()
+    except Exception as e:
+        print(f"[{lb_id}] failed: {e}", file=sys.stderr)
+        return
+    print(f"[{lb_id}] {len(boards)} board(s)")
+    for b in boards:
+        run_board(b, state, dry_run)
 
 
 # ---------------------------------------------------------------- change tracking
@@ -1011,9 +1241,43 @@ def track_changes(name, items, old_snap):
     return changes, cur
 
 
+# ---------------------------------------------------------------- removals
+# For these sources, items that disappear are announced (one message per group), like
+# "Removed Arena.ai models". A removed item that comes back is announced as new again.
+REMOVAL_SOURCES = {"arenas": "Arena.ai", "designarena_registry": "Design Arena"}
+MAX_REMOVED_SHARE = 0.2  # more than 20% of a group vanishing at once = probably a broken fetch
+
+
+def find_removals(name, items, seen):
+    current = {i["key"] for i in items}
+    loaded = {i.get("group") for i in items}
+    by_group = {}
+    for k in seen:
+        g = k.split("::", 1)[0] if "::" in k else None
+        if g not in loaded or k in current:
+            continue
+        by_group.setdefault(g, []).append(k)
+    out = []
+    for g, keys in by_group.items():
+        in_group = sum(1 for k in seen if (k.split("::", 1)[0] if "::" in k else None) == g)
+        if len(keys) > max(5, MAX_REMOVED_SHARE * in_group):
+            print(f"[{name}] {len(keys)} removals in {g} looks like a broken fetch, ignoring")
+            continue
+        where = REMOVAL_SOURCES[name] + (f" {ARENAS.get(g, g)}" if g else "")
+        out.append({
+            "key": f"removed::{g}", "removes": keys, "title": f"Removed {where} models",
+            "url": f"https://arena.ai/leaderboard/{g}" if name == "arenas" else "https://www.designarena.ai/leaderboard",
+            "desc": "\n".join(f"🗑️ {k.split('::', 1)[-1]}" for k in keys[:40]), "fields": [],
+            "color": 0xED4245, "label": f"Removed {REMOVAL_SOURCES[name]} models",
+            "icon": "arena.ai" if name == "arenas" else "designarena.ai",
+        })
+    return out
+
+
 # ---------------------------------------------------------------- batching
 # For these sources, all new items from the same site/domain in one run go into ONE message.
-BATCH_SOURCES = {"sitemaps": "pages", "fastpages": "pages", "subdomains": "subdomains"}
+BATCH_SOURCES = {"sitemaps": "pages", "fastpages": "pages", "subdomains": "subdomains",
+                 "sdk_models": "model IDs", "litellm": "model IDs"}
 
 
 def batch_items(name, items):
@@ -1023,6 +1287,7 @@ def batch_items(name, items):
     batches = []
     for group, members in groups.items():
         noun = BATCH_SOURCES[name]
+        label_noun = noun[:-1] if len(members) == 1 and noun.endswith("s") else noun
         lines, used = [], 0
         for m in members:
             line = f"• {m['url'] if noun == 'pages' else m['title']}"
@@ -1034,7 +1299,7 @@ def batch_items(name, items):
         first = members[0]
         batches.append({
             "key": f"batch::{group}", "members": [m["key"] for m in members],
-            "title": f"New {group} {noun}" if len(members) > 1 else f"New {group} {noun.rstrip('s')}",
+            "title": f"New {group} {label_noun}",
             "url": first["url"], "icon": first.get("icon"), "desc": "\n".join(lines),
             "fields": [("Count", str(len(members)))] if len(members) > 1 else [],
             "color": first["color"], "label": first["label"],
@@ -1050,11 +1315,12 @@ FAST_MIN, MEDIUM_MIN, SLOW_MIN = 5, 15, 30
 SCHEDULE_MIN = {
     # every 5 min: light and where being first matters
     "openrouter": FAST_MIN, "releases": FAST_MIN, "cursor": FAST_MIN, "fastpages": FAST_MIN,
+    "sdk_models": FAST_MIN, "designarena_registry": FAST_MIN,
     "bedrock": FAST_MIN, "azure": FAST_MIN, "gcp": FAST_MIN,
     **{k: FAST_MIN for k in SOURCES if k.startswith("api_")},
     # every 15 min: many requests per run
     "sitemaps": MEDIUM_MIN, "huggingface": MEDIUM_MIN, "newrepos": MEDIUM_MIN,
-    "changelogs": MEDIUM_MIN, "designarena": MEDIUM_MIN,
+    "changelogs": MEDIUM_MIN, "designarena": MEDIUM_MIN, "litellm": MEDIUM_MIN,
     # every 30 min: heavy downloads or slow/fragile services
     "arenas": SLOW_MIN, "benchmarks": SLOW_MIN, "subdomains": SLOW_MIN, "status": SLOW_MIN,
     "arcprize": SLOW_MIN, "artificialanalysis": SLOW_MIN,
@@ -1070,16 +1336,153 @@ def due_sources(now=None):
 # ---------------------------------------------------------------- main
 
 
+def run_source(name, state, args):
+    if name in LEADERBOARDS:
+        run_leaderboard(name, state, args.dry_run)
+        return
+    print(f"[{name}] fetching...")
+    try:
+        items, ok = SOURCES[name]()
+    except Exception as e:
+        print(f"[{name}] failed: {e}", file=sys.stderr)
+        return
+    if not ok:
+        print(f"[{name}] skipped (no data or no API key), keeping old state")
+        return
+
+    seen = set(state.get(name, []))
+    first_run = name not in state
+    new = [i for i in items if i["key"] not in seen]
+    # the sitemap check and the fast RSS check share pages: never post one twice
+    if name in ("sitemaps", "fastpages"):
+        other = state.get("fastpages" if name == "sitemaps" else "sitemaps", [])
+        already = {norm_url(k) if name == "fastpages" else k for k in other}
+        new = [i for i in new if (i["key"] if name == "fastpages" else norm_url(i["key"])) not in already]
+    # Drop duplicate keys inside a single fetch
+    new = list({i["key"]: i for i in new}.values())
+
+    # A group (arena, org, domain, feed...) seen for the first time is baselined silently,
+    # so a flaky group that finally loads, or an org you add later, doesn't flood the channel.
+    gkey = f"{name}#groups"
+    present = {i["group"] for i in items if i.get("group")}
+    if gkey not in state and not first_run:
+        # upgrade from older state: a group is known only if we've already seen some of its items
+        state[gkey] = sorted({i["group"] for i in items if i.get("group") and i["key"] in seen})
+    known_groups = set(state.get(gkey, []))
+    fresh = {i["key"] for i in new if i.get("group") and i["group"] not in known_groups}
+    new = [i for i in new if i["key"] not in fresh]
+    print(f"[{name}] {len(items)} items, {len(new)} new" + (" (first run)" if first_run else ""))
+
+    announce = new if (not first_run or args.announce_first) else []
+    removals = find_removals(name, items, seen) if (name in REMOVAL_SOURCES and not first_run) else []
+    if removals:
+        print(f"[{name}] {sum(len(r['removes']) for r in removals)} removed")
+    skey = f"{name}#snap"
+    changes, cur_snap = [], None
+    if any("snap" in i for i in items):
+        if skey in state:
+            changes, cur_snap = track_changes(name, items, state[skey])
+            announce = announce + changes
+        else:
+            cur_snap = {i["key"]: i["snap"] for i in items if "snap" in i}  # first time: baseline
+        if changes:
+            print(f"[{name}] {len(changes)} changed/removed")
+    hook = webhook_for(name)
+    posted, gone = set(), set()
+    if (announce or removals) and args.dry_run:
+        for i in (announce + removals)[:MAX_POSTS_PER_SOURCE]:
+            print(f"   would post: {i['label']}: {i['title']} {i['url']}")
+        if len(announce) > MAX_POSTS_PER_SOURCE:
+            print(f"   ...and {len(announce) - MAX_POSTS_PER_SOURCE} more")
+    elif (announce or removals) and not hook:
+        print(f"[{name}] no webhook set ({WEBHOOK_ENV[name]}), will post once it's added")
+        return
+    elif announce or removals:
+        if name in BATCH_SOURCES:
+            announce = batch_items(name, announce)
+        for i in announce[:MAX_POSTS_PER_SOURCE]:
+            if post_embed(hook, i, os.environ.get(ROLE_ENV[name])):
+                posted.update(i.get("members", [i["key"]]))
+            time.sleep(1)
+        skipped = announce[MAX_POSTS_PER_SOURCE:]
+        if skipped:  # too many at once: mention it, then treat them as seen
+            post_embed(hook, {
+                "title": f"{len(skipped)} more new items not shown", "url": skipped[0]["url"],
+                "desc": "\n".join(f"• {s['title']}" for s in skipped[:15])[:1500],
+                "fields": [], "color": 0x99AAB5, "label": name,
+            })
+            for sk in skipped:
+                posted.update(sk.get("members", [sk["key"]]))
+        for r in removals:
+            if post_embed(hook, r, os.environ.get(ROLE_ENV[name])):
+                gone.update(r["removes"])
+            time.sleep(1)
+
+    if not args.dry_run:
+        # First run (without --announce-first): remember everything so we don't spam.
+        # Otherwise remember only what was posted; failed posts stay "new" and retry next run.
+        keep = {i["key"] for i in items} if (first_run and not args.announce_first) else posted
+        state[name] = sorted((seen | keep | fresh) - gone)
+        if present:
+            state[gkey] = sorted(known_groups | present)
+        if cur_snap is not None:
+            # keep the old values for changes that failed to post, so they retry next run
+            snap = dict(cur_snap)
+            for c in changes:
+                if c["key"] not in posted:
+                    snap[c["model"]] = state[skey][c["model"]]
+            state[skey] = snap
+
+
+def save_state(state):
+    STATE_FILE.parent.mkdir(exist_ok=True)
+    tmp = STATE_FILE.with_suffix(".tmp")
+    tmp.write_text(json.dumps(state, indent=0))
+    tmp.replace(STATE_FILE)  # atomic, so a crash never leaves half a file
+
+
+# Loop mode (for an always-on server): seconds between checks per speed tier
+LOOP_SECONDS = {
+    FAST_MIN: int(os.environ.get("RADAR_LOOP_FAST", "60")),
+    MEDIUM_MIN: int(os.environ.get("RADAR_LOOP_MEDIUM", "300")),
+    SLOW_MIN: int(os.environ.get("RADAR_LOOP_SLOW", "900")),
+}
+
+
+def run_loop(state, args):
+    last = {}
+    everything = list(SOURCES) + list(LEADERBOARDS)
+    print(f"loop mode: fast every {LOOP_SECONDS[FAST_MIN]}s, medium {LOOP_SECONDS[MEDIUM_MIN]}s, "
+          f"slow {LOOP_SECONDS[SLOW_MIN]}s")
+    while True:
+        now = time.time()
+        due = [k for k in everything if now - last.get(k, 0) >= LOOP_SECONDS[SCHEDULE_MIN.get(k, SLOW_MIN)]]
+        _GET_CACHE.clear()
+        for name in due:
+            last[name] = time.time()
+            try:
+                run_source(name, state, args)
+            except Exception as e:  # never let one source kill the loop
+                print(f"[{name}] crashed: {e}", file=sys.stderr)
+            if not args.dry_run:
+                save_state(state)
+        time.sleep(5)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--dry-run", action="store_true", help="print only; don't post or save")
-    ap.add_argument("--only", help="comma-separated: " + ",".join(SOURCES))
+    ap.add_argument("--only", help="comma-separated: " + ",".join(list(SOURCES) + list(LEADERBOARDS)))
     ap.add_argument("--all", action="store_true", help="ignore the 5/15/30 min schedule, run every source")
+    ap.add_argument("--loop", action="store_true", help="run forever (always-on server); fast sources every 60s")
     ap.add_argument("--announce-first", action="store_true",
                     help="on a source's first run, post everything instead of just remembering it")
     args = ap.parse_args()
 
     state = json.loads(STATE_FILE.read_text()) if STATE_FILE.exists() else {}
+    if args.loop:
+        run_loop(state, args)
+        return
     if args.only:
         wanted = args.only.split(",")
     elif args.all or os.environ.get("RADAR_MODE") == "all":
@@ -1087,101 +1490,10 @@ def main():
     else:
         wanted = due_sources()
     print(f"sources this run: {', '.join(wanted)}")
-
     for name in wanted:
-        if name in LEADERBOARDS:
-            run_leaderboard(name, state, args.dry_run)
-            continue
-        print(f"[{name}] fetching...")
-        try:
-            items, ok = SOURCES[name]()
-        except Exception as e:
-            print(f"[{name}] failed: {e}", file=sys.stderr)
-            continue
-        if not ok:
-            print(f"[{name}] skipped (no data or no API key), keeping old state")
-            continue
-
-        seen = set(state.get(name, []))
-        first_run = name not in state
-        new = [i for i in items if i["key"] not in seen]
-        # the sitemap check and the fast RSS check share pages: never post one twice
-        if name in ("sitemaps", "fastpages"):
-            other = state.get("fastpages" if name == "sitemaps" else "sitemaps", [])
-            already = {norm_url(k) if name == "fastpages" else k for k in other}
-            new = [i for i in new if (i["key"] if name == "fastpages" else norm_url(i["key"])) not in already]
-        # Drop duplicate keys inside a single fetch
-        uniq = {i["key"]: i for i in new}
-        new = list(uniq.values())
-
-        # A group (arena, org, domain, feed...) seen for the first time is baselined silently,
-        # so a flaky group that finally loads, or an org you add later, doesn't flood the channel.
-        gkey = f"{name}#groups"
-        present = {i["group"] for i in items if i.get("group")}
-        if gkey not in state and not first_run:
-            # upgrade from older state: a group is known only if we've already seen some of its items
-            state[gkey] = sorted({i["group"] for i in items if i.get("group") and i["key"] in seen})
-        known_groups = set(state.get(gkey, []))
-        fresh = {i["key"] for i in new if i.get("group") and i["group"] not in known_groups}
-        new = [i for i in new if i["key"] not in fresh]
-        print(f"[{name}] {len(items)} items, {len(new)} new" + (" (first run)" if first_run else ""))
-
-        announce = new if (not first_run or args.announce_first) else []
-        skey = f"{name}#snap"
-        changes, cur_snap = [], None
-        if any("snap" in i for i in items):
-            if skey in state:
-                changes, cur_snap = track_changes(name, items, state[skey])
-                announce = announce + changes
-            else:
-                cur_snap = {i["key"]: i["snap"] for i in items if "snap" in i}  # first time: baseline
-            if changes:
-                print(f"[{name}] {len(changes)} changed/removed")
-        hook = webhook_for(name)
-        posted = set()
-        if announce and args.dry_run:
-            for i in announce[:MAX_POSTS_PER_SOURCE]:
-                print(f"   would post: {i['label']}: {i['title']} {i['url']}")
-            if len(announce) > MAX_POSTS_PER_SOURCE:
-                print(f"   ...and {len(announce) - MAX_POSTS_PER_SOURCE} more")
-        elif announce and not hook:
-            print(f"[{name}] no webhook set ({WEBHOOK_ENV[name]}), will post once it's added")
-            continue
-        elif announce:
-            if name in BATCH_SOURCES:
-                announce = batch_items(name, announce)
-            for i in announce[:MAX_POSTS_PER_SOURCE]:
-                if post_embed(hook, i, os.environ.get(ROLE_ENV[name])):
-                    posted.update(i.get("members", [i["key"]]))
-                time.sleep(1)
-            skipped = announce[MAX_POSTS_PER_SOURCE:]
-            if skipped:  # too many at once: mention it, then treat them as seen
-                post_embed(hook, {
-                    "title": f"{len(skipped)} more new items not shown", "url": skipped[0]["url"],
-                    "desc": "\n".join(f"• {s['title']}" for s in skipped[:15])[:1500],
-                    "fields": [], "color": 0x99AAB5, "label": name,
-                })
-                for sk in skipped:
-                    posted.update(sk.get("members", [sk["key"]]))
-
-        if not args.dry_run:
-            # First run (without --announce-first): remember everything so we don't spam.
-            # Otherwise remember only what was posted; failed posts stay "new" and retry next run.
-            keep = {i["key"] for i in items} if (first_run and not args.announce_first) else posted
-            state[name] = sorted(seen | keep | fresh)
-            if present:
-                state[gkey] = sorted(known_groups | present)
-            if cur_snap is not None:
-                # keep the old values for changes that failed to post, so they retry next run
-                snap = dict(cur_snap)
-                for c in changes:
-                    if c["key"] not in posted:
-                        snap[c["model"]] = state[skey][c["model"]]
-                state[skey] = snap
-
+        run_source(name, state, args)
     if not args.dry_run:
-        STATE_FILE.parent.mkdir(exist_ok=True)
-        STATE_FILE.write_text(json.dumps(state, indent=0))
+        save_state(state)
 
 
 if __name__ == "__main__":

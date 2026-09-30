@@ -1,0 +1,19 @@
+# Always-on AI Radar (fast sources every 60s). Install:
+#   sudo cp deploy/ai-radar.service /etc/systemd/system/
+#   sudo systemctl daemon-reload && sudo systemctl enable --now ai-radar
+#   journalctl -u ai-radar -f        # watch the log
+[Unit]
+Description=AI Leaks radar
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=ubuntu
+WorkingDirectory=/home/ubuntu/ai-radar
+EnvironmentFile=/home/ubuntu/ai-radar/deploy/radar.env
+ExecStart=/usr/bin/python3 -u radar.py --loop
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

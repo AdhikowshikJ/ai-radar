@@ -115,3 +115,27 @@ Everything is at the top of `radar.py`:
 3. **Test run** in cron-job.org should return **204**. A new "AI Radar" run appears in the Actions tab.
 
 `"mode":"scheduled"` matters: without it every trigger checks all trackers (that's what the manual button does).
+
+## Leak sources (new)
+- **Design Arena registry** (`#arenas`): models appear here when added to battles, before any leaderboard. New and removed models.
+- **arena.ai removals** (`#arenas`): "Removed Arena.ai models", one message per arena.
+- **SDK model IDs** (`#api-models`, every 5 min): OpenAI and Anthropic SDKs list new model IDs, often before launch.
+- **LiteLLM catalog** (`#api-models`, every 15 min): thousands of model IDs across providers.
+- **Model-list APIs** (`#api-models`): OpenAI, Anthropic, Gemini, xAI, DeepSeek, Mistral, Kimi, MiniMax, Qwen, Z.ai. Experimental checkpoints show up here, so add the API keys.
+- **Leaderboard snapshots** (`#benchmarks`): every Epoch AI benchmark (FrontierMath, GPQA, SWE-bench Verified, ...) and 18 Vals AI benchmarks (Vals Index, Terminal-Bench 4.0, ...), posted when the top 20 changes.
+
+## Being first: run it on an always-on server (loop mode)
+GitHub Actions can't check faster than every 5 minutes (and often runs late). `python3 radar.py --loop`
+runs forever and checks fast sources every **60 s**, medium every 5 min, slow every 15 min.
+
+Any small Linux server works (Oracle Cloud Always Free, or a ~$5/month VPS):
+```
+git clone https://github.com/AdhikowshikJ/ai-radar.git && cd ai-radar
+cp deploy/radar.env.example deploy/radar.env && nano deploy/radar.env   # paste webhooks + API keys
+sudo cp deploy/ai-radar.service /etc/systemd/system/
+sudo systemctl daemon-reload && sudo systemctl enable --now ai-radar
+journalctl -u ai-radar -f
+```
+**Important:** once the server runs, turn off the GitHub schedule (pause the cron-job.org job and
+disable the workflow). Both keep their own memory, so running both would post everything twice.
+Edit `User=`/paths in `deploy/ai-radar.service` if your server user isn't `ubuntu`.

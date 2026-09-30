@@ -1,2 +1,4 @@
 __pycache__/
 .env
+deploy/radar.env
+state/seen.tmp
