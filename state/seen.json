@@ -26241,8 +26241,8 @@
 "deepseek/deepseek-v4-pro-0813": {
 "Name": "DeepSeek: DeepSeek V4 Pro 0813",
 "Context": 1048576,
-"Input price": "0.00000066",
-"Output price": "0.00000198"
+"Input price": "0.00000132",
+"Output price": "0.00000396"
 },
 "x-ai/grok-4.6": {
 "Name": "SpaceXAI: Grok 4.6",
