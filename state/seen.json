@@ -60,6 +60,7 @@
 "chg::qwen/qwen3-30b-a3b",
 "chg::qwen/qwen3.8-27b",
 "chg::tencent/hy3",
+"chg::tencent/hy4-preview",
 "chg::xiaomi/mimo-v2.6-flash",
 "chg::z-ai/glm-5.1",
 "chg::z-ai/glm-5.2",
@@ -4348,6 +4349,7 @@
 "https://blog.google/company-news/outreach-and-initiatives/creating-opportunity/",
 "https://blog.google/company-news/outreach-and-initiatives/creating-opportunity/ai-economy-forum/",
 "https://blog.google/company-news/outreach-and-initiatives/creating-opportunity/alliance-america-skilled-trades/",
+"https://blog.google/company-news/outreach-and-initiatives/creating-opportunity/alliance-americas-skilled-trades-expands/",
 "https://blog.google/company-news/outreach-and-initiatives/creating-opportunity/atlanta-initiatives-2024/",
 "https://blog.google/company-news/outreach-and-initiatives/creating-opportunity/black-history-month-2026/",
 "https://blog.google/company-news/outreach-and-initiatives/creating-opportunity/google-veterans-day-2024/",
@@ -5098,6 +5100,7 @@
 "https://blog.google/company-news/outreach-and-initiatives/google-org/doing-more-racial-justice/",
 "https://blog.google/company-news/outreach-and-initiatives/google-org/doubling-down-on-ebola-donations/",
 "https://blog.google/company-news/outreach-and-initiatives/google-org/education-ai-funding/",
+"https://blog.google/company-news/outreach-and-initiatives/google-org/educause-2026/",
 "https://blog.google/company-news/outreach-and-initiatives/google-org/electrical-workers-ai-training/",
 "https://blog.google/company-news/outreach-and-initiatives/google-org/expanded-funding-indigenous-business-owners/",
 "https://blog.google/company-news/outreach-and-initiatives/google-org/expanding-access-to-cs-with-codeorg/",
@@ -6017,6 +6020,7 @@
 "https://blog.google/company-news/outreach-and-initiatives/sustainability/update-global-warming-speakou/",
 "https://blog.google/company-news/outreach-and-initiatives/sustainability/vaulted-deep-partnership/",
 "https://blog.google/company-news/outreach-and-initiatives/sustainability/voltus-agreement/",
+"https://blog.google/company-news/outreach-and-initiatives/sustainability/water-resilience-chile/",
 "https://blog.google/company-news/outreach-and-initiatives/sustainability/welcoming-internet-engine-no-15/",
 "https://blog.google/company-news/outreach-and-initiatives/sustainability/wetland-restoration-carbon-removal/",
 "https://blog.google/company-news/outreach-and-initiatives/sustainability/what-should-we-do-old-electronics/",
@@ -6550,6 +6554,7 @@
 "https://blog.google/innovation-and-ai/models-and-research/google-deepmind/release-notes-podcast-long-context/",
 "https://blog.google/innovation-and-ai/models-and-research/google-deepmind/ross-lovegrove-design/",
 "https://blog.google/innovation-and-ai/models-and-research/google-deepmind/running-guide-agent/",
+"https://blog.google/innovation-and-ai/models-and-research/google-deepmind/synthid-bio/",
 "https://blog.google/innovation-and-ai/models-and-research/google-deepmind/the-thinking-game/",
 "https://blog.google/innovation-and-ai/models-and-research/google-deepmind/tips-prompt-writing-project-genie/",
 "https://blog.google/innovation-and-ai/models-and-research/google-deepmind/weather-lab-ai-cyclone-prediction-tracking/",
@@ -10514,6 +10519,7 @@
 "https://blog.google/products-and-platforms/products/g-suite/google-introduces-hire-new-recruiting-app-integrates-g-suite/",
 "https://blog.google/products-and-platforms/products/gemini/",
 "https://blog.google/products-and-platforms/products/gemini/ai-navigate-bureaucracy/",
+"https://blog.google/products-and-platforms/products/gemini/automate-tasks-with-skills/",
 "https://blog.google/products-and-platforms/products/gemini/bard-gemini-advanced-app/",
 "https://blog.google/products-and-platforms/products/gemini/bringing-the-best-ai-to-university-students-in-europe-the-middle-east-and-africa-at-no-cost/",
 "https://blog.google/products-and-platforms/products/gemini/coffee-shop-gemini-features/",
@@ -12495,6 +12501,7 @@
 "https://blog.google/products-and-platforms/products/translate/hallo-hola-ola-more-powerful-translate/",
 "https://blog.google/products-and-platforms/products/translate/higher-quality-neural-translations-bunch-more-languages/",
 "https://blog.google/products-and-platforms/products/translate/how-google-translate-making-learning-english-fun-israel/",
+"https://blog.google/products-and-platforms/products/translate/international-translation-day-2026/",
 "https://blog.google/products-and-platforms/products/translate/language-learning-live-translate/",
 "https://blog.google/products-and-platforms/products/translate/live-translate-with-headphones/",
 "https://blog.google/products-and-platforms/products/translate/making-internet-more-inclusive-india/",
@@ -13891,6 +13898,7 @@
 "https://blog.google/waze/6-updates-to-waze-to-help-you-get-around-safely-and-conveniently/",
 "https://blog.google/waze/apple-music-is-now-available-on-waze/",
 "https://blog.google/waze/boy-george-here-guide-your-ride-pride/",
+"https://blog.google/waze/breast-cancer-awareness-month/",
 "https://blog.google/waze/brush-up-on-your-office-lingo-with-biz-jargon-voice-navigation/",
 "https://blog.google/waze/celebrate-your-holiday-travels-with-waze/",
 "https://blog.google/waze/conversational-reporting-waze/",
@@ -14394,6 +14402,7 @@
 "https://deepmind.google/blog/interpreting-deep-neural-networks-using-cognitive-psychology/",
 "https://deepmind.google/blog/introducing-codemender-an-ai-agent-for-code-security/",
 "https://deepmind.google/blog/introducing-gemini-3-5-flash-cyber/",
+"https://deepmind.google/blog/introducing-synthid-bio/",
 "https://deepmind.google/blog/introducing-the-frontier-safety-framework/",
 "https://deepmind.google/blog/intuitive-physics-learning-in-a-deep-learning-model-inspired-by-developmental-psychology/",
 "https://deepmind.google/blog/investing-in-multi-agent-ai-safety-research/",
@@ -14749,6 +14758,7 @@
 "https://deepmind.google/research/publications/253391/",
 "https://deepmind.google/research/publications/25628/",
 "https://deepmind.google/research/publications/25830/",
+"https://deepmind.google/research/publications/260459/",
 "https://deepmind.google/research/publications/260960/",
 "https://deepmind.google/research/publications/26234/",
 "https://deepmind.google/research/publications/26336/",
@@ -15945,6 +15955,7 @@
 "https://openai.com/index/discovering-the-minutiae-of-backend-systems/",
 "https://openai.com/index/discovering-types-for-entity-disambiguation/",
 "https://openai.com/index/disney-sora-agreement/",
+"https://openai.com/index/disrupting-a-coordinated-model-distillation-campaign/",
 "https://openai.com/index/disrupting-a-covert-iranian-influence-operation/",
 "https://openai.com/index/disrupting-deceptive-uses-of-ai-by-covert-influence-operations/",
 "https://openai.com/index/disrupting-malicious-ai-uses/",
@@ -16181,6 +16192,7 @@
 "https://openai.com/index/helping-disaster-response-teams-asia/",
 "https://openai.com/index/helping-older-adults-use-ai-in-everyday-life/",
 "https://openai.com/index/helping-people-when-they-need-it-most/",
+"https://openai.com/index/helping-small-businesses-put-ai-to-work/",
 "https://openai.com/index/hex-gpt-6-astra/",
 "https://openai.com/index/hibob/",
 "https://openai.com/index/hierarchical-text-conditional-image-generation-with-clip-latents/",
@@ -17372,6 +17384,7 @@
 "https://www.anthropic.com/research/trustworthy-agents",
 "https://www.anthropic.com/research/values-wild",
 "https://www.anthropic.com/research/vibe-physics",
+"https://www.anthropic.com/research/what-work-can-robots-do",
 "https://www.anthropic.com/research/yes-claude-can-do-nine-loops",
 "https://www.anthropic.com/research/your-thoughts-on-ai",
 "https://www.anthropic.com/research/zero-days",
@@ -26114,8 +26127,8 @@
 "tencent/hy4-preview": {
 "Name": "Tencent: Hy4 preview",
 "Context": 1048576,
-"Input price": "0.000000834",
-"Output price": "0.000002501"
+"Input price": "0.0000007506",
+"Output price": "0.0000022509"
 },
 "inclusionai/ling-3.0-flash-fin": {
 "Name": "inclusionAI: Ling 3.0 Flash Fin",
@@ -26198,8 +26211,8 @@
 "qwen/qwen3.8-27b": {
 "Name": "Qwen: Qwen3.8 27B",
 "Context": 1000000,
-"Input price": "0.0000000249",
-"Output price": "0.00000435"
+"Input price": "0.00000042",
+"Output price": "0.000003"
 },
 "qwen/qwen3.8-27b:free": {
 "Name": "Qwen: Qwen3.8 27B (free)",
@@ -26528,8 +26541,8 @@
 "tencent/hy3": {
 "Name": "Tencent: Hy3",
 "Context": 262144,
-"Input price": "0.000000132",
-"Output price": "0.000000528"
+"Input price": "0.0000000825",
+"Output price": "0.00000033"
 },
 "poolside/laguna-xs-2.1": {
 "Name": "Poolside: Laguna XS 2.1",
@@ -26588,7 +26601,7 @@
 "z-ai/glm-5.2": {
 "Name": "Z.ai: GLM 5.2",
 "Context": 1048576,
-"Input price": "0.00000041",
+"Input price": "0.00000052",
 "Output price": "0.00000399"
 },
 "openrouter/fusion": {
@@ -26774,8 +26787,8 @@
 "~moonshotai/kimi-latest": {
 "Name": "MoonshotAI: Kimi Latest",
 "Context": 1048576,
-"Input price": "0.0000003177",
-"Output price": "0.0000079431"
+"Input price": "0.0000001941",
+"Output price": "0.0000073625"
 },
 "~google/gemini-flash-latest": {
 "Name": "Google: Gemini Flash Latest",
@@ -27974,7 +27987,7 @@
 "qwen/qwen3-30b-a3b": {
 "Name": "Qwen: Qwen3 30B A3B",
 "Context": 131072,
-"Input price": "0.00000013",
+"Input price": "0.00000012",
 "Output price": "0.0000005"
 },
 "qwen/qwen3-8b": {
@@ -30386,6 +30399,7 @@
 "deepmind.google/blog/were-launching-lyria-35-in-google-flow-music-with-advances-across-musicality-lyrics-vocals-and-creative-control",
 "deepmind.google/blog/were-launching-the-google-deepmind-accelerator-program-in-asia-pacific-to-tackle-environmental-risks",
 "developers.googleblog.com/4-engineering-patterns-behind-the-strongest-ai-agents-challenge-submissions",
+"developers.googleblog.com/accelerating-spatio-temporal-attention-for-video-diffusion-on-tpus",
 "developers.googleblog.com/agent-anomaly-detection-now-in-private-preview-on-the-gemini-enterprise-agent-platform",
 "developers.googleblog.com/announcing-adk-for-kotlin-10-building-production-ready-ai-agents-in-kotlin-android-and-beyond",
 "developers.googleblog.com/autonomous-llm-post-training-with-tunix-on-tpus",
@@ -36554,6 +36568,8 @@
 "vertex_ai/gemini-3.7-flash",
 "vertex_ai/gemini-3.8-flash",
 "vertex_ai/gemini-3.8-flash-cyber",
+"vertex_ai/gemini-3.8-flash-lite-tts",
+"vertex_ai/gemini-3.8-flash-tts",
 "vertex_ai/gemini-3.8-live",
 "vertex_ai/gemini-embedding-2",
 "vertex_ai/gemini-embedding-2-preview",
