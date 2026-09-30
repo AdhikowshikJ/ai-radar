@@ -126,7 +126,7 @@ Everything is at the top of `radar.py`:
 
 ## Being first: run it on an always-on server (loop mode)
 GitHub Actions can't check faster than every 5 minutes (and often runs late). `python3 radar.py --loop`
-runs forever and checks fast sources every **60 s**, medium every 5 min, slow every 15 min.
+runs forever: fast sources every **60 s**, and everything else (sitemaps, changelogs, benchmarks, leaderboards) every **5 min** in a parallel lane, so heavy checks never delay the fast ones.
 
 Any small Linux server works (Oracle Cloud Always Free, or a ~$5/month VPS):
 ```

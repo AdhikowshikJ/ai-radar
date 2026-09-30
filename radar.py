@@ -196,15 +196,25 @@ WEBHOOK_ENV = {
 }
 
 
-_GET_CACHE = {}
+import threading
+
+STATE_LOCK = threading.RLock()  # loop mode runs two lanes in parallel; state changes go through this
+_TLS = threading.local()        # per-thread cache of plain GETs (arena pages are used by two trackers)
+
+
+def _get_cache():
+    if not hasattr(_TLS, "cache"):
+        _TLS.cache = {}
+    return _TLS.cache
 
 
 def http_get(url, timeout=40, headers=None):
-    if not headers and url in _GET_CACHE:
-        return _GET_CACHE[url]
+    cache = _get_cache()
+    if not headers and url in cache:
+        return cache[url]
     text = _http_get(url, timeout, headers)
     if not headers:
-        _GET_CACHE[url] = text
+        cache[url] = text
     return text
 
 
@@ -1178,7 +1188,8 @@ def run_leaderboard(lb_id, state, dry_run):
         return
     print(f"[{lb_id}] {len(boards)} board(s)")
     for b in boards:
-        run_board(b, state, dry_run)
+        with STATE_LOCK:
+            run_board(b, state, dry_run)
 
 
 # ---------------------------------------------------------------- change tracking
@@ -1354,6 +1365,11 @@ def run_source(name, state, args):
         print(f"[{name}] skipped (no data or no API key), keeping old state")
         return
 
+    with STATE_LOCK:
+        _process(name, items, state, args)
+
+
+def _process(name, items, state, args):
     seen = set(state.get(name, []))
     first_run = name not in state
     new = [i for i in items if i["key"] not in seen]
@@ -1481,7 +1497,8 @@ def save_remote_state(state, force=False):
     import base64
     import gzip
     import hashlib
-    data = json.dumps(state, separators=(",", ":"), sort_keys=True).encode()
+    with STATE_LOCK:
+        data = json.dumps(state, separators=(",", ":"), sort_keys=True).encode()
     digest = hashlib.sha256(data).hexdigest()
     if digest == _remote["hash"] or (not force and time.time() - _remote["saved_at"] < REMOTE_SAVE_SECONDS):
         return
@@ -1499,6 +1516,11 @@ def save_remote_state(state, force=False):
 
 
 def save_state(state):
+    with STATE_LOCK:
+        _save_state(state)
+
+
+def _save_state(state):
     STATE_FILE.parent.mkdir(exist_ok=True)
     tmp = STATE_FILE.with_suffix(".tmp")
     tmp.write_text(json.dumps(state, indent=0))
@@ -1509,19 +1531,16 @@ def save_state(state):
 LOOP_SECONDS = {
     FAST_MIN: int(os.environ.get("RADAR_LOOP_FAST", "60")),
     MEDIUM_MIN: int(os.environ.get("RADAR_LOOP_MEDIUM", "300")),
-    SLOW_MIN: int(os.environ.get("RADAR_LOOP_SLOW", "900")),
+    SLOW_MIN: int(os.environ.get("RADAR_LOOP_SLOW", "300")),
 }
 
 
-def run_loop(state, args):
+def _lane(lane, names, state, args):
     last = {}
-    everything = list(SOURCES) + list(LEADERBOARDS)
-    print(f"loop mode: fast every {LOOP_SECONDS[FAST_MIN]}s, medium {LOOP_SECONDS[MEDIUM_MIN]}s, "
-          f"slow {LOOP_SECONDS[SLOW_MIN]}s")
     while True:
         now = time.time()
-        due = [k for k in everything if now - last.get(k, 0) >= LOOP_SECONDS[SCHEDULE_MIN.get(k, SLOW_MIN)]]
-        _GET_CACHE.clear()
+        due = [k for k in names if now - last.get(k, 0) >= LOOP_SECONDS[SCHEDULE_MIN.get(k, SLOW_MIN)]]
+        _get_cache().clear()
         for name in due:
             last[name] = time.time()
             try:
@@ -1533,6 +1552,18 @@ def run_loop(state, args):
                 if STATE_TOKEN:
                     save_remote_state(state)  # throttled to once per RADAR_SAVE_SECONDS
         time.sleep(5)
+
+
+def run_loop(state, args):
+    """Two lanes in parallel: fast sources never wait behind heavy ones (sitemaps, Epoch, Vals...)."""
+    everything = list(SOURCES) + list(LEADERBOARDS)
+    fast = [k for k in everything if SCHEDULE_MIN.get(k, SLOW_MIN) == FAST_MIN]
+    heavy = [k for k in everything if k not in fast]
+    print(f"loop mode: {len(fast)} fast sources every {LOOP_SECONDS[FAST_MIN]}s; {len(heavy)} others every "
+          f"{LOOP_SECONDS[MEDIUM_MIN]}s/{LOOP_SECONDS[SLOW_MIN]}s, in a parallel lane")
+    t = threading.Thread(target=_lane, args=("heavy", heavy, state, args), daemon=True)
+    t.start()
+    _lane("fast", fast, state, args)
 
 
 def serve(state, args):
