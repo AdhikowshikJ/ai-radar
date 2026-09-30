@@ -219,7 +219,8 @@ def http_get(url, timeout=40, headers=None):
 
 
 def _http_get(url, timeout=40, headers=None):
-    req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept": "*/*", **(headers or {})})
+    req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept": "*/*", "Accept-Encoding": "gzip",
+                                              **(headers or {})})  # gzip: ~8-10x less to download
     with urllib.request.urlopen(req, timeout=timeout) as resp:
         raw = resp.read()
     if raw[:2] == b"\x1f\x8b":  # some servers gzip even when we don't ask
@@ -361,10 +362,12 @@ def _sitemap_urls(url, depth=0):
     locs = [e.text.strip() for e in root.iter() if e.tag.endswith("}loc") and e.text]
     if root.tag.endswith("sitemapindex") and depth < 1:
         urls = []
-        for sub in locs[:60]:  # sanity cap
-            # if any part fails, fail the whole site this run: otherwise that part's old pages
-            # would look "new" the next time it loads
-            urls += _sitemap_urls(sub, depth + 1)
+        # fetch the parts in parallel (OpenAI has ~60); if any part fails, the whole site fails
+        # this run, otherwise that part's old pages would look "new" the next time it loads
+        from concurrent.futures import ThreadPoolExecutor
+        with ThreadPoolExecutor(max_workers=8) as pool:
+            for part in pool.map(lambda sub: _sitemap_urls(sub, depth + 1), locs[:60]):  # sanity cap
+                urls += part
         return urls
     return locs
 
@@ -1558,11 +1561,24 @@ LOOP_SECONDS = {
 }
 
 
+# Per-source loop intervals (seconds) that differ from their tier, and which lane runs them.
+# Lanes run in parallel, so arena/AA checks every minute never delay the API checks.
+ARENA_LANE = ["arenas", "artificialanalysis", "lb_arena_text", "lb_arena_vision", "lb_aa_index"]
+LOOP_OVERRIDE_SECONDS = {
+    **{k: int(os.environ.get("RADAR_LOOP_ARENA", "60")) for k in ARENA_LANE},
+    "sitemaps": int(os.environ.get("RADAR_LOOP_SITEMAPS", "180")),
+}
+
+
+def loop_interval(name):
+    return LOOP_OVERRIDE_SECONDS.get(name, LOOP_SECONDS[SCHEDULE_MIN.get(name, SLOW_MIN)])
+
+
 def _lane(lane, names, state, args):
     last = {}
     while True:
         now = time.time()
-        due = [k for k in names if now - last.get(k, 0) >= LOOP_SECONDS[SCHEDULE_MIN.get(k, SLOW_MIN)]]
+        due = [k for k in names if now - last.get(k, 0) >= loop_interval(k)]
         _get_cache().clear()
         for name in due:
             last[name] = time.time()
@@ -1578,14 +1594,16 @@ def _lane(lane, names, state, args):
 
 
 def run_loop(state, args):
-    """Two lanes in parallel: fast sources never wait behind heavy ones (sitemaps, Epoch, Vals...)."""
+    """Three lanes in parallel: fast (APIs, SDKs, ...), arena (arena.ai + Artificial Analysis),
+    heavy (sitemaps every 3 min; Epoch, Vals, ARC, changelogs ... every 5 min)."""
     everything = list(SOURCES) + list(LEADERBOARDS)
-    fast = [k for k in everything if SCHEDULE_MIN.get(k, SLOW_MIN) == FAST_MIN]
-    heavy = [k for k in everything if k not in fast]
-    print(f"loop mode: {len(fast)} fast sources every {LOOP_SECONDS[FAST_MIN]}s; {len(heavy)} others every "
-          f"{LOOP_SECONDS[MEDIUM_MIN]}s/{LOOP_SECONDS[SLOW_MIN]}s, in a parallel lane")
-    t = threading.Thread(target=_lane, args=("heavy", heavy, state, args), daemon=True)
-    t.start()
+    arena = [k for k in ARENA_LANE if k in everything]
+    fast = [k for k in everything if SCHEDULE_MIN.get(k, SLOW_MIN) == FAST_MIN and k not in arena]
+    heavy = [k for k in everything if k not in fast and k not in arena]
+    for lane, names in (("fast", fast), ("arena", arena), ("heavy", heavy)):
+        print(f"lane {lane}: " + ", ".join(f"{k}@{loop_interval(k)}s" for k in names))
+    for lane, names in (("arena", arena), ("heavy", heavy)):
+        threading.Thread(target=_lane, args=(lane, names, state, args), daemon=True).start()
     _lane("fast", fast, state, args)
 
 
