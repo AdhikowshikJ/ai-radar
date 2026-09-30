@@ -17,6 +17,10 @@ import sys
 import time
 import urllib.error
 import urllib.parse
+
+for _k, _v in list(os.environ.items()):  # pasted secrets often carry spaces or newlines
+    if (_k.endswith("_API_KEY") or _k.startswith("DISCORD_") or _k == "RADAR_STATE_TOKEN") and _v != _v.strip():
+        os.environ[_k] = _v.strip()
 import urllib.request
 import xml.etree.ElementTree as ET
 from datetime import datetime, timezone
@@ -1524,8 +1528,8 @@ def run_loop(state, args):
                 print(f"[{name}] crashed: {e}", file=sys.stderr)
             if not args.dry_run:
                 save_state(state)
-        if STATE_TOKEN and not args.dry_run:
-            save_remote_state(state)
+                if STATE_TOKEN:
+                    save_remote_state(state)  # throttled to once per RADAR_SAVE_SECONDS
         time.sleep(5)
 
 
