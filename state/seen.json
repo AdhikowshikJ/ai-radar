@@ -63,6 +63,7 @@
 "chg::z-ai/glm-5.2",
 "chg::z-ai/glm-5.3",
 "chg::z-ai/glm-5.3-flash",
+"chg::~deepseek/deepseek-flash-latest",
 "chg::~deepseek/deepseek-pro-latest",
 "chg::~deepseek/deepseek-v4-flash-latest",
 "chg::~moonshotai/kimi-latest",
@@ -25940,8 +25941,8 @@
 "~deepseek/deepseek-flash-latest": {
 "Name": "DeepSeek: DeepSeek Flash Latest",
 "Context": 1048576,
-"Input price": "0.00000002",
-"Output price": "0.0000006"
+"Input price": "0.00000003",
+"Output price": "0.0000005"
 },
 "inference-net/schematron-v2-turbo": {
 "Name": "Inference.net: Schematron V2 Turbo",
@@ -26294,14 +26295,14 @@
 "~deepseek/deepseek-v4-flash-latest": {
 "Name": "DeepSeek: DeepSeek V4 Flash Latest",
 "Context": 1048576,
-"Input price": "0.000000012",
-"Output price": "0.00000125"
+"Input price": "0.00000001",
+"Output price": "0.00000064"
 },
 "deepseek/deepseek-v4-flash-0731": {
 "Name": "DeepSeek: DeepSeek V4 Flash 0731",
 "Context": 1048576,
-"Input price": "0.000000018",
-"Output price": "0.00000032"
+"Input price": "0.00000001",
+"Output price": "0.00000064"
 },
 "thinkingmachines/inkling-small": {
 "Name": "Thinking Machines: Inkling Small",
@@ -26582,7 +26583,7 @@
 "z-ai/glm-5.2": {
 "Name": "Z.ai: GLM 5.2",
 "Context": 1048576,
-"Input price": "0.0000002087",
+"Input price": "0.00000025",
 "Output price": "0.00000399"
 },
 "openrouter/fusion": {
