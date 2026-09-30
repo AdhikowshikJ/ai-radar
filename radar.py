@@ -1493,7 +1493,9 @@ def save_remote_state(state, force=False):
         _remote["hash"], _remote["saved_at"] = digest, time.time()
         print("saved remote state")
     except Exception as e:
-        print(f"  ! remote state save failed: {e}", file=sys.stderr)
+        _remote["saved_at"] = time.time()  # back off instead of retrying after every source
+        hint = " (token needs Contents: Read and write on the repo)" if "403" in str(e) or "401" in str(e) else ""
+        print(f"  ! remote state save failed: {e}{hint}", file=sys.stderr)
 
 
 def save_state(state):
