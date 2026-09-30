@@ -26169,7 +26169,7 @@
 "~z-ai/glm-latest": {
 "Name": "Z.ai: GLM Latest",
 "Context": 1048576,
-"Input price": "0.00000009",
+"Input price": "0.00000013",
 "Output price": "0.000004"
 },
 "tencent/hy-mt2-7b": {
@@ -26583,7 +26583,7 @@
 "z-ai/glm-5.2": {
 "Name": "Z.ai: GLM 5.2",
 "Context": 1048576,
-"Input price": "0.00000025",
+"Input price": "0.00000036",
 "Output price": "0.00000399"
 },
 "openrouter/fusion": {
