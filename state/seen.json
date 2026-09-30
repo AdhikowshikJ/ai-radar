@@ -17424,6 +17424,7 @@
 "https://www.minimax.io/blog",
 "https://www.minimax.io/brand-vi",
 "https://www.minimax.io/careers",
+"https://www.minimax.io/m-plan",
 "https://www.minimax.io/models/text",
 "https://www.minimax.io/news",
 "https://www.minimax.io/research",
@@ -26769,7 +26770,7 @@
 "~moonshotai/kimi-latest": {
 "Name": "MoonshotAI: Kimi Latest",
 "Context": 1048576,
-"Input price": "0.0000004",
+"Input price": "0.0000003654",
 "Output price": "0.000009"
 },
 "~google/gemini-flash-latest": {
