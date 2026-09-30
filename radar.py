@@ -1434,6 +1434,64 @@ def run_source(name, state, args):
             state[skey] = snap
 
 
+# ---------------------------------------------------------------- remote state (Render etc.)
+# Hosts like Render's free tier wipe the disk on every restart. If RADAR_STATE_TOKEN is set, the
+# bot keeps its memory in the GitHub repo instead (gzipped, so it stays small) and saves it
+# every few minutes and on shutdown.
+STATE_REPO = os.environ.get("RADAR_STATE_REPO", "AdhikowshikJ/ai-radar")
+STATE_REMOTE_PATH = "state/remote-seen.json.gz"
+STATE_TOKEN = os.environ.get("RADAR_STATE_TOKEN")
+REMOTE_SAVE_SECONDS = int(os.environ.get("RADAR_SAVE_SECONDS", "300"))
+_remote = {"sha": None, "hash": None, "saved_at": 0}
+
+
+def _gh(method, path, body=None):
+    req = urllib.request.Request(
+        f"https://api.github.com/repos/{STATE_REPO}/contents/{path}", method=method,
+        data=json.dumps(body).encode() if body is not None else None,
+        headers={"Authorization": f"Bearer {STATE_TOKEN}", "Accept": "application/vnd.github+json",
+                 "User-Agent": UA, "X-GitHub-Api-Version": "2022-11-28"})
+    with urllib.request.urlopen(req, timeout=60) as r:
+        return json.loads(r.read() or b"{}")
+
+
+def load_remote_state():
+    import base64
+    import gzip
+    try:
+        meta = _gh("GET", STATE_REMOTE_PATH)
+        _remote["sha"] = meta["sha"]
+        state = json.loads(gzip.decompress(base64.b64decode(meta["content"])))
+        print(f"loaded remote state ({len(state)} keys)")
+        return state
+    except urllib.error.HTTPError as e:
+        if e.code != 404:
+            raise
+    # first time: start from the state GitHub Actions left in the repo
+    raw = http_get(f"https://raw.githubusercontent.com/{STATE_REPO}/main/state/seen.json", timeout=90)
+    print("no remote state yet, starting from state/seen.json")
+    return json.loads(raw)
+
+
+def save_remote_state(state, force=False):
+    import base64
+    import gzip
+    import hashlib
+    data = json.dumps(state, separators=(",", ":"), sort_keys=True).encode()
+    digest = hashlib.sha256(data).hexdigest()
+    if digest == _remote["hash"] or (not force and time.time() - _remote["saved_at"] < REMOTE_SAVE_SECONDS):
+        return
+    body = {"message": "radar: save state", "content": base64.b64encode(gzip.compress(data, 9)).decode()}
+    if _remote["sha"]:
+        body["sha"] = _remote["sha"]
+    try:
+        _remote["sha"] = _gh("PUT", STATE_REMOTE_PATH, body)["content"]["sha"]
+        _remote["hash"], _remote["saved_at"] = digest, time.time()
+        print("saved remote state")
+    except Exception as e:
+        print(f"  ! remote state save failed: {e}", file=sys.stderr)
+
+
 def save_state(state):
     STATE_FILE.parent.mkdir(exist_ok=True)
     tmp = STATE_FILE.with_suffix(".tmp")
@@ -1466,7 +1524,43 @@ def run_loop(state, args):
                 print(f"[{name}] crashed: {e}", file=sys.stderr)
             if not args.dry_run:
                 save_state(state)
+        if STATE_TOKEN and not args.dry_run:
+            save_remote_state(state)
         time.sleep(5)
+
+
+def serve(state, args):
+    """Web-service mode (Render free tier): answer pings on $PORT and run the loop."""
+    import http.server
+    import signal
+    import threading
+
+    class Ping(http.server.BaseHTTPRequestHandler):
+        def do_GET(self):
+            body = b"AI Leaks radar is running\n"
+            self.send_response(200)
+            self.send_header("Content-Type", "text/plain")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+        do_HEAD = do_GET
+
+        def log_message(self, *a):
+            pass
+
+    port = int(os.environ.get("PORT", "10000"))
+    threading.Thread(target=http.server.ThreadingHTTPServer(("0.0.0.0", port), Ping).serve_forever,
+                     daemon=True).start()
+    print(f"listening on port {port}")
+
+    def shutdown(*_):  # Render sends SIGTERM before restarting: save memory first
+        print("shutting down, saving state")
+        if STATE_TOKEN and not args.dry_run:
+            save_remote_state(state, force=True)
+        sys.exit(0)
+    signal.signal(signal.SIGTERM, shutdown)
+    signal.signal(signal.SIGINT, shutdown)
+    run_loop(state, args)
 
 
 def main():
@@ -1475,11 +1569,18 @@ def main():
     ap.add_argument("--only", help="comma-separated: " + ",".join(list(SOURCES) + list(LEADERBOARDS)))
     ap.add_argument("--all", action="store_true", help="ignore the 5/15/30 min schedule, run every source")
     ap.add_argument("--loop", action="store_true", help="run forever (always-on server); fast sources every 60s")
+    ap.add_argument("--serve", action="store_true", help="web-service mode for Render: --loop plus a ping page")
     ap.add_argument("--announce-first", action="store_true",
                     help="on a source's first run, post everything instead of just remembering it")
     args = ap.parse_args()
 
-    state = json.loads(STATE_FILE.read_text()) if STATE_FILE.exists() else {}
+    if STATE_TOKEN:
+        state = load_remote_state()
+    else:
+        state = json.loads(STATE_FILE.read_text()) if STATE_FILE.exists() else {}
+    if args.serve:
+        serve(state, args)
+        return
     if args.loop:
         run_loop(state, args)
         return

@@ -139,3 +139,16 @@ journalctl -u ai-radar -f
 **Important:** once the server runs, turn off the GitHub schedule (pause the cron-job.org job and
 disable the workflow). Both keep their own memory, so running both would post everything twice.
 Edit `User=`/paths in `deploy/ai-radar.service` if your server user isn't `ubuntu`.
+
+## Running on Render (free web service)
+`python3 radar.py --serve` = loop mode plus a tiny web page, so Render's free tier can run it.
+Render's free disk is wiped on restart, so the bot keeps its memory in this repo
+(`state/remote-seen.json.gz`) using `RADAR_STATE_TOKEN`, saved every 5 min and on shutdown.
+
+1. GitHub token: Settings → Developer settings → Fine-grained tokens → only `ai-radar` →
+   Repository permissions → **Contents: Read and write**.
+2. Stop the GitHub bot first: pause the cron-job.org "dispatch" job and disable the AI Radar workflow.
+3. render.com → New + → **Blueprint** → pick this repo (uses `render.yaml`) → fill the secret env vars
+   (`RADAR_STATE_TOKEN`, the webhooks, the API keys) → Apply.
+4. Keep it awake: free services sleep after ~15 min without visits. In cron-job.org add a job that
+   GETs `https://<your-service>.onrender.com/` every 10 minutes.

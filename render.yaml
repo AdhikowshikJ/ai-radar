@@ -1,0 +1,44 @@
+# Render Blueprint: New + > Blueprint > pick this repo. Then fill the secret env vars in the dashboard.
+services:
+  - type: web
+    name: ai-leaks-radar
+    runtime: python
+    plan: free
+    buildCommand: "true"
+    startCommand: python3 -u radar.py --serve
+    healthCheckPath: /
+    envVars:
+      - key: RADAR_STATE_REPO
+        value: AdhikowshikJ/ai-radar
+      - key: RADAR_STATE_TOKEN      # GitHub fine-grained token: this repo, Contents read & write
+        sync: false
+      - key: DISCORD_WEBHOOK_OPENROUTER
+        sync: false
+      - key: DISCORD_WEBHOOK_ARENAS
+        sync: false
+      - key: DISCORD_WEBHOOK_PAGES
+        sync: false
+      - key: DISCORD_WEBHOOK_RELEASES
+        sync: false
+      - key: DISCORD_WEBHOOK_API_MODELS
+        sync: false
+      - key: DISCORD_WEBHOOK_HUGGINGFACE
+        sync: false
+      - key: DISCORD_WEBHOOK_SUBDOMAINS
+        sync: false
+      - key: DISCORD_WEBHOOK_NEWREPOS
+        sync: false
+      - key: DISCORD_WEBHOOK_CLOUD
+        sync: false
+      - key: DISCORD_WEBHOOK_TOOLS
+        sync: false
+      - key: DISCORD_WEBHOOK_BENCHMARKS
+        sync: false
+      - key: DISCORD_WEBHOOK_STATUS
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
