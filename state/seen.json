@@ -51,6 +51,7 @@
 "bytedance-seed/seed-2.0-mini",
 "bytedance/ui-tars-1.5-7b",
 "chg::deepseek/deepseek-v4-flash",
+"chg::deepseek/deepseek-v4-flash-0731",
 "chg::deepseek/deepseek-v4-pro",
 "chg::deepseek/deepseek-v4-pro-0813",
 "chg::google/gemma-4-26b-a4b-it",
@@ -59,8 +60,11 @@
 "chg::z-ai/glm-5.1",
 "chg::z-ai/glm-5.2",
 "chg::z-ai/glm-5.3",
+"chg::z-ai/glm-5.3-flash",
 "chg::~deepseek/deepseek-pro-latest",
+"chg::~deepseek/deepseek-v4-flash-latest",
 "chg::~moonshotai/kimi-latest",
+"chg::~z-ai/glm-flash-latest",
 "chg::~z-ai/glm-latest",
 "cognitivecomputations/dolphin-mistral-24b-venice-edition",
 "cohere/command-a",
@@ -26111,7 +26115,7 @@
 },
 "~z-ai/glm-flash-latest": {
 "Name": "Z.ai: GLM Flash Latest",
-"Context": 1310720,
+"Context": 1048576,
 "Input price": "0.00000002",
 "Output price": "0.0000003"
 },
@@ -26123,7 +26127,7 @@
 },
 "z-ai/glm-5.3-flash": {
 "Name": "Z.ai: GLM 5.3 Flash",
-"Context": 1310720,
+"Context": 1048576,
 "Input price": "0.00000015",
 "Output price": "0.0000005"
 },
@@ -26159,7 +26163,7 @@
 },
 "~z-ai/glm-latest": {
 "Name": "Z.ai: GLM Latest",
-"Context": 1310720,
+"Context": 1048576,
 "Input price": "0.000000119",
 "Output price": "0.000004"
 },
@@ -26171,7 +26175,7 @@
 },
 "z-ai/glm-5.3": {
 "Name": "Z.ai: GLM 5.3",
-"Context": 1310720,
+"Context": 1048576,
 "Input price": "0.0000014",
 "Output price": "0.0000044"
 },
@@ -26285,13 +26289,13 @@
 },
 "~deepseek/deepseek-v4-flash-latest": {
 "Name": "DeepSeek: DeepSeek V4 Flash Latest",
-"Context": 1310720,
+"Context": 1048576,
 "Input price": "0.000000012",
 "Output price": "0.00000125"
 },
 "deepseek/deepseek-v4-flash-0731": {
 "Name": "DeepSeek: DeepSeek V4 Flash 0731",
-"Context": 1310720,
+"Context": 1048576,
 "Input price": "0.000000018",
 "Output price": "0.00000032"
 },
