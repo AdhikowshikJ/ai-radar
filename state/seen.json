@@ -438,6 +438,7 @@
 "thinkingmachines/inkling:free",
 "typesafe/jev-router",
 "unbiased/pareto",
+"unbiased/pareto-26.10-preview",
 "undi95/remm-slerp-l2-13b",
 "upstage/solar-mini4",
 "upstage/solar-pro-3",
@@ -25756,6 +25757,12 @@
 "azure#groups": [],
 "cursor#groups": [],
 "openrouter#snap": {
+"unbiased/pareto-26.10-preview": {
+"Name": "Pareto 26.10 Preview",
+"Context": 1048576,
+"Input price": "0.0000008",
+"Output price": "0.0000032"
+},
 "openai/gpt-6.1-sol-pro": {
 "Name": "OpenAI: GPT-6.1 Sol Pro",
 "Context": 1050000,
@@ -25951,13 +25958,13 @@
 "~deepseek/deepseek-pro-latest": {
 "Name": "DeepSeek: DeepSeek Pro Latest",
 "Context": 1048576,
-"Input price": "0.0000002276",
+"Input price": "0.0000001642",
 "Output price": "0.0000035"
 },
 "~deepseek/deepseek-flash-latest": {
 "Name": "DeepSeek: DeepSeek Flash Latest",
 "Context": 1048576,
-"Input price": "0.000000027",
+"Input price": "0.000000025",
 "Output price": "0.0000006"
 },
 "inference-net/schematron-v2-turbo": {
@@ -26125,8 +26132,8 @@
 "tencent/hy4-preview": {
 "Name": "Tencent: Hy4 preview",
 "Context": 1048576,
-"Input price": "0.000000834",
-"Output price": "0.000002501"
+"Input price": "0.0000007506",
+"Output price": "0.0000022509"
 },
 "inclusionai/ling-3.0-flash-fin": {
 "Name": "inclusionAI: Ling 3.0 Flash Fin",
@@ -26185,8 +26192,8 @@
 "~z-ai/glm-latest": {
 "Name": "Z.ai: GLM Latest",
 "Context": 1048576,
-"Input price": "0.0000001454",
-"Output price": "0.000004"
+"Input price": "0.00000012",
+"Output price": "0.00000114"
 },
 "tencent/hy-mt2-7b": {
 "Name": "Tencent: Hy-MT2-7B",
@@ -26198,7 +26205,7 @@
 "Name": "Z.ai: GLM 5.3",
 "Context": 1048576,
 "Input price": "0.0000002219",
-"Output price": "0.0000044"
+"Output price": "0.00000339"
 },
 "z-ai/glm-5.3:batch": {
 "Name": "Z.ai: GLM 5.3 (batch)",
@@ -26257,8 +26264,8 @@
 "deepseek/deepseek-v4-pro-0813": {
 "Name": "DeepSeek: DeepSeek V4 Pro 0813",
 "Context": 1048576,
-"Input price": "0.00000132",
-"Output price": "0.00000396"
+"Input price": "0.00000066",
+"Output price": "0.00000198"
 },
 "x-ai/grok-4.6": {
 "Name": "SpaceXAI: Grok 4.6",
@@ -26539,8 +26546,8 @@
 "tencent/hy3": {
 "Name": "Tencent: Hy3",
 "Context": 262144,
-"Input price": "0.000000132",
-"Output price": "0.000000528"
+"Input price": "0.0000000825",
+"Output price": "0.00000033"
 },
 "poolside/laguna-xs-2.1": {
 "Name": "Poolside: Laguna XS 2.1",
@@ -26599,8 +26606,8 @@
 "z-ai/glm-5.2": {
 "Name": "Z.ai: GLM 5.2",
 "Context": 1048576,
-"Input price": "0.0000014",
-"Output price": "0.0000044"
+"Input price": "0.00000041",
+"Output price": "0.00000399"
 },
 "openrouter/fusion": {
 "Name": "OpenRouter: Fusion",
@@ -30286,16 +30293,20 @@
 "blog.google/innovation-and-ai/models-and-research/google-labs/six-new-tools-built-by-creatives",
 "blog.google/innovation-and-ai/models-and-research/google-research/google-project-suncatcher-facts",
 "blog.google/innovation-and-ai/models-and-research/google-research/google-science-ai-flu-forecasts",
+"blog.google/innovation-and-ai/products/gemini-app/guided-vision-gemini-live",
 "blog.google/innovation-and-ai/products/gemini-app/new-connected-apps-gemini",
 "blog.google/innovation-and-ai/technology/ai/winner-future-vision-xprize",
 "blog.google/innovation-and-ai/technology/research/google-beam-expansion",
 "blog.google/products-and-platforms/devices/googlebook/henry-cavill-googlebook-video-game",
 "blog.google/products-and-platforms/products/android-enterprise/whats-new-android-enterprise-2026",
 "blog.google/products-and-platforms/products/chrome/tips-for-school-and-studying",
+"blog.google/products-and-platforms/products/education/ai-educator-series-badge-a-thon",
 "blog.google/products-and-platforms/products/gemini/edys-grocer-gemini",
 "blog.google/products-and-platforms/products/google-health/health-guardian-features-live",
 "blog.google/products-and-platforms/products/photos/google-photos-updates",
+"blog.google/products-and-platforms/products/search/coffee-tips-google-search",
 "blog.google/products-and-platforms/products/workspace/gemini-omni-in-google-vids",
+"blog.google/products/ads-commerce/creating-assets-youtube-ads",
 "blog.google/products/ads-commerce/demand-gen-drop-september-2026",
 "blog.google/products/marketingplatform/360/vertical-video-unification",
 "deepmind.google/blog/10-years-of-alphago",
@@ -30627,6 +30638,7 @@
 "openai.com/index/ai-progress-and-recommendations",
 "openai.com/index/ai-safety-needs-social-scientists",
 "openai.com/index/airbnb-gpt-6-astra",
+"openai.com/index/albertsons-reimagining-retail",
 "openai.com/index/altera",
 "openai.com/index/amazon-partnership",
 "openai.com/index/an-alien-mind",
