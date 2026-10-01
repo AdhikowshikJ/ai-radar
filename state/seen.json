@@ -58,6 +58,7 @@
 "chg::google/gemma-4-26b-a4b-it",
 "chg::meta/muse-glimmer-30b",
 "chg::minimax/minimax-m1",
+"chg::moonshotai/kimi-k2.6",
 "chg::moonshotai/kimi-k3",
 "chg::nvidia/nemotron-3.5-lightning",
 "chg::qwen/qwen3-30b-a3b",
@@ -409,6 +410,8 @@
 "rekaai/reka-flash-3",
 "relace/relace-apply-3",
 "relace/relace-search",
+"rm::openai/gpt-6.1-sol-pro:batch",
+"rm::openai/gpt-6.1-sol:batch",
 "sakana/fugu-max",
 "sakana/fugu-ultra",
 "sakana/fugu-ultra-v2",
@@ -19314,6 +19317,7 @@
 "6fd1598d6f0a60355bc3f5ad482ace869bd145c7",
 "76817841d340406a63408aaf904002a4f5531889",
 "99aadd4a09e4b02f87fd104b5246dbf38faf3249",
+"9aa146294b2d3b1d59113e15306b4cc0f7f7ad2b",
 "acff23730db7e664551e9a21a6c4285ac943a02e",
 "b2f55a5020da0f7599dd1fe8b9deef2d51198fc4",
 "bc6ab9a44e78025c2e4ea6604fd4bb4e60752b4c",
@@ -25758,23 +25762,11 @@
 "Input price": "0.000002",
 "Output price": "0.00001"
 },
-"openai/gpt-6.1-sol-pro:batch": {
-"Name": "OpenAI: GPT-6.1 Sol Pro (batch)",
-"Context": 1050000,
-"Input price": "0.000001",
-"Output price": "0.000005"
-},
 "openai/gpt-6.1-sol": {
 "Name": "OpenAI: GPT-6.1 Sol",
 "Context": 1050000,
 "Input price": "0.000002",
 "Output price": "0.00001"
-},
-"openai/gpt-6.1-sol:batch": {
-"Name": "OpenAI: GPT-6.1 Sol (batch)",
-"Context": 1050000,
-"Input price": "0.000001",
-"Output price": "0.000005"
 },
 "anthropic/claude-sonnet-5.5": {
 "Name": "Anthropic: Claude Sonnet 5.5",
@@ -25959,14 +25951,14 @@
 "~deepseek/deepseek-pro-latest": {
 "Name": "DeepSeek: DeepSeek Pro Latest",
 "Context": 1048576,
-"Input price": "0.000000123",
+"Input price": "0.0000002276",
 "Output price": "0.0000035"
 },
 "~deepseek/deepseek-flash-latest": {
 "Name": "DeepSeek: DeepSeek Flash Latest",
 "Context": 1048576,
-"Input price": "0.000000015543",
-"Output price": "0.000000396"
+"Input price": "0.000000027",
+"Output price": "0.0000006"
 },
 "inference-net/schematron-v2-turbo": {
 "Name": "Inference.net: Schematron V2 Turbo",
@@ -26025,8 +26017,8 @@
 "deepseek/deepseek-v4.1-flash": {
 "Name": "DeepSeek: DeepSeek V4.1 Flash",
 "Context": 1048576,
-"Input price": "0.000000015543",
-"Output price": "0.000000396"
+"Input price": "0.00000003",
+"Output price": "0.0000005"
 },
 "deepseek/deepseek-v4.1-flash:batch": {
 "Name": "DeepSeek: DeepSeek V4.1 Flash (batch)",
@@ -26146,7 +26138,7 @@
 "Name": "Z.ai: GLM Flash Latest",
 "Context": 1048576,
 "Input price": "0.00000002",
-"Output price": "0.0000002475"
+"Output price": "0.0000003"
 },
 "qwen/qwen3.8-flash": {
 "Name": "Qwen: Qwen3.8 Flash",
@@ -26193,8 +26185,8 @@
 "~z-ai/glm-latest": {
 "Name": "Z.ai: GLM Latest",
 "Context": 1048576,
-"Input price": "0.0000002",
-"Output price": "0.0000034"
+"Input price": "0.0000001454",
+"Output price": "0.000004"
 },
 "tencent/hy-mt2-7b": {
 "Name": "Tencent: Hy-MT2-7B",
@@ -26205,7 +26197,7 @@
 "z-ai/glm-5.3": {
 "Name": "Z.ai: GLM 5.3",
 "Context": 1048576,
-"Input price": "0.0000003",
+"Input price": "0.0000002219",
 "Output price": "0.0000044"
 },
 "z-ai/glm-5.3:batch": {
@@ -26319,13 +26311,13 @@
 "~deepseek/deepseek-v4-flash-latest": {
 "Name": "DeepSeek: DeepSeek V4 Flash Latest",
 "Context": 1048576,
-"Input price": "0.000000006534",
-"Output price": "0.00000013068"
+"Input price": "0.0000000108",
+"Output price": "0.00000128"
 },
 "deepseek/deepseek-v4-flash-0731": {
 "Name": "DeepSeek: DeepSeek V4 Flash 0731",
 "Context": 1048576,
-"Input price": "0.0000000066",
+"Input price": "0.0000000108",
 "Output price": "0.00000128"
 },
 "thinkingmachines/inkling-small": {
@@ -26427,7 +26419,7 @@
 "moonshotai/kimi-k3": {
 "Name": "MoonshotAI: Kimi K3",
 "Context": 1048576,
-"Input price": "0.00000028",
+"Input price": "0.0000006846",
 "Output price": "0.00001"
 },
 "moonshotai/kimi-k3:batch": {
@@ -26793,7 +26785,7 @@
 "~moonshotai/kimi-latest": {
 "Name": "MoonshotAI: Kimi Latest",
 "Context": 1048576,
-"Input price": "0.00000028",
+"Input price": "0.0000006846",
 "Output price": "0.00001"
 },
 "~google/gemini-flash-latest": {
@@ -26865,14 +26857,14 @@
 "deepseek/deepseek-v4-pro": {
 "Name": "DeepSeek: DeepSeek V4 Pro 0423",
 "Context": 1048576,
-"Input price": "0.000000783",
-"Output price": "0.000001566"
+"Input price": "0.0000002088",
+"Output price": "0.0000004176"
 },
 "deepseek/deepseek-v4-flash": {
 "Name": "DeepSeek: DeepSeek V4 Flash 0423",
 "Context": 1048576,
-"Input price": "0.00000007854",
-"Output price": "0.00000015708"
+"Input price": "0.000000042",
+"Output price": "0.000000084"
 },
 "tencent/hy3-preview": {
 "Name": "Tencent: Hy3 preview",
@@ -26913,8 +26905,8 @@
 "moonshotai/kimi-k2.6": {
 "Name": "MoonshotAI: Kimi K2.6",
 "Context": 262144,
-"Input price": "0.00000065",
-"Output price": "0.00000341"
+"Input price": "0.00000043415",
+"Output price": "0.000001828"
 },
 "anthropic/claude-opus-4.7": {
 "Name": "Anthropic: Claude Opus 4.7",
@@ -26937,8 +26929,8 @@
 "google/gemma-4-26b-a4b-it": {
 "Name": "Google: Gemma 4 26B A4B ",
 "Context": 262144,
-"Input price": "0.0000000765",
-"Output price": "0.000000255"
+"Input price": "0.00000009",
+"Output price": "0.0000003"
 },
 "google/gemma-4-26b-a4b-it:free": {
 "Name": "Google: Gemma 4 26B A4B  (free)",
