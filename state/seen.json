@@ -57,7 +57,9 @@
 "chg::deepseek/deepseek-v4.1-flash",
 "chg::google/gemma-4-26b-a4b-it",
 "chg::meta/muse-glimmer-30b",
+"chg::minimax/minimax-m1",
 "chg::moonshotai/kimi-k3",
+"chg::nvidia/nemotron-3.5-lightning",
 "chg::qwen/qwen3-30b-a3b",
 "chg::qwen/qwen3.8-27b",
 "chg::tencent/hy3",
@@ -19505,6 +19507,7 @@
 "Antigravity::v1.2.1",
 "Antigravity::v1.2.10",
 "Antigravity::v1.2.11",
+"Antigravity::v1.2.12",
 "Antigravity::v1.2.2",
 "Antigravity::v1.2.3",
 "Antigravity::v1.2.4",
@@ -19539,6 +19542,7 @@
 "Antigravity::v2.16.0",
 "Antigravity::v2.17.0",
 "Antigravity::v2.18.1",
+"Antigravity::v2.19.1",
 "Antigravity::v2.2.1",
 "Antigravity::v2.3.0",
 "Antigravity::v2.3.1",
@@ -25961,7 +25965,7 @@
 "~deepseek/deepseek-flash-latest": {
 "Name": "DeepSeek: DeepSeek Flash Latest",
 "Context": 1048576,
-"Input price": "0.00000002",
+"Input price": "0.000000015543",
 "Output price": "0.000000396"
 },
 "inference-net/schematron-v2-turbo": {
@@ -26021,7 +26025,7 @@
 "deepseek/deepseek-v4.1-flash": {
 "Name": "DeepSeek: DeepSeek V4.1 Flash",
 "Context": 1048576,
-"Input price": "0.0000000198",
+"Input price": "0.000000015543",
 "Output price": "0.000000396"
 },
 "deepseek/deepseek-v4.1-flash:batch": {
@@ -26129,8 +26133,8 @@
 "tencent/hy4-preview": {
 "Name": "Tencent: Hy4 preview",
 "Context": 1048576,
-"Input price": "0.0000007506",
-"Output price": "0.0000022509"
+"Input price": "0.000000834",
+"Output price": "0.000002501"
 },
 "inclusionai/ling-3.0-flash-fin": {
 "Name": "inclusionAI: Ling 3.0 Flash Fin",
@@ -26189,8 +26193,8 @@
 "~z-ai/glm-latest": {
 "Name": "Z.ai: GLM Latest",
 "Context": 1048576,
-"Input price": "0.00000013",
-"Output price": "0.000004"
+"Input price": "0.0000002",
+"Output price": "0.0000034"
 },
 "tencent/hy-mt2-7b": {
 "Name": "Tencent: Hy-MT2-7B",
@@ -26201,7 +26205,7 @@
 "z-ai/glm-5.3": {
 "Name": "Z.ai: GLM 5.3",
 "Context": 1048576,
-"Input price": "0.0000014",
+"Input price": "0.0000003",
 "Output price": "0.0000044"
 },
 "z-ai/glm-5.3:batch": {
@@ -26261,8 +26265,8 @@
 "deepseek/deepseek-v4-pro-0813": {
 "Name": "DeepSeek: DeepSeek V4 Pro 0813",
 "Context": 1048576,
-"Input price": "0.00000066",
-"Output price": "0.00000198"
+"Input price": "0.00000132",
+"Output price": "0.00000396"
 },
 "x-ai/grok-4.6": {
 "Name": "SpaceXAI: Grok 4.6",
@@ -26280,7 +26284,7 @@
 "Name": "NVIDIA: Nemotron 3.5 Lightning",
 "Context": 262144,
 "Input price": "0.00000006",
-"Output price": "0.00000016"
+"Output price": "0.00000017"
 },
 "nvidia/nemotron-3.5-lightning:free": {
 "Name": "NVIDIA: Nemotron 3.5 Lightning (free)",
@@ -26315,13 +26319,13 @@
 "~deepseek/deepseek-v4-flash-latest": {
 "Name": "DeepSeek: DeepSeek V4 Flash Latest",
 "Context": 1048576,
-"Input price": "0.00000001",
+"Input price": "0.000000006534",
 "Output price": "0.00000013068"
 },
 "deepseek/deepseek-v4-flash-0731": {
 "Name": "DeepSeek: DeepSeek V4 Flash 0731",
 "Context": 1048576,
-"Input price": "0.00000001",
+"Input price": "0.0000000066",
 "Output price": "0.00000128"
 },
 "thinkingmachines/inkling-small": {
@@ -26543,8 +26547,8 @@
 "tencent/hy3": {
 "Name": "Tencent: Hy3",
 "Context": 262144,
-"Input price": "0.0000000825",
-"Output price": "0.00000033"
+"Input price": "0.000000132",
+"Output price": "0.000000528"
 },
 "poolside/laguna-xs-2.1": {
 "Name": "Poolside: Laguna XS 2.1",
@@ -26603,8 +26607,8 @@
 "z-ai/glm-5.2": {
 "Name": "Z.ai: GLM 5.2",
 "Context": 1048576,
-"Input price": "0.0000003249",
-"Output price": "0.00000399"
+"Input price": "0.0000014",
+"Output price": "0.0000044"
 },
 "openrouter/fusion": {
 "Name": "OpenRouter: Fusion",
@@ -27923,7 +27927,7 @@
 "minimax/minimax-m1": {
 "Name": "MiniMax: MiniMax M1",
 "Context": 1000000,
-"Input price": "0.0000004",
+"Input price": "0.00000055",
 "Output price": "0.0000022"
 },
 "google/gemini-2.5-flash": {
