@@ -61,8 +61,10 @@
 "chg::minimax/minimax-m1",
 "chg::moonshotai/kimi-k2.6",
 "chg::moonshotai/kimi-k3",
+"chg::nvidia/nemotron-3-ultra-550b-a55b",
 "chg::nvidia/nemotron-3.5-lightning",
 "chg::qwen/qwen3-30b-a3b",
+"chg::qwen/qwen3-30b-a3b-instruct-2507",
 "chg::qwen/qwen3.8-27b",
 "chg::tencent/hy3",
 "chg::tencent/hy4-preview",
@@ -6647,6 +6649,7 @@
 "https://blog.google/innovation-and-ai/models-and-research/google-research/google-beam-group-meetings/",
 "https://blog.google/innovation-and-ai/models-and-research/google-research/google-project-suncatcher-facts/",
 "https://blog.google/innovation-and-ai/models-and-research/google-research/mapping-global-methane-emissions-from-space/",
+"https://blog.google/innovation-and-ai/models-and-research/google-research/project-suncatcher-prototype/",
 "https://blog.google/innovation-and-ai/models-and-research/google-research/wildfire-tracking-ai/",
 "https://blog.google/innovation-and-ai/models-and-research/quantum-computing/",
 "https://blog.google/innovation-and-ai/models-and-research/quantum-computing/repliqa-quantum-computing-life-sciences/",
@@ -25980,8 +25983,8 @@
 "~deepseek/deepseek-pro-latest": {
 "Name": "DeepSeek: DeepSeek Pro Latest",
 "Context": 1048576,
-"Input price": "0.00000015312",
-"Output price": "0.00000045936"
+"Input price": "0.0000001431",
+"Output price": "0.0000035"
 },
 "~deepseek/deepseek-flash-latest": {
 "Name": "DeepSeek: DeepSeek Flash Latest",
@@ -26154,8 +26157,8 @@
 "tencent/hy4-preview": {
 "Name": "Tencent: Hy4 preview",
 "Context": 1048576,
-"Input price": "0.0000007506",
-"Output price": "0.0000022509"
+"Input price": "0.000000834",
+"Output price": "0.000002501"
 },
 "inclusionai/ling-3.0-flash-fin": {
 "Name": "inclusionAI: Ling 3.0 Flash Fin",
@@ -26226,8 +26229,8 @@
 "z-ai/glm-5.3": {
 "Name": "Z.ai: GLM 5.3",
 "Context": 1048576,
-"Input price": "0.0000002219",
-"Output price": "0.00000339"
+"Input price": "0.0000014",
+"Output price": "0.0000044"
 },
 "z-ai/glm-5.3:batch": {
 "Name": "Z.ai: GLM 5.3 (batch)",
@@ -26286,8 +26289,8 @@
 "deepseek/deepseek-v4-pro-0813": {
 "Name": "DeepSeek: DeepSeek V4 Pro 0813",
 "Context": 1048576,
-"Input price": "0.00000066",
-"Output price": "0.00000198"
+"Input price": "0.00000132",
+"Output price": "0.00000396"
 },
 "x-ai/grok-4.6": {
 "Name": "SpaceXAI: Grok 4.6",
@@ -26305,7 +26308,7 @@
 "Name": "NVIDIA: Nemotron 3.5 Lightning",
 "Context": 262144,
 "Input price": "0.00000006",
-"Output price": "0.00000017"
+"Output price": "0.00000016"
 },
 "nvidia/nemotron-3.5-lightning:free": {
 "Name": "NVIDIA: Nemotron 3.5 Lightning (free)",
@@ -26448,7 +26451,7 @@
 "moonshotai/kimi-k3": {
 "Name": "MoonshotAI: Kimi K3",
 "Context": 1048576,
-"Input price": "0.000000415",
+"Input price": "0.000000355",
 "Output price": "0.00001"
 },
 "moonshotai/kimi-k3:batch": {
@@ -26568,8 +26571,8 @@
 "tencent/hy3": {
 "Name": "Tencent: Hy3",
 "Context": 262144,
-"Input price": "0.0000000825",
-"Output price": "0.00000033"
+"Input price": "0.000000132",
+"Output price": "0.000000528"
 },
 "poolside/laguna-xs-2.1": {
 "Name": "Poolside: Laguna XS 2.1",
@@ -26628,7 +26631,7 @@
 "z-ai/glm-5.2": {
 "Name": "Z.ai: GLM 5.2",
 "Context": 1048576,
-"Input price": "0.00000014",
+"Input price": "0.00000041",
 "Output price": "0.00000399"
 },
 "openrouter/fusion": {
@@ -26676,8 +26679,8 @@
 "nvidia/nemotron-3-ultra-550b-a55b": {
 "Name": "NVIDIA: Nemotron 3 Ultra",
 "Context": 262144,
-"Input price": "0.0000006",
-"Output price": "0.0000024"
+"Input price": "0.0000005",
+"Output price": "0.0000022"
 },
 "nvidia/nemotron-3-ultra-550b-a55b:free": {
 "Name": "NVIDIA: Nemotron 3 Ultra (free)",
@@ -26814,7 +26817,7 @@
 "~moonshotai/kimi-latest": {
 "Name": "MoonshotAI: Kimi Latest",
 "Context": 1048576,
-"Input price": "0.000000415",
+"Input price": "0.000000355",
 "Output price": "0.00001"
 },
 "~google/gemini-flash-latest": {
@@ -27852,8 +27855,8 @@
 "qwen/qwen3-30b-a3b-instruct-2507": {
 "Name": "Qwen: Qwen3 30B A3B Instruct 2507",
 "Context": 262144,
-"Input price": "0.00000004815",
-"Output price": "0.00000019305"
+"Input price": "0.0000001",
+"Output price": "0.0000003"
 },
 "z-ai/glm-4.5": {
 "Name": "Z.ai: GLM 4.5",
