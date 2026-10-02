@@ -51,12 +51,14 @@
 "bytedance-seed/seed-2.0-lite",
 "bytedance-seed/seed-2.0-mini",
 "bytedance/ui-tars-1.5-7b",
+"chg::deepseek/deepseek-v3.1-terminus",
 "chg::deepseek/deepseek-v4-flash",
 "chg::deepseek/deepseek-v4-flash-0731",
 "chg::deepseek/deepseek-v4-pro",
 "chg::deepseek/deepseek-v4-pro-0813",
 "chg::deepseek/deepseek-v4.1-flash",
 "chg::google/gemma-4-26b-a4b-it",
+"chg::inclusionai/ling-3.0-flash-fin",
 "chg::meta/muse-glimmer-30b",
 "chg::minimax/minimax-m1",
 "chg::moonshotai/kimi-k2.6",
@@ -235,6 +237,7 @@
 "nvidia/nemotron-3.5-content-safety:free",
 "nvidia/nemotron-3.5-lightning",
 "nvidia/nemotron-3.5-lightning:free",
+"nvidia/switchyard",
 "openai/gpt-3.5-turbo",
 "openai/gpt-3.5-turbo-0613",
 "openai/gpt-3.5-turbo-16k",
@@ -19333,6 +19336,7 @@
 "062d1613d9276114c4af329c34708e86b41365f5",
 "07b95ba4e96c52b34ba6ffdc68aced90797cf9fd",
 "298a9382db09f04c8db646f84d681b16a1596934",
+"30625032c930218dad84a7a0ab0e97b31cda40dd",
 "550bed1161044a3d69be78ef263de16f06f52280",
 "5b6b2be06e92f9d20ace25256420c010b66ad1c6",
 "6cea47503efae2004c7fe196819b2a94f5b97d47",
@@ -25940,6 +25944,12 @@
 "Input price": "0.000002",
 "Output price": "0.00001"
 },
+"nvidia/switchyard": {
+"Name": "NVIDIA: Switchyard",
+"Context": 1000000,
+"Input price": "-1",
+"Output price": "-1"
+},
 "xiaomi/mimo-v2.6-pro-ultraspeed": {
 "Name": "Xiaomi: MiMo-V2.6-Pro-UltraSpeed",
 "Context": 1048576,
@@ -25997,8 +26007,8 @@
 "~deepseek/deepseek-flash-latest": {
 "Name": "DeepSeek: DeepSeek Flash Latest",
 "Context": 1048576,
-"Input price": "0.00000002",
-"Output price": "0.0000006"
+"Input price": "0.000000015",
+"Output price": "0.000000676999"
 },
 "inference-net/schematron-v2-turbo": {
 "Name": "Inference.net: Schematron V2 Turbo",
@@ -26057,8 +26067,8 @@
 "deepseek/deepseek-v4.1-flash": {
 "Name": "DeepSeek: DeepSeek V4.1 Flash",
 "Context": 1048576,
-"Input price": "0.00000002",
-"Output price": "0.0000006"
+"Input price": "0.0000003",
+"Output price": "0.0000012"
 },
 "deepseek/deepseek-v4.1-flash:batch": {
 "Name": "DeepSeek: DeepSeek V4.1 Flash (batch)",
@@ -26171,14 +26181,14 @@
 "inclusionai/ling-3.0-flash-fin": {
 "Name": "inclusionAI: Ling 3.0 Flash Fin",
 "Context": 262144,
-"Input price": "0.00000006",
-"Output price": "0.00000018"
+"Input price": "0.000000042",
+"Output price": "0.0000001232"
 },
 "~z-ai/glm-flash-latest": {
 "Name": "Z.ai: GLM Flash Latest",
 "Context": 1048576,
 "Input price": "0.00000002625",
-"Output price": "0.0000006"
+"Output price": "0.000000928749"
 },
 "qwen/qwen3.8-flash": {
 "Name": "Qwen: Qwen3.8 Flash",
@@ -26351,8 +26361,8 @@
 "~deepseek/deepseek-v4-flash-latest": {
 "Name": "DeepSeek: DeepSeek V4 Flash Latest",
 "Context": 1048576,
-"Input price": "0.000000003825",
-"Output price": "0.0000012"
+"Input price": "0.000000012825",
+"Output price": "0.000000602574"
 },
 "deepseek/deepseek-v4-flash-0731": {
 "Name": "DeepSeek: DeepSeek V4 Flash 0731",
@@ -26687,8 +26697,8 @@
 "nvidia/nemotron-3-ultra-550b-a55b": {
 "Name": "NVIDIA: Nemotron 3 Ultra",
 "Context": 262144,
-"Input price": "0.0000006",
-"Output price": "0.0000024"
+"Input price": "0.0000005",
+"Output price": "0.0000022"
 },
 "nvidia/nemotron-3-ultra-550b-a55b:free": {
 "Name": "NVIDIA: Nemotron 3 Ultra (free)",
@@ -26825,8 +26835,8 @@
 "~moonshotai/kimi-latest": {
 "Name": "MoonshotAI: Kimi Latest",
 "Context": 1048576,
-"Input price": "0.00000139",
-"Output price": "0.000013"
+"Input price": "0.000001",
+"Output price": "0.000011357"
 },
 "~google/gemini-flash-latest": {
 "Name": "Google: Gemini Flash Latest",
@@ -26969,8 +26979,8 @@
 "google/gemma-4-26b-a4b-it": {
 "Name": "Google: Gemma 4 26B A4B ",
 "Context": 262144,
-"Input price": "0.00000009",
-"Output price": "0.0000003"
+"Input price": "0.0000000675",
+"Output price": "0.000000225"
 },
 "google/gemma-4-26b-a4b-it:free": {
 "Name": "Google: Gemma 4 26B A4B  (free)",
@@ -27701,7 +27711,7 @@
 "deepseek/deepseek-v3.1-terminus": {
 "Name": "DeepSeek: DeepSeek V3.1 Terminus",
 "Context": 163840,
-"Input price": "0.0000003",
+"Input price": "0.00000027",
 "Output price": "0.000001"
 },
 "qwen/qwen3-coder-flash": {
