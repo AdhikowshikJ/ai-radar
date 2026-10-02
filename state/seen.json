@@ -154,6 +154,7 @@
 "inclusionai/ling-3.0-flash-fin",
 "inclusionai/ling-3.0-flash-sante:free",
 "inclusionai/ling-3.0-flash-vl",
+"inclusionai/ling-3.1-flash",
 "inference-net/schematron-v2-small",
 "inference-net/schematron-v2-turbo",
 "kwaipilot/kat-coder-pro-v2.5",
@@ -25777,6 +25778,12 @@
 "azure#groups": [],
 "cursor#groups": [],
 "openrouter#snap": {
+"inclusionai/ling-3.1-flash": {
+"Name": "inclusionAI: Ling 3.1 Flash",
+"Context": 262144,
+"Input price": "0",
+"Output price": "0"
+},
 "apodex/apodex-1.1-mini:free": {
 "Name": "Apodex: Apodex 1.1 Mini (free)",
 "Context": 262144,
@@ -25990,8 +25997,8 @@
 "~deepseek/deepseek-flash-latest": {
 "Name": "DeepSeek: DeepSeek Flash Latest",
 "Context": 1048576,
-"Input price": "0.000000015",
-"Output price": "0.0000012"
+"Input price": "0.00000002",
+"Output price": "0.0000006"
 },
 "inference-net/schematron-v2-turbo": {
 "Name": "Inference.net: Schematron V2 Turbo",
@@ -26050,8 +26057,8 @@
 "deepseek/deepseek-v4.1-flash": {
 "Name": "DeepSeek: DeepSeek V4.1 Flash",
 "Context": 1048576,
-"Input price": "0.0000003",
-"Output price": "0.0000012"
+"Input price": "0.00000002",
+"Output price": "0.0000006"
 },
 "deepseek/deepseek-v4.1-flash:batch": {
 "Name": "DeepSeek: DeepSeek V4.1 Flash (batch)",
@@ -26158,8 +26165,8 @@
 "tencent/hy4-preview": {
 "Name": "Tencent: Hy4 preview",
 "Context": 1048576,
-"Input price": "0.000000834",
-"Output price": "0.000002501"
+"Input price": "0.0000007506",
+"Output price": "0.0000022509"
 },
 "inclusionai/ling-3.0-flash-fin": {
 "Name": "inclusionAI: Ling 3.0 Flash Fin",
@@ -26171,7 +26178,7 @@
 "Name": "Z.ai: GLM Flash Latest",
 "Context": 1048576,
 "Input price": "0.00000002625",
-"Output price": "0.0000009"
+"Output price": "0.0000006"
 },
 "qwen/qwen3.8-flash": {
 "Name": "Qwen: Qwen3.8 Flash",
@@ -26344,13 +26351,13 @@
 "~deepseek/deepseek-v4-flash-latest": {
 "Name": "DeepSeek: DeepSeek V4 Flash Latest",
 "Context": 1048576,
-"Input price": "0.0000000077",
-"Output price": "0.00000128"
+"Input price": "0.000000003825",
+"Output price": "0.0000012"
 },
 "deepseek/deepseek-v4-flash-0731": {
 "Name": "DeepSeek: DeepSeek V4 Flash 0731",
 "Context": 1048576,
-"Input price": "0.0000000077",
+"Input price": "0.0000000171",
 "Output price": "0.00000128"
 },
 "thinkingmachines/inkling-small": {
@@ -26572,8 +26579,8 @@
 "tencent/hy3": {
 "Name": "Tencent: Hy3",
 "Context": 262144,
-"Input price": "0.000000132",
-"Output price": "0.000000528"
+"Input price": "0.0000000825",
+"Output price": "0.00000033"
 },
 "poolside/laguna-xs-2.1": {
 "Name": "Poolside: Laguna XS 2.1",
@@ -26680,8 +26687,8 @@
 "nvidia/nemotron-3-ultra-550b-a55b": {
 "Name": "NVIDIA: Nemotron 3 Ultra",
 "Context": 262144,
-"Input price": "0.0000005",
-"Output price": "0.0000022"
+"Input price": "0.0000006",
+"Output price": "0.0000024"
 },
 "nvidia/nemotron-3-ultra-550b-a55b:free": {
 "Name": "NVIDIA: Nemotron 3 Ultra (free)",
@@ -26896,8 +26903,8 @@
 "deepseek/deepseek-v4-flash": {
 "Name": "DeepSeek: DeepSeek V4 Flash 0423",
 "Context": 1048576,
-"Input price": "0.000000042",
-"Output price": "0.000000084"
+"Input price": "0.000000028",
+"Output price": "0.000000056"
 },
 "tencent/hy3-preview": {
 "Name": "Tencent: Hy3 preview",
@@ -30369,6 +30376,7 @@
 "blog.google/innovation-and-ai/models-and-research/google-research/google-science-ai-flu-forecasts",
 "blog.google/innovation-and-ai/products/gemini-app/guided-vision-gemini-live",
 "blog.google/innovation-and-ai/products/gemini-app/new-connected-apps-gemini",
+"blog.google/innovation-and-ai/technology/ai/google-ai-updates-september-2026",
 "blog.google/innovation-and-ai/technology/ai/winner-future-vision-xprize",
 "blog.google/innovation-and-ai/technology/research/google-beam-expansion",
 "blog.google/products-and-platforms/devices/googlebook/henry-cavill-googlebook-video-game",
@@ -30807,6 +30815,7 @@
 "openai.com/index/chatgpt-shopping-research",
 "openai.com/index/chatgpt-study-mode",
 "openai.com/index/chatgpt-whatsapp-transition",
+"openai.com/index/chatham-financial",
 "openai.com/index/child-safety-adopting-sbd-principles",
 "openai.com/index/chime-vineet-mehra",
 "openai.com/index/choco",
@@ -31560,6 +31569,7 @@
 "openai.com/index/point-e",
 "openai.com/index/polimill",
 "openai.com/index/powering-product-discovery-in-chatgpt",
+"openai.com/index/practical-guide-building-gpt-6",
 "openai.com/index/practices-for-governing-agentic-ai-systems",
 "openai.com/index/praktika",
 "openai.com/index/prc-linked-influence-operations-ai-debates",
