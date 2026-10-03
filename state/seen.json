@@ -19251,6 +19251,7 @@
 "tag:google.com,2016:gemini-enterprise-release-notes#August_26_2026",
 "tag:google.com,2016:gemini-enterprise-release-notes#August_28_2026",
 "tag:google.com,2016:gemini-enterprise-release-notes#August_31_2026",
+"tag:google.com,2016:gemini-enterprise-release-notes#October_02_2026",
 "tag:google.com,2016:gemini-enterprise-release-notes#September_01_2026",
 "tag:google.com,2016:gemini-enterprise-release-notes#September_02_2026",
 "tag:google.com,2016:gemini-enterprise-release-notes#September_03_2026",
@@ -26175,8 +26176,8 @@
 "tencent/hy4-preview": {
 "Name": "Tencent: Hy4 preview",
 "Context": 1048576,
-"Input price": "0.0000007506",
-"Output price": "0.0000022509"
+"Input price": "0.000000834",
+"Output price": "0.000002501"
 },
 "inclusionai/ling-3.0-flash-fin": {
 "Name": "inclusionAI: Ling 3.0 Flash Fin",
@@ -26235,8 +26236,8 @@
 "~z-ai/glm-latest": {
 "Name": "Z.ai: GLM Latest",
 "Context": 1048576,
-"Input price": "0.00000012",
-"Output price": "0.000004"
+"Input price": "0.000000066",
+"Output price": "0.000002789"
 },
 "tencent/hy-mt2-7b": {
 "Name": "Tencent: Hy-MT2-7B",
@@ -26326,7 +26327,7 @@
 "Name": "NVIDIA: Nemotron 3.5 Lightning",
 "Context": 262144,
 "Input price": "0.00000006",
-"Output price": "0.00000016"
+"Output price": "0.00000017"
 },
 "nvidia/nemotron-3.5-lightning:free": {
 "Name": "NVIDIA: Nemotron 3.5 Lightning (free)",
@@ -26361,13 +26362,13 @@
 "~deepseek/deepseek-v4-flash-latest": {
 "Name": "DeepSeek: DeepSeek V4 Flash Latest",
 "Context": 1048576,
-"Input price": "0.000000012825",
-"Output price": "0.000000602574"
+"Input price": "0.0000000115",
+"Output price": "0.00000128"
 },
 "deepseek/deepseek-v4-flash-0731": {
 "Name": "DeepSeek: DeepSeek V4 Flash 0731",
 "Context": 1048576,
-"Input price": "0.0000000171",
+"Input price": "0.0000000115",
 "Output price": "0.00000128"
 },
 "thinkingmachines/inkling-small": {
@@ -26589,8 +26590,8 @@
 "tencent/hy3": {
 "Name": "Tencent: Hy3",
 "Context": 262144,
-"Input price": "0.0000000825",
-"Output price": "0.00000033"
+"Input price": "0.000000132",
+"Output price": "0.000000528"
 },
 "poolside/laguna-xs-2.1": {
 "Name": "Poolside: Laguna XS 2.1",
@@ -26836,7 +26837,7 @@
 "Name": "MoonshotAI: Kimi Latest",
 "Context": 1048576,
 "Input price": "0.000001",
-"Output price": "0.000011357"
+"Output price": "0.000013"
 },
 "~google/gemini-flash-latest": {
 "Name": "Google: Gemini Flash Latest",
@@ -26973,8 +26974,8 @@
 "z-ai/glm-5.1": {
 "Name": "Z.ai: GLM 5.1",
 "Context": 204800,
-"Input price": "0.0000009646",
-"Output price": "0.0000030316"
+"Input price": "0.0000014",
+"Output price": "0.0000044"
 },
 "google/gemma-4-26b-a4b-it": {
 "Name": "Google: Gemma 4 26B A4B ",
@@ -27873,8 +27874,8 @@
 "qwen/qwen3-30b-a3b-instruct-2507": {
 "Name": "Qwen: Qwen3 30B A3B Instruct 2507",
 "Context": 262144,
-"Input price": "0.00000004815",
-"Output price": "0.00000019305"
+"Input price": "0.0000001",
+"Output price": "0.0000003"
 },
 "z-ai/glm-4.5": {
 "Name": "Z.ai: GLM 4.5",
