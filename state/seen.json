@@ -26176,8 +26176,8 @@
 "tencent/hy4-preview": {
 "Name": "Tencent: Hy4 preview",
 "Context": 1048576,
-"Input price": "0.000000834",
-"Output price": "0.000002501"
+"Input price": "0.0000007506",
+"Output price": "0.0000022509"
 },
 "inclusionai/ling-3.0-flash-fin": {
 "Name": "inclusionAI: Ling 3.0 Flash Fin",
@@ -26590,8 +26590,8 @@
 "tencent/hy3": {
 "Name": "Tencent: Hy3",
 "Context": 262144,
-"Input price": "0.000000132",
-"Output price": "0.000000528"
+"Input price": "0.0000000825",
+"Output price": "0.00000033"
 },
 "poolside/laguna-xs-2.1": {
 "Name": "Poolside: Laguna XS 2.1",
