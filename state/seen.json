@@ -26002,7 +26002,7 @@
 "~deepseek/deepseek-pro-latest": {
 "Name": "DeepSeek: DeepSeek Pro Latest",
 "Context": 1048576,
-"Input price": "0.00000012",
+"Input price": "0.00000022",
 "Output price": "0.0000042"
 },
 "~deepseek/deepseek-flash-latest": {
@@ -26308,8 +26308,8 @@
 "deepseek/deepseek-v4-pro-0813": {
 "Name": "DeepSeek: DeepSeek V4 Pro 0813",
 "Context": 1048576,
-"Input price": "0.00000066",
-"Output price": "0.00000198"
+"Input price": "0.00000022",
+"Output price": "0.0000042"
 },
 "x-ai/grok-4.6": {
 "Name": "SpaceXAI: Grok 4.6",
@@ -26362,13 +26362,13 @@
 "~deepseek/deepseek-v4-flash-latest": {
 "Name": "DeepSeek: DeepSeek V4 Flash Latest",
 "Context": 1048576,
-"Input price": "0.0000000171",
+"Input price": "0.0000000188",
 "Output price": "0.00000128"
 },
 "deepseek/deepseek-v4-flash-0731": {
 "Name": "DeepSeek: DeepSeek V4 Flash 0731",
 "Context": 1048576,
-"Input price": "0.0000000171",
+"Input price": "0.0000000188",
 "Output price": "0.00000128"
 },
 "thinkingmachines/inkling-small": {
@@ -26470,7 +26470,7 @@
 "moonshotai/kimi-k3": {
 "Name": "MoonshotAI: Kimi K3",
 "Context": 1048576,
-"Input price": "0.0000027",
+"Input price": "0.00000099",
 "Output price": "0.0000135"
 },
 "moonshotai/kimi-k3:batch": {
