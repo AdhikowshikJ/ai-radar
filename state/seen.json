@@ -26252,7 +26252,7 @@
 "~z-ai/glm-latest": {
 "Name": "Z.ai: GLM Latest",
 "Context": 1048576,
-"Input price": "0.00000005",
+"Input price": "0.00000008",
 "Output price": "0.000005"
 },
 "tencent/hy-mt2-7b": {
@@ -26324,8 +26324,8 @@
 "deepseek/deepseek-v4-pro-0813": {
 "Name": "DeepSeek: DeepSeek V4 Pro 0813",
 "Context": 1048576,
-"Input price": "0.00000055",
-"Output price": "0.0000042"
+"Input price": "0.00000085",
+"Output price": "0.000005"
 },
 "x-ai/grok-4.6": {
 "Name": "SpaceXAI: Grok 4.6",
@@ -26666,8 +26666,8 @@
 "z-ai/glm-5.2": {
 "Name": "Z.ai: GLM 5.2",
 "Context": 1048576,
-"Input price": "0.00000038",
-"Output price": "0.00000349"
+"Input price": "0.000000064",
+"Output price": "0.000008"
 },
 "openrouter/fusion": {
 "Name": "OpenRouter: Fusion",
@@ -26852,7 +26852,7 @@
 "~moonshotai/kimi-latest": {
 "Name": "MoonshotAI: Kimi Latest",
 "Context": 1048576,
-"Input price": "0.0000006677",
+"Input price": "0.0000006111",
 "Output price": "0.000013"
 },
 "~google/gemini-flash-latest": {
