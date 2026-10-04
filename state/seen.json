@@ -26018,7 +26018,7 @@
 "~deepseek/deepseek-pro-latest": {
 "Name": "DeepSeek: DeepSeek Pro Latest",
 "Context": 1048576,
-"Input price": "0.000000176",
+"Input price": "0.0000001901",
 "Output price": "0.0000042"
 },
 "~deepseek/deepseek-flash-latest": {
@@ -26204,7 +26204,7 @@
 "~z-ai/glm-flash-latest": {
 "Name": "Z.ai: GLM Flash Latest",
 "Context": 1048576,
-"Input price": "0.0000000292",
+"Input price": "0.0000000352",
 "Output price": "0.0000005"
 },
 "qwen/qwen3.8-flash": {
@@ -26253,7 +26253,7 @@
 "Name": "Z.ai: GLM Latest",
 "Context": 1048576,
 "Input price": "0.00000005",
-"Output price": "0.0000044"
+"Output price": "0.000005"
 },
 "tencent/hy-mt2-7b": {
 "Name": "Tencent: Hy-MT2-7B",
@@ -26277,7 +26277,7 @@
 "Name": "Qwen: Qwen3.8 27B",
 "Context": 1000000,
 "Input price": "0.00000042",
-"Output price": "0.000003"
+"Output price": "0.00000255"
 },
 "qwen/qwen3.8-27b:free": {
 "Name": "Qwen: Qwen3.8 27B (free)",
@@ -26324,7 +26324,7 @@
 "deepseek/deepseek-v4-pro-0813": {
 "Name": "DeepSeek: DeepSeek V4 Pro 0813",
 "Context": 1048576,
-"Input price": "0.00000022",
+"Input price": "0.00000055",
 "Output price": "0.0000042"
 },
 "x-ai/grok-4.6": {
@@ -26852,7 +26852,7 @@
 "~moonshotai/kimi-latest": {
 "Name": "MoonshotAI: Kimi Latest",
 "Context": 1048576,
-"Input price": "0.000000576",
+"Input price": "0.0000006677",
 "Output price": "0.000013"
 },
 "~google/gemini-flash-latest": {
@@ -26930,8 +26930,8 @@
 "deepseek/deepseek-v4-flash": {
 "Name": "DeepSeek: DeepSeek V4 Flash 0423",
 "Context": 1048576,
-"Input price": "0.000000028",
-"Output price": "0.000000056"
+"Input price": "0.0000000224",
+"Output price": "0.00000128"
 },
 "tencent/hy3-preview": {
 "Name": "Tencent: Hy3 preview",
