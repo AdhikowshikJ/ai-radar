@@ -26192,8 +26192,8 @@
 "tencent/hy4-preview": {
 "Name": "Tencent: Hy4 preview",
 "Context": 1048576,
-"Input price": "0.000000834",
-"Output price": "0.000002501"
+"Input price": "0.0000007506",
+"Output price": "0.0000022509"
 },
 "inclusionai/ling-3.0-flash-fin": {
 "Name": "inclusionAI: Ling 3.0 Flash Fin",
@@ -26252,7 +26252,7 @@
 "~z-ai/glm-latest": {
 "Name": "Z.ai: GLM Latest",
 "Context": 1048576,
-"Input price": "0.00000008",
+"Input price": "0.00000006",
 "Output price": "0.000005"
 },
 "tencent/hy-mt2-7b": {
@@ -26606,8 +26606,8 @@
 "tencent/hy3": {
 "Name": "Tencent: Hy3",
 "Context": 262144,
-"Input price": "0.000000132",
-"Output price": "0.000000528"
+"Input price": "0.0000000825",
+"Output price": "0.00000033"
 },
 "poolside/laguna-xs-2.1": {
 "Name": "Poolside: Laguna XS 2.1",
@@ -26666,7 +26666,7 @@
 "z-ai/glm-5.2": {
 "Name": "Z.ai: GLM 5.2",
 "Context": 1048576,
-"Input price": "0.000000064",
+"Input price": "0.000000104",
 "Output price": "0.000008"
 },
 "openrouter/fusion": {
@@ -26852,7 +26852,7 @@
 "~moonshotai/kimi-latest": {
 "Name": "MoonshotAI: Kimi Latest",
 "Context": 1048576,
-"Input price": "0.0000006111",
+"Input price": "0.0000006687",
 "Output price": "0.000013"
 },
 "~google/gemini-flash-latest": {
@@ -31888,8 +31888,8 @@
 "deepseek-v4-1-flash",
 "gpt-5.6-sol",
 "hampshire",
-"cortado",
 "muse-spark-1.2",
+"cortado",
 "claude-fable-5",
 "gemini-3.7-flash",
 "gemini-3.8-flash",
@@ -31910,8 +31910,8 @@
 "gpt-6-luna",
 "deca-2.5-mini",
 "kimi-k2.6",
-"coconut",
 "qwen3.7-plus",
+"coconut",
 "mimo-v2.5-pro",
 "gemini-3.5-flash",
 "deca-2.5-ultra-2",
