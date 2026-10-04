@@ -51,6 +51,7 @@
 "bytedance-seed/seed-2.0-lite",
 "bytedance-seed/seed-2.0-mini",
 "bytedance/ui-tars-1.5-7b",
+"chg::deepseek/deepseek-chat-v3-0324",
 "chg::deepseek/deepseek-v3.1-terminus",
 "chg::deepseek/deepseek-v4-flash",
 "chg::deepseek/deepseek-v4-flash-0731",
@@ -59,6 +60,7 @@
 "chg::deepseek/deepseek-v4.1-flash",
 "chg::google/gemma-4-26b-a4b-it",
 "chg::inclusionai/ling-3.0-flash-fin",
+"chg::meta-llama/llama-3.3-70b-instruct",
 "chg::meta/muse-glimmer-30b",
 "chg::minimax/minimax-m1",
 "chg::moonshotai/kimi-k2.6",
@@ -26082,8 +26084,8 @@
 "deepseek/deepseek-v4.1-flash": {
 "Name": "DeepSeek: DeepSeek V4.1 Flash",
 "Context": 1048576,
-"Input price": "0.0000003",
-"Output price": "0.0000012"
+"Input price": "0.000000003",
+"Output price": "0.0000024"
 },
 "deepseek/deepseek-v4.1-flash:batch": {
 "Name": "DeepSeek: DeepSeek V4.1 Flash (batch)",
@@ -26190,8 +26192,8 @@
 "tencent/hy4-preview": {
 "Name": "Tencent: Hy4 preview",
 "Context": 1048576,
-"Input price": "0.0000007506",
-"Output price": "0.0000022509"
+"Input price": "0.000000834",
+"Output price": "0.000002501"
 },
 "inclusionai/ling-3.0-flash-fin": {
 "Name": "inclusionAI: Ling 3.0 Flash Fin",
@@ -26202,7 +26204,7 @@
 "~z-ai/glm-flash-latest": {
 "Name": "Z.ai: GLM Flash Latest",
 "Context": 1048576,
-"Input price": "0.000000024",
+"Input price": "0.0000000292",
 "Output price": "0.0000005"
 },
 "qwen/qwen3.8-flash": {
@@ -26250,7 +26252,7 @@
 "~z-ai/glm-latest": {
 "Name": "Z.ai: GLM Latest",
 "Context": 1048576,
-"Input price": "0.000000075",
+"Input price": "0.00000005",
 "Output price": "0.0000044"
 },
 "tencent/hy-mt2-7b": {
@@ -26262,8 +26264,8 @@
 "z-ai/glm-5.3": {
 "Name": "Z.ai: GLM 5.3",
 "Context": 1048576,
-"Input price": "0.00000011",
-"Output price": "0.00000339"
+"Input price": "0.0000014",
+"Output price": "0.0000044"
 },
 "z-ai/glm-5.3:batch": {
 "Name": "Z.ai: GLM 5.3 (batch)",
@@ -26484,7 +26486,7 @@
 "moonshotai/kimi-k3": {
 "Name": "MoonshotAI: Kimi K3",
 "Context": 1048576,
-"Input price": "0.000000499",
+"Input price": "0.00000072",
 "Output price": "0.0000135"
 },
 "moonshotai/kimi-k3:batch": {
@@ -26604,8 +26606,8 @@
 "tencent/hy3": {
 "Name": "Tencent: Hy3",
 "Context": 262144,
-"Input price": "0.0000000825",
-"Output price": "0.00000033"
+"Input price": "0.000000132",
+"Output price": "0.000000528"
 },
 "poolside/laguna-xs-2.1": {
 "Name": "Poolside: Laguna XS 2.1",
@@ -26664,7 +26666,7 @@
 "z-ai/glm-5.2": {
 "Name": "Z.ai: GLM 5.2",
 "Context": 1048576,
-"Input price": "0.0000003",
+"Input price": "0.00000038",
 "Output price": "0.00000349"
 },
 "openrouter/fusion": {
@@ -26850,7 +26852,7 @@
 "~moonshotai/kimi-latest": {
 "Name": "MoonshotAI: Kimi Latest",
 "Context": 1048576,
-"Input price": "0.0000003992",
+"Input price": "0.000000576",
 "Output price": "0.000013"
 },
 "~google/gemini-flash-latest": {
@@ -28158,8 +28160,8 @@
 "deepseek/deepseek-chat-v3-0324": {
 "Name": "DeepSeek: DeepSeek V3 0324",
 "Context": 163840,
-"Input price": "0.00000029",
-"Output price": "0.00000114"
+"Input price": "0.00000025",
+"Output price": "0.000001"
 },
 "openai/o1-pro": {
 "Name": "OpenAI: o1-pro",
@@ -28326,8 +28328,8 @@
 "meta-llama/llama-3.3-70b-instruct": {
 "Name": "Meta: Llama 3.3 70B Instruct",
 "Context": 131072,
-"Input price": "0.0000001",
-"Output price": "0.00000032"
+"Input price": "0.00000022",
+"Output price": "0.0000005"
 },
 "amazon/nova-lite-v1": {
 "Name": "Amazon: Nova Lite 1.0",
