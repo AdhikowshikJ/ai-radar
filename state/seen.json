@@ -424,6 +424,7 @@
 "relace/relace-search",
 "rm::openai/gpt-6.1-sol-pro:batch",
 "rm::openai/gpt-6.1-sol:batch",
+"rm::stealth/space-bunny-alpha",
 "sakana/fugu-max",
 "sakana/fugu-ultra",
 "sakana/fugu-ultra-v2",
@@ -10161,9 +10162,11 @@
 "https://blog.google/products-and-platforms/products/education/education-navigator-18-languages/",
 "https://blog.google/products-and-platforms/products/education/education-navigator/",
 "https://blog.google/products-and-platforms/products/education/education-news-from-google-io-tools-to/",
+"https://blog.google/products-and-platforms/products/education/education-officer-gemini/",
 "https://blog.google/products-and-platforms/products/education/eight-things-you-need-know-about-hash-code-2018/",
 "https://blog.google/products-and-platforms/products/education/emea-universities-and-schools-transforming-education-with-the-help-of-google-ai/",
 "https://blog.google/products-and-platforms/products/education/enabling-next-generation-of-computer/",
+"https://blog.google/products-and-platforms/products/education/english-teacher-gemini/",
 "https://blog.google/products-and-platforms/products/education/enrollments-explode-but-diversity/",
 "https://blog.google/products-and-platforms/products/education/expand-cs-ed-access/",
 "https://blog.google/products-and-platforms/products/education/expanded-access-to-google-vids-and-no-cost-ai-tools-in-classroom/",
@@ -10198,9 +10201,11 @@
 "https://blog.google/products-and-platforms/products/education/gemini-features-for-students/",
 "https://blog.google/products-and-platforms/products/education/gemini-finals-study-tips/",
 "https://blog.google/products-and-platforms/products/education/gemini-for-education-now-has-significantly-higher-limits-to-25-pro-free-of-charge/",
+"https://blog.google/products-and-platforms/products/education/gemini-google-colab/",
 "https://blog.google/products-and-platforms/products/education/gemini-higher-education-benefits/",
 "https://blog.google/products-and-platforms/products/education/gemini-interactive-images/",
 "https://blog.google/products-and-platforms/products/education/gemini-iste-2025/",
+"https://blog.google/products-and-platforms/products/education/gemini-student-newscast/",
 "https://blog.google/products-and-platforms/products/education/georgia-schools-revamp-old-processes-and-innovate-using-google-for-educationd-processes/",
 "https://blog.google/products-and-platforms/products/education/get-inspired-three-weeks-left-submit-artwork-doodle-4-google/",
 "https://blog.google/products-and-platforms/products/education/get-practical-ideas-innovating-schools-education-air-dec-3rd/",
@@ -10361,6 +10366,7 @@
 "https://blog.google/products-and-platforms/products/education/maker-camp-on-google-will-be-blast/",
 "https://blog.google/products-and-platforms/products/education/making-spaces-supporting-makerspaces-in/",
 "https://blog.google/products-and-platforms/products/education/measuring-the-impact-of-ai-on-teaching-and-learning/",
+"https://blog.google/products-and-platforms/products/education/media-teacher-gemini/",
 "https://blog.google/products-and-platforms/products/education/meet-15-finalists-and-science-in-action/",
 "https://blog.google/products-and-platforms/products/education/meet-2016-google-science-fair-community/",
 "https://blog.google/products-and-platforms/products/education/meet-fifth-grader-turning-water-bottles-light-bulbs-brighten-communities/",
@@ -10439,6 +10445,7 @@
 "https://blog.google/products-and-platforms/products/education/schools-london-give-new-life-old-computers/",
 "https://blog.google/products-and-platforms/products/education/schools-sweden-have-made-chromebooks-nummer-ett-number-one/",
 "https://blog.google/products-and-platforms/products/education/science-journal-drive-sync/",
+"https://blog.google/products-and-platforms/products/education/science-teacher-gemini/",
 "https://blog.google/products-and-platforms/products/education/security-ai-features/",
 "https://blog.google/products-and-platforms/products/education/setting-teachers-students-and-parents-success-technology-5-tips-bethpage-union-free-school-district/",
 "https://blog.google/products-and-platforms/products/education/she-word-rosie-rios-former-us-treasurer-be-brave-be-empowered-be-yourself/",
@@ -10449,6 +10456,7 @@
 "https://blog.google/products-and-platforms/products/education/socratic-by-google/",
 "https://blog.google/products-and-platforms/products/education/solving-piece-teacher-pipeline-challenge/",
 "https://blog.google/products-and-platforms/products/education/spark-student-creativity-with-chromebook-tablets-ar-vr-and-more/",
+"https://blog.google/products-and-platforms/products/education/special-education-gemini/",
 "https://blog.google/products-and-platforms/products/education/student-applications-now-open-for/",
 "https://blog.google/products-and-platforms/products/education/summer-productivity-tips-google-ai-tools/",
 "https://blog.google/products-and-platforms/products/education/support-developers/",
@@ -10479,6 +10487,9 @@
 "https://blog.google/products-and-platforms/products/education/teacher-appreciation-week-videos/",
 "https://blog.google/products-and-platforms/products/education/teacher-appreciation-week/",
 "https://blog.google/products-and-platforms/products/education/teacher-of-the-year-2026/",
+"https://blog.google/products-and-platforms/products/education/teacher-stories-gemini-middle-school/",
+"https://blog.google/products-and-platforms/products/education/teacher-voices-gemini-creativity/",
+"https://blog.google/products-and-platforms/products/education/teacher-voices-sweden/",
 "https://blog.google/products-and-platforms/products/education/teachers-asked-google-flashfunded/",
 "https://blog.google/products-and-platforms/products/education/teachers-stories-world-teachers-day-2024/",
 "https://blog.google/products-and-platforms/products/education/teaching-students-about-geography-one-google-hangout-time/",
@@ -10541,6 +10552,7 @@
 "https://blog.google/products-and-platforms/products/education/world-teachers-day-2023-es/",
 "https://blog.google/products-and-platforms/products/education/world-teachers-day-2023/",
 "https://blog.google/products-and-platforms/products/education/world-teachers-day-2024/",
+"https://blog.google/products-and-platforms/products/education/world-teachers-day-2026/",
 "https://blog.google/products-and-platforms/products/education/world-teachers-day-es/",
 "https://blog.google/products-and-platforms/products/education/world-teachers-day/",
 "https://blog.google/products-and-platforms/products/education/your-google-education-guide-back-school/",
@@ -11989,6 +12001,7 @@
 "https://blog.google/products-and-platforms/products/search/hispanic-latino-geneaology/",
 "https://blog.google/products-and-platforms/products/search/hit-sauce-what-barbecue-lovers-are-searching-across-us/",
 "https://blog.google/products-and-platforms/products/search/holiday-travel-trends-2025/",
+"https://blog.google/products-and-platforms/products/search/holiday-travel-trends-2026/",
 "https://blog.google/products-and-platforms/products/search/holiday-travel-trends-insights-2024/",
 "https://blog.google/products-and-platforms/products/search/hollywoods-big-night-with-google/",
 "https://blog.google/products-and-platforms/products/search/home-decor-tips/",
@@ -16081,6 +16094,7 @@
 "https://openai.com/index/estee-lauder/",
 "https://openai.com/index/estimating-worst-case-frontier-risks-of-open-weight-llms/",
 "https://openai.com/index/estonia-schools-and-chatgpt/",
+"https://openai.com/index/eu-text-provenance/",
 "https://openai.com/index/evals-drive-next-chapter-of-ai/",
 "https://openai.com/index/evaluating-chain-of-thought-monitorability/",
 "https://openai.com/index/evaluating-fairness-in-chatgpt/",
@@ -16484,6 +16498,7 @@
 "https://openai.com/index/new-ai-classifier-for-indicating-ai-written-text/",
 "https://openai.com/index/new-and-improved-content-moderation-tooling/",
 "https://openai.com/index/new-and-improved-embedding-model/",
+"https://openai.com/index/new-chatgpt-ads-format-and-measurement/",
 "https://openai.com/index/new-chatgpt-images-is-here/",
 "https://openai.com/index/new-credit-facility-enhances-financial-flexibility/",
 "https://openai.com/index/new-embedding-models-and-api-updates/",
@@ -25873,12 +25888,6 @@
 "Input price": "0.000004",
 "Output price": "0.000012"
 },
-"stealth/space-bunny-alpha": {
-"Name": "Space Bunny Alpha",
-"Context": 1000000,
-"Input price": "0",
-"Output price": "0"
-},
 "aion-labs/aion-3.5-mini": {
 "Name": "AionLabs: Aion 3.5 Mini",
 "Context": 262144,
@@ -26194,8 +26203,8 @@
 "tencent/hy4-preview": {
 "Name": "Tencent: Hy4 preview",
 "Context": 1048576,
-"Input price": "0.000000834",
-"Output price": "0.000002501"
+"Input price": "0.0000007506",
+"Output price": "0.0000022509"
 },
 "inclusionai/ling-3.0-flash-fin": {
 "Name": "inclusionAI: Ling 3.0 Flash Fin",
@@ -26266,8 +26275,8 @@
 "z-ai/glm-5.3": {
 "Name": "Z.ai: GLM 5.3",
 "Context": 1048576,
-"Input price": "0.0000014",
-"Output price": "0.0000044"
+"Input price": "0.00000005",
+"Output price": "0.000007"
 },
 "z-ai/glm-5.3:batch": {
 "Name": "Z.ai: GLM 5.3 (batch)",
@@ -26326,7 +26335,7 @@
 "deepseek/deepseek-v4-pro-0813": {
 "Name": "DeepSeek: DeepSeek V4 Pro 0813",
 "Context": 1048576,
-"Input price": "0.00000045",
+"Input price": "0.0000004",
 "Output price": "0.000005"
 },
 "x-ai/grok-4.6": {
@@ -26608,8 +26617,8 @@
 "tencent/hy3": {
 "Name": "Tencent: Hy3",
 "Context": 262144,
-"Input price": "0.000000132",
-"Output price": "0.000000528"
+"Input price": "0.0000000825",
+"Output price": "0.00000033"
 },
 "poolside/laguna-xs-2.1": {
 "Name": "Poolside: Laguna XS 2.1",
@@ -26668,7 +26677,7 @@
 "z-ai/glm-5.2": {
 "Name": "Z.ai: GLM 5.2",
 "Context": 1048576,
-"Input price": "0.0000000224",
+"Input price": "0.0000000192",
 "Output price": "0.000016"
 },
 "openrouter/fusion": {
@@ -26897,7 +26906,7 @@
 "Name": "Qwen: Qwen3.6 27B",
 "Context": 262144,
 "Input price": "0.00000032",
-"Output price": "0.0000027"
+"Output price": "0.00000325"
 },
 "openai/gpt-5.5-pro": {
 "Name": "OpenAI: GPT-5.5 Pro",
@@ -28330,8 +28339,8 @@
 "meta-llama/llama-3.3-70b-instruct": {
 "Name": "Meta: Llama 3.3 70B Instruct",
 "Context": 131072,
-"Input price": "0.0000001",
-"Output price": "0.00000032"
+"Input price": "0.00000022",
+"Output price": "0.0000005"
 },
 "amazon/nova-lite-v1": {
 "Name": "Amazon: Nova Lite 1.0",
