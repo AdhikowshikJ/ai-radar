@@ -67,9 +67,11 @@
 "chg::moonshotai/kimi-k3",
 "chg::nvidia/nemotron-3-ultra-550b-a55b",
 "chg::nvidia/nemotron-3.5-lightning",
+"chg::openai/gpt-5.6-sol-pro",
 "chg::qwen/qwen3-30b-a3b",
 "chg::qwen/qwen3-30b-a3b-instruct-2507",
 "chg::qwen/qwen3.5-35b-a3b",
+"chg::qwen/qwen3.6-27b",
 "chg::qwen/qwen3.8-27b",
 "chg::tencent/hy3",
 "chg::tencent/hy4-preview",
@@ -26192,8 +26194,8 @@
 "tencent/hy4-preview": {
 "Name": "Tencent: Hy4 preview",
 "Context": 1048576,
-"Input price": "0.0000007506",
-"Output price": "0.0000022509"
+"Input price": "0.000000834",
+"Output price": "0.000002501"
 },
 "inclusionai/ling-3.0-flash-fin": {
 "Name": "inclusionAI: Ling 3.0 Flash Fin",
@@ -26324,8 +26326,8 @@
 "deepseek/deepseek-v4-pro-0813": {
 "Name": "DeepSeek: DeepSeek V4 Pro 0813",
 "Context": 1048576,
-"Input price": "0.00000055",
-"Output price": "0.0000042"
+"Input price": "0.00000085",
+"Output price": "0.000005"
 },
 "x-ai/grok-4.6": {
 "Name": "SpaceXAI: Grok 4.6",
@@ -26343,7 +26345,7 @@
 "Name": "NVIDIA: Nemotron 3.5 Lightning",
 "Context": 262144,
 "Input price": "0.00000006",
-"Output price": "0.00000017"
+"Output price": "0.00000016"
 },
 "nvidia/nemotron-3.5-lightning:free": {
 "Name": "NVIDIA: Nemotron 3.5 Lightning (free)",
@@ -26486,7 +26488,7 @@
 "moonshotai/kimi-k3": {
 "Name": "MoonshotAI: Kimi K3",
 "Context": 1048576,
-"Input price": "0.00000072",
+"Input price": "0.00000067",
 "Output price": "0.0000135"
 },
 "moonshotai/kimi-k3:batch": {
@@ -26558,8 +26560,8 @@
 "openai/gpt-5.6-sol-pro": {
 "Name": "OpenAI: GPT-5.6 Sol Pro",
 "Context": 1050000,
-"Input price": "0.000004",
-"Output price": "0.00002"
+"Input price": "0.000002",
+"Output price": "0.00001"
 },
 "openai/gpt-5.6-sol-pro:batch": {
 "Name": "OpenAI: GPT-5.6 Sol Pro (batch)",
@@ -26606,8 +26608,8 @@
 "tencent/hy3": {
 "Name": "Tencent: Hy3",
 "Context": 262144,
-"Input price": "0.0000000825",
-"Output price": "0.00000033"
+"Input price": "0.000000132",
+"Output price": "0.000000528"
 },
 "poolside/laguna-xs-2.1": {
 "Name": "Poolside: Laguna XS 2.1",
@@ -26666,7 +26668,7 @@
 "z-ai/glm-5.2": {
 "Name": "Z.ai: GLM 5.2",
 "Context": 1048576,
-"Input price": "0.000000104",
+"Input price": "0.000000096",
 "Output price": "0.000008"
 },
 "openrouter/fusion": {
@@ -26895,7 +26897,7 @@
 "Name": "Qwen: Qwen3.6 27B",
 "Context": 262144,
 "Input price": "0.00000032",
-"Output price": "0.0000032"
+"Output price": "0.0000027"
 },
 "openai/gpt-5.5-pro": {
 "Name": "OpenAI: GPT-5.5 Pro",
