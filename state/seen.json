@@ -26086,8 +26086,8 @@
 "deepseek/deepseek-v4.1-flash": {
 "Name": "DeepSeek: DeepSeek V4.1 Flash",
 "Context": 1048576,
-"Input price": "0.000000003",
-"Output price": "0.0000024"
+"Input price": "0.0000003",
+"Output price": "0.0000012"
 },
 "deepseek/deepseek-v4.1-flash:batch": {
 "Name": "DeepSeek: DeepSeek V4.1 Flash (batch)",
@@ -26254,8 +26254,8 @@
 "~z-ai/glm-latest": {
 "Name": "Z.ai: GLM Latest",
 "Context": 1048576,
-"Input price": "0.00000008",
-"Output price": "0.000005"
+"Input price": "0.00000003",
+"Output price": "0.000012"
 },
 "tencent/hy-mt2-7b": {
 "Name": "Tencent: Hy-MT2-7B",
@@ -26326,7 +26326,7 @@
 "deepseek/deepseek-v4-pro-0813": {
 "Name": "DeepSeek: DeepSeek V4 Pro 0813",
 "Context": 1048576,
-"Input price": "0.00000085",
+"Input price": "0.00000045",
 "Output price": "0.000005"
 },
 "x-ai/grok-4.6": {
@@ -26668,8 +26668,8 @@
 "z-ai/glm-5.2": {
 "Name": "Z.ai: GLM 5.2",
 "Context": 1048576,
-"Input price": "0.000000096",
-"Output price": "0.000008"
+"Input price": "0.0000000224",
+"Output price": "0.000016"
 },
 "openrouter/fusion": {
 "Name": "OpenRouter: Fusion",
@@ -26932,7 +26932,7 @@
 "deepseek/deepseek-v4-flash": {
 "Name": "DeepSeek: DeepSeek V4 Flash 0423",
 "Context": 1048576,
-"Input price": "0.0000000224",
+"Input price": "0.00000003",
 "Output price": "0.00000128"
 },
 "tencent/hy3-preview": {
@@ -26998,8 +26998,8 @@
 "google/gemma-4-26b-a4b-it": {
 "Name": "Google: Gemma 4 26B A4B ",
 "Context": 262144,
-"Input price": "0.0000000675",
-"Output price": "0.000000225"
+"Input price": "0.00000009",
+"Output price": "0.0000003"
 },
 "google/gemma-4-26b-a4b-it:free": {
 "Name": "Google: Gemma 4 26B A4B  (free)",
@@ -28162,8 +28162,8 @@
 "deepseek/deepseek-chat-v3-0324": {
 "Name": "DeepSeek: DeepSeek V3 0324",
 "Context": 163840,
-"Input price": "0.00000025",
-"Output price": "0.000001"
+"Input price": "0.00000029",
+"Output price": "0.00000114"
 },
 "openai/o1-pro": {
 "Name": "OpenAI: o1-pro",
@@ -28330,8 +28330,8 @@
 "meta-llama/llama-3.3-70b-instruct": {
 "Name": "Meta: Llama 3.3 70B Instruct",
 "Context": 131072,
-"Input price": "0.00000022",
-"Output price": "0.0000005"
+"Input price": "0.0000001",
+"Output price": "0.00000032"
 },
 "amazon/nova-lite-v1": {
 "Name": "Amazon: Nova Lite 1.0",
@@ -30413,6 +30413,7 @@
 "blog.google/products-and-platforms/products/android-enterprise/whats-new-android-enterprise-2026",
 "blog.google/products-and-platforms/products/chrome/tips-for-school-and-studying",
 "blog.google/products-and-platforms/products/education/ai-educator-series-badge-a-thon",
+"blog.google/products-and-platforms/products/education/making-ai-training-available-to-uk-and-ireland-educators",
 "blog.google/products-and-platforms/products/gemini/edys-grocer-gemini",
 "blog.google/products-and-platforms/products/google-health/health-guardian-features-live",
 "blog.google/products-and-platforms/products/photos/google-photos-updates",
