@@ -205,6 +205,7 @@
 "mistralai/mistral-large-2407",
 "mistralai/mistral-large-2512",
 "mistralai/mistral-large-2512:batch",
+"mistralai/mistral-large-4-0",
 "mistralai/mistral-medium-3",
 "mistralai/mistral-medium-3-5",
 "mistralai/mistral-medium-3-5:batch",
@@ -25846,6 +25847,12 @@
 "azure#groups": [],
 "cursor#groups": [],
 "openrouter#snap": {
+"mistralai/mistral-large-4-0": {
+"Name": "Mistral: Mistral Large 4",
+"Context": 524288,
+"Input price": "0.00000068",
+"Output price": "0.00000209"
+},
 "inclusionai/ling-3.1-flash": {
 "Name": "inclusionAI: Ling 3.1 Flash",
 "Context": 262144,
@@ -26059,7 +26066,7 @@
 "~deepseek/deepseek-pro-latest": {
 "Name": "DeepSeek: DeepSeek Pro Latest",
 "Context": 1048576,
-"Input price": "0.0000002674",
+"Input price": "0.0000002399",
 "Output price": "0.0000042"
 },
 "~deepseek/deepseek-flash-latest": {
@@ -26125,7 +26132,7 @@
 "deepseek/deepseek-v4.1-flash": {
 "Name": "DeepSeek: DeepSeek V4.1 Flash",
 "Context": 1048576,
-"Input price": "0.000000029474",
+"Input price": "0.000000021421",
 "Output price": "0.00000132"
 },
 "deepseek/deepseek-v4.1-flash:batch": {
@@ -26233,8 +26240,8 @@
 "tencent/hy4-preview": {
 "Name": "Tencent: Hy4 preview",
 "Context": 1048576,
-"Input price": "0.000000834",
-"Output price": "0.000002501"
+"Input price": "0.0000007506",
+"Output price": "0.0000022509"
 },
 "inclusionai/ling-3.0-flash-fin": {
 "Name": "inclusionAI: Ling 3.0 Flash Fin",
@@ -26245,7 +26252,7 @@
 "~z-ai/glm-flash-latest": {
 "Name": "Z.ai: GLM Flash Latest",
 "Context": 1048576,
-"Input price": "0.0000000244",
+"Input price": "0.0000000278",
 "Output price": "0.0000005"
 },
 "qwen/qwen3.8-flash": {
@@ -26359,8 +26366,8 @@
 "deepseek/deepseek-v4-pro-0813": {
 "Name": "DeepSeek: DeepSeek V4 Pro 0813",
 "Context": 1048576,
-"Input price": "0.00000132",
-"Output price": "0.00000396"
+"Input price": "0.00000066",
+"Output price": "0.00000198"
 },
 "x-ai/grok-4.6": {
 "Name": "SpaceXAI: Grok 4.6",
@@ -26401,8 +26408,8 @@
 "meta/muse-glimmer-30b": {
 "Name": "Meta: Muse Glimmer 30B",
 "Context": 131072,
-"Input price": "0.00000035",
-"Output price": "0.0000015"
+"Input price": "0.0000003",
+"Output price": "0.0000012"
 },
 "meta/muse-spark-1.2": {
 "Name": "Meta: Muse Spark 1.2",
@@ -26413,13 +26420,13 @@
 "~deepseek/deepseek-v4-flash-latest": {
 "Name": "DeepSeek: DeepSeek V4 Flash Latest",
 "Context": 1048576,
-"Input price": "0.000000006",
+"Input price": "0.0000000053",
 "Output price": "0.00000128"
 },
 "deepseek/deepseek-v4-flash-0731": {
 "Name": "DeepSeek: DeepSeek V4 Flash 0731",
 "Context": 1048576,
-"Input price": "0.000000006",
+"Input price": "0.0000000053",
 "Output price": "0.00000128"
 },
 "thinkingmachines/inkling-small": {
@@ -26641,8 +26648,8 @@
 "tencent/hy3": {
 "Name": "Tencent: Hy3",
 "Context": 262144,
-"Input price": "0.000000132",
-"Output price": "0.000000528"
+"Input price": "0.0000000825",
+"Output price": "0.00000033"
 },
 "poolside/laguna-xs-2.1": {
 "Name": "Poolside: Laguna XS 2.1",
@@ -26701,7 +26708,7 @@
 "z-ai/glm-5.2": {
 "Name": "Z.ai: GLM 5.2",
 "Context": 1048576,
-"Input price": "0.0000001856",
+"Input price": "0.000000152",
 "Output price": "0.000012"
 },
 "openrouter/fusion": {
@@ -26965,7 +26972,7 @@
 "deepseek/deepseek-v4-flash": {
 "Name": "DeepSeek: DeepSeek V4 Flash 0423",
 "Context": 1048576,
-"Input price": "0.0000000007",
+"Input price": "0.0000000018",
 "Output price": "0.00000128"
 },
 "tencent/hy3-preview": {
@@ -30426,14 +30433,18 @@
 ],
 "artificialanalysis#groups": [],
 "fastpages": [
+"blog.google/company-news/outreach-and-initiatives/arts-culture/frieze-london-2026",
 "blog.google/company-news/outreach-and-initiatives/arts-culture/las-art-foundation-ai-residency",
 "blog.google/company-news/outreach-and-initiatives/arts-culture/new-arts-culture-app",
 "blog.google/company-news/outreach-and-initiatives/arts-culture/the-talking-museum-museum-memory",
 "blog.google/company-news/outreach-and-initiatives/creating-opportunity/veterans-skilled-trades",
+"blog.google/company-news/outreach-and-initiatives/entrepreneurs/gemini-startup-forum-2026",
 "blog.google/company-news/outreach-and-initiatives/public-policy/america-gov-google-public-sector",
+"blog.google/company-news/why-were-backing-americas-existing-nuclear-plants",
 "blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-3-8-flash-developers",
 "blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-3-8-live-with-live-avatar",
 "blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-4-argon",
+"blog.google/innovation-and-ai/models-and-research/google-labs/create-music-production-plugins-google-flow",
 "blog.google/innovation-and-ai/models-and-research/google-labs/six-new-tools-built-by-creatives",
 "blog.google/innovation-and-ai/models-and-research/google-research/google-project-suncatcher-facts",
 "blog.google/innovation-and-ai/models-and-research/google-research/google-science-ai-flu-forecasts",
@@ -30441,6 +30452,8 @@
 "blog.google/innovation-and-ai/products/gemini-app/new-connected-apps-gemini",
 "blog.google/innovation-and-ai/technology/ai/google-ai-updates-september-2026",
 "blog.google/innovation-and-ai/technology/ai/winner-future-vision-xprize",
+"blog.google/innovation-and-ai/technology/developers-tools/embeddinggemma-2",
+"blog.google/innovation-and-ai/technology/health/google-earth-ai",
 "blog.google/innovation-and-ai/technology/research/google-beam-expansion",
 "blog.google/products-and-platforms/devices/googlebook/henry-cavill-googlebook-video-game",
 "blog.google/products-and-platforms/products/android-enterprise/whats-new-android-enterprise-2026",
@@ -30566,7 +30579,9 @@
 "developers.googleblog.com/colab-is-now-part-of-your-google-ai-plan",
 "developers.googleblog.com/decoding-cosmic-signals-with-deep-learning-and-keras",
 "developers.googleblog.com/driving-developer-excellence-inside-the-program-sprints",
+"developers.googleblog.com/embeddinggemma-2-the-developer-guide",
 "developers.googleblog.com/enterprise-grade-precision-for-long-context-multimodal-embedding-inference-on-cloud-tpu",
+"developers.googleblog.com/google-ai-edge-with-embeddinggemma-2",
 "developers.googleblog.com/heygen-x-google-cloud-bringing-avatar-iv-to-tpus",
 "developers.googleblog.com/how-to-evaluate-live-voice-agents-in-adk",
 "developers.googleblog.com/introducing-credentio-open-source-c-library-for-c2pa-content-credentials-from-google",
@@ -30629,6 +30644,7 @@
 "mistral.ai/news/mistral-compute",
 "mistral.ai/news/mistral-large",
 "mistral.ai/news/mistral-large-2407",
+"mistral.ai/news/mistral-large-4",
 "mistral.ai/news/mistral-makes-sovereign-open-weight-ai-to-frontier",
 "mistral.ai/news/mistral-medium-3",
 "mistral.ai/news/mistral-moderation",
@@ -32154,6 +32170,7 @@
 "gemini-embedding-2-preview",
 "gemini-flash-latest",
 "gemini-flash-lite-latest",
+"gemini-nano-banana-2.1",
 "gemini-omni-1.1-flash",
 "gemini-omni-flash-preview",
 "gemini-pro-latest",
