@@ -144,6 +144,7 @@
 "google/gemini-3.7-flash:batch",
 "google/gemini-3.8-flash",
 "google/gemini-3.8-flash:batch",
+"google/gemini-nano-banana-2.1",
 "google/gemma-2-27b-it",
 "google/gemma-3-12b-it",
 "google/gemma-3-27b-it",
@@ -19312,6 +19313,7 @@
 "tag:google.com,2016:gemini-enterprise-release-notes#August_31_2026",
 "tag:google.com,2016:gemini-enterprise-release-notes#October_01_2026",
 "tag:google.com,2016:gemini-enterprise-release-notes#October_02_2026",
+"tag:google.com,2016:gemini-enterprise-release-notes#October_06_2026",
 "tag:google.com,2016:gemini-enterprise-release-notes#September_01_2026",
 "tag:google.com,2016:gemini-enterprise-release-notes#September_02_2026",
 "tag:google.com,2016:gemini-enterprise-release-notes#September_03_2026",
@@ -19357,6 +19359,8 @@
 "tag:google.com,2016:gemini-release-notes#May_29_2026",
 "tag:google.com,2016:gemini-release-notes#September_01_2026",
 "tag:google.com,2016:gemini-release-notes#September_04_2026",
+"tag:google.com,2016:gemini-release-notes#September_09_2026",
+"tag:google.com,2016:gemini-release-notes#September_15_2026",
 "tag:google.com,2016:generative-ai-on-vertex-ai-release-notes#April_02_2026",
 "tag:google.com,2016:generative-ai-on-vertex-ai-release-notes#April_03_2026",
 "tag:google.com,2016:generative-ai-on-vertex-ai-release-notes#April_06_2026",
@@ -25847,6 +25851,12 @@
 "azure#groups": [],
 "cursor#groups": [],
 "openrouter#snap": {
+"google/gemini-nano-banana-2.1": {
+"Name": "Google: Nano Banana 2.1",
+"Context": 65536,
+"Input price": "0.0000015",
+"Output price": "0.0000075"
+},
 "mistralai/mistral-large-4-0": {
 "Name": "Mistral: Mistral Large 4",
 "Context": 524288,
@@ -26072,8 +26082,8 @@
 "~deepseek/deepseek-flash-latest": {
 "Name": "DeepSeek: DeepSeek Flash Latest",
 "Context": 1048576,
-"Input price": "0.000000019474",
-"Output price": "0.0000012"
+"Input price": "0.000000045",
+"Output price": "0.0000003"
 },
 "inference-net/schematron-v2-turbo": {
 "Name": "Inference.net: Schematron V2 Turbo",
@@ -26132,8 +26142,8 @@
 "deepseek/deepseek-v4.1-flash": {
 "Name": "DeepSeek: DeepSeek V4.1 Flash",
 "Context": 1048576,
-"Input price": "0.000000021421",
-"Output price": "0.00000132"
+"Input price": "0.0000003",
+"Output price": "0.0000012"
 },
 "deepseek/deepseek-v4.1-flash:batch": {
 "Name": "DeepSeek: DeepSeek V4.1 Flash (batch)",
@@ -26252,8 +26262,8 @@
 "~z-ai/glm-flash-latest": {
 "Name": "Z.ai: GLM Flash Latest",
 "Context": 1048576,
-"Input price": "0.0000000278",
-"Output price": "0.0000005"
+"Input price": "0.00000003058",
+"Output price": "0.0000006875"
 },
 "qwen/qwen3.8-flash": {
 "Name": "Qwen: Qwen3.8 Flash",
@@ -26420,13 +26430,13 @@
 "~deepseek/deepseek-v4-flash-latest": {
 "Name": "DeepSeek: DeepSeek V4 Flash Latest",
 "Context": 1048576,
-"Input price": "0.0000000053",
+"Input price": "0.0000000123",
 "Output price": "0.00000128"
 },
 "deepseek/deepseek-v4-flash-0731": {
 "Name": "DeepSeek: DeepSeek V4 Flash 0731",
 "Context": 1048576,
-"Input price": "0.0000000053",
+"Input price": "0.0000000123",
 "Output price": "0.00000128"
 },
 "thinkingmachines/inkling-small": {
@@ -26528,8 +26538,8 @@
 "moonshotai/kimi-k3": {
 "Name": "MoonshotAI: Kimi K3",
 "Context": 1048576,
-"Input price": "0.00000083",
-"Output price": "0.0000135"
+"Input price": "0.00000069",
+"Output price": "0.000015"
 },
 "moonshotai/kimi-k3:batch": {
 "Name": "MoonshotAI: Kimi K3 (batch)",
@@ -26894,8 +26904,8 @@
 "~moonshotai/kimi-latest": {
 "Name": "MoonshotAI: Kimi Latest",
 "Context": 1048576,
-"Input price": "0.00000082",
-"Output price": "0.000013"
+"Input price": "0.00000069",
+"Output price": "0.000015"
 },
 "~google/gemini-flash-latest": {
 "Name": "Google: Gemini Flash Latest",
@@ -26972,7 +26982,7 @@
 "deepseek/deepseek-v4-flash": {
 "Name": "DeepSeek: DeepSeek V4 Flash 0423",
 "Context": 1048576,
-"Input price": "0.0000000018",
+"Input price": "0.0000000242",
 "Output price": "0.00000128"
 },
 "tencent/hy3-preview": {
@@ -27038,8 +27048,8 @@
 "google/gemma-4-26b-a4b-it": {
 "Name": "Google: Gemma 4 26B A4B ",
 "Context": 262144,
-"Input price": "0.00000009",
-"Output price": "0.0000003"
+"Input price": "0.0000000765",
+"Output price": "0.000000255"
 },
 "google/gemma-4-26b-a4b-it:free": {
 "Name": "Google: Gemma 4 26B A4B  (free)",
@@ -30446,6 +30456,7 @@
 "blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-4-argon",
 "blog.google/innovation-and-ai/models-and-research/google-labs/create-music-production-plugins-google-flow",
 "blog.google/innovation-and-ai/models-and-research/google-labs/six-new-tools-built-by-creatives",
+"blog.google/innovation-and-ai/models-and-research/google-research/blind-sweep-ultrasounds-ai",
 "blog.google/innovation-and-ai/models-and-research/google-research/google-project-suncatcher-facts",
 "blog.google/innovation-and-ai/models-and-research/google-research/google-science-ai-flu-forecasts",
 "blog.google/innovation-and-ai/products/gemini-app/guided-vision-gemini-live",
@@ -30489,6 +30500,7 @@
 "deepmind.google/blog/decoupled-diloco",
 "deepmind.google/blog/deepening-our-partnership-with-the-uk-ai-security-institute",
 "deepmind.google/blog/diffusiongemma-4x-faster-text-generation",
+"deepmind.google/blog/embeddinggemma-2-an-open-lightweight-multimodal-embedding-model",
 "deepmind.google/blog/empowering-indias-next-generation-of-innovators-with-atl-saathi",
 "deepmind.google/blog/engineering-more-resilient-crops-for-a-warming-climate",
 "deepmind.google/blog/facts-benchmark-suite-systematically-evaluating-the-factuality-of-large-language-models",
@@ -30770,6 +30782,7 @@
 "openai.com/index/adebayo-ogunlesi-joins-openais-board-of-directors",
 "openai.com/index/advanced-account-security",
 "openai.com/index/advancing-ai-safety-through-state-and-federal-action",
+"openai.com/index/advancing-computer-use-with-ironclad",
 "openai.com/index/advancing-content-provenance",
 "openai.com/index/advancing-independent-research-ai-alignment",
 "openai.com/index/advancing-red-teaming-with-people-and-ai",
@@ -30819,6 +30832,7 @@
 "openai.com/index/astra-for-law",
 "openai.com/index/asu",
 "openai.com/index/asymmetric-actor-critic-for-image-based-robot-learning",
+"openai.com/index/atlassian-partnership",
 "openai.com/index/attacking-machine-learning-with-adversarial-examples",
 "openai.com/index/atv-big-air-tour",
 "openai.com/index/australian-payments-plus",
@@ -32379,6 +32393,7 @@
 "minimax_speech_02_hd",
 "minimax_speech_25_turbo",
 "minimax_speech_28_hd",
+"mistral-large-4-0",
 "mocha-nov-01",
 "murf_falcon_2",
 "murf_gen2",
@@ -32386,8 +32401,8 @@
 "muse-spark-1.2",
 "muse-spark-1.3",
 "muse-spark-1.3-max",
+"nano-banana-2.1",
 "nemotron-3-ultra-550b-a55b",
-"nevada",
 "notebook",
 "nucleus-image",
 "odyssey-2-pro",
