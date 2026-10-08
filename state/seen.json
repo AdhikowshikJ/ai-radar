@@ -68,12 +68,16 @@
 "chg::minimax/minimax-m1",
 "chg::moonshotai/kimi-k2.6",
 "chg::moonshotai/kimi-k3",
+"chg::nvidia/nemotron-3-nano-30b-a3b",
+"chg::nvidia/nemotron-3-super-120b-a12b",
 "chg::nvidia/nemotron-3-ultra-550b-a55b",
 "chg::nvidia/nemotron-3.5-lightning",
 "chg::openai/gpt-5.6-sol-pro",
 "chg::qwen/qwen3-235b-a22b-2507",
 "chg::qwen/qwen3-30b-a3b",
 "chg::qwen/qwen3-30b-a3b-instruct-2507",
+"chg::qwen/qwen3-next-80b-a3b-instruct",
+"chg::qwen/qwen3.5-27b",
 "chg::qwen/qwen3.5-35b-a3b",
 "chg::qwen/qwen3.5-397b-a17b",
 "chg::qwen/qwen3.6-27b",
@@ -3251,6 +3255,7 @@
 "https://blog.google/company-news/inside-google/around-the-globe/google-europe/united-kingdom/google-is-going-on-a-nationwide-tour-to-supercharge-british-small-business-innovation/",
 "https://blog.google/company-news/inside-google/around-the-globe/google-europe/united-kingdom/google-launches-ai-campus-london/",
 "https://blog.google/company-news/inside-google/around-the-globe/google-europe/united-kingdom/google-launching-user-choice-billing-in-the-uk/",
+"https://blog.google/company-news/inside-google/around-the-globe/google-europe/united-kingdom/google-maps-waze-fuel-prices-uk/",
 "https://blog.google/company-news/inside-google/around-the-globe/google-europe/united-kingdom/google-play-points-is-leveling-up-the-rewards-game-in-the-uk/",
 "https://blog.google/company-news/inside-google/around-the-globe/google-europe/united-kingdom/google-play-updates-uk-developers/",
 "https://blog.google/company-news/inside-google/around-the-globe/google-europe/united-kingdom/google-supporting-choice-innovation-and-security-in-uks-mobile-ecosystem/",
@@ -15007,6 +15012,7 @@
 "https://microsoft.ai/blog/",
 "https://microsoft.ai/careers/",
 "https://microsoft.ai/code-of-conduct/",
+"https://microsoft.ai/job-region/enfield-united-kingdom/",
 "https://microsoft.ai/job-region/london-united-kingdom/",
 "https://microsoft.ai/job-region/mountain-view-united-states/",
 "https://microsoft.ai/job-region/multiple-locations-united-states/",
@@ -15014,6 +15020,7 @@
 "https://microsoft.ai/job-region/redmond-united-states/",
 "https://microsoft.ai/job/",
 "https://microsoft.ai/job/clinical-specialist/",
+"https://microsoft.ai/job/compute-orchestration-scheduling/",
 "https://microsoft.ai/job/member-of-technical-staff-applied-ai-lead-health-2/",
 "https://microsoft.ai/job/member-of-technical-staff-applied-ai-lead-health/",
 "https://microsoft.ai/job/member-of-technical-staff-applied-ai-software-engineer-health/",
@@ -19690,6 +19697,7 @@
 "Antigravity::v2.19.1",
 "Antigravity::v2.2.1",
 "Antigravity::v2.21.0",
+"Antigravity::v2.21.1",
 "Antigravity::v2.3.0",
 "Antigravity::v2.3.1",
 "Antigravity::v2.4.3",
@@ -26144,7 +26152,7 @@
 "~deepseek/deepseek-flash-latest": {
 "Name": "DeepSeek: DeepSeek Flash Latest",
 "Context": 1048576,
-"Input price": "0.0000000392",
+"Input price": "0.0000000152",
 "Output price": "0.0000012"
 },
 "inference-net/schematron-v2-turbo": {
@@ -26312,8 +26320,8 @@
 "tencent/hy4-preview": {
 "Name": "Tencent: Hy4 preview",
 "Context": 1048576,
-"Input price": "0.0000007506",
-"Output price": "0.0000022509"
+"Input price": "0.000000834",
+"Output price": "0.000002501"
 },
 "inclusionai/ling-3.0-flash-fin": {
 "Name": "inclusionAI: Ling 3.0 Flash Fin",
@@ -26372,8 +26380,8 @@
 "~z-ai/glm-latest": {
 "Name": "Z.ai: GLM Latest",
 "Context": 1048576,
-"Input price": "0.000000063",
-"Output price": "0.0000063"
+"Input price": "0.0000000496",
+"Output price": "0.000012"
 },
 "tencent/hy-mt2-7b": {
 "Name": "Tencent: Hy-MT2-7B",
@@ -26384,8 +26392,8 @@
 "z-ai/glm-5.3": {
 "Name": "Z.ai: GLM 5.3",
 "Context": 1048576,
-"Input price": "0.00000007",
-"Output price": "0.000007"
+"Input price": "0.000000062",
+"Output price": "0.0000026"
 },
 "z-ai/glm-5.3:batch": {
 "Name": "Z.ai: GLM 5.3 (batch)",
@@ -26714,8 +26722,8 @@
 "tencent/hy3": {
 "Name": "Tencent: Hy3",
 "Context": 262144,
-"Input price": "0.0000000825",
-"Output price": "0.00000033"
+"Input price": "0.000000132",
+"Output price": "0.000000528"
 },
 "poolside/laguna-xs-2.1": {
 "Name": "Poolside: Laguna XS 2.1",
@@ -26774,8 +26782,8 @@
 "z-ai/glm-5.2": {
 "Name": "Z.ai: GLM 5.2",
 "Context": 1048576,
-"Input price": "0.000000171",
-"Output price": "0.0000072"
+"Input price": "0.0000000883",
+"Output price": "0.000012"
 },
 "openrouter/fusion": {
 "Name": "OpenRouter: Fusion",
@@ -27224,8 +27232,8 @@
 "nvidia/nemotron-3-super-120b-a12b": {
 "Name": "NVIDIA: Nemotron 3 Super",
 "Context": 262144,
-"Input price": "0.00000008",
-"Output price": "0.00000045"
+"Input price": "0.000000085",
+"Output price": "0.0000004"
 },
 "nvidia/nemotron-3-super-120b-a12b:free": {
 "Name": "NVIDIA: Nemotron 3 Super (free)",
@@ -27302,8 +27310,8 @@
 "qwen/qwen3.5-27b": {
 "Name": "Qwen: Qwen3.5-27B",
 "Context": 262144,
-"Input price": "0.000000195",
-"Output price": "0.00000156"
+"Input price": "0.00000026",
+"Output price": "0.0000026"
 },
 "qwen/qwen3.5-122b-a10b": {
 "Name": "Qwen: Qwen3.5-122B-A10B",
@@ -27506,8 +27514,8 @@
 "nvidia/nemotron-3-nano-30b-a3b": {
 "Name": "NVIDIA: Nemotron 3 Nano 30B A3B",
 "Context": 262144,
-"Input price": "0.00000005",
-"Output price": "0.0000002"
+"Input price": "0.00000006",
+"Output price": "0.00000024"
 },
 "openai/gpt-5.2-chat": {
 "Name": "OpenAI: GPT-5.2 Chat",
@@ -27854,8 +27862,8 @@
 "qwen/qwen3-next-80b-a3b-instruct": {
 "Name": "Qwen: Qwen3 Next 80B A3B Instruct",
 "Context": 262144,
-"Input price": "0.0000001",
-"Output price": "0.0000011"
+"Input price": "0.00000015",
+"Output price": "0.0000015"
 },
 "qwen/qwen-plus-2025-07-28": {
 "Name": "Qwen: Qwen Plus 0728",
@@ -28436,8 +28444,8 @@
 "meta-llama/llama-3.3-70b-instruct": {
 "Name": "Meta: Llama 3.3 70B Instruct",
 "Context": 131072,
-"Input price": "0.00000022",
-"Output price": "0.0000005"
+"Input price": "0.0000001",
+"Output price": "0.00000032"
 },
 "amazon/nova-lite-v1": {
 "Name": "Amazon: Nova Lite 1.0",
@@ -35650,6 +35658,7 @@
 "openrouter/anthropic/claude-fable-5:batch",
 "openrouter/anthropic/claude-haiku-4.5",
 "openrouter/anthropic/claude-haiku-4.5:batch",
+"openrouter/anthropic/claude-haiku-5.5",
 "openrouter/anthropic/claude-opus-4.1",
 "openrouter/anthropic/claude-opus-4.1:batch",
 "openrouter/anthropic/claude-opus-4.5",
