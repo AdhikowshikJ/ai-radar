@@ -170,6 +170,7 @@
 "inception/mercury-2.5",
 "inclusionai/ling-3.0-flash",
 "inclusionai/ling-3.0-flash-fin",
+"inclusionai/ling-3.0-flash-sante",
 "inclusionai/ling-3.0-flash-sante:free",
 "inclusionai/ling-3.0-flash-vl",
 "inclusionai/ling-3.1-flash",
@@ -435,6 +436,8 @@
 "rekaai/reka-flash-3",
 "relace/relace-apply-3",
 "relace/relace-search",
+"rm::baidu/ernie-4.5-vl-424b-a47b",
+"rm::inclusionai/ling-3.0-flash-sante:free",
 "rm::kwaipilot/kat-coder-pro-v2.5",
 "rm::openai/gpt-6.1-sol-pro:batch",
 "rm::openai/gpt-6.1-sol:batch",
@@ -25966,11 +25969,23 @@
 "Input price": "0.000002",
 "Output price": "0.00001"
 },
+"openai/gpt-6.1-sol-pro:batch": {
+"Name": "OpenAI: GPT-6.1 Sol Pro (batch)",
+"Context": 1050000,
+"Input price": "0.000001",
+"Output price": "0.000005"
+},
 "openai/gpt-6.1-sol": {
 "Name": "OpenAI: GPT-6.1 Sol",
 "Context": 1050000,
 "Input price": "0.000002",
 "Output price": "0.00001"
+},
+"openai/gpt-6.1-sol:batch": {
+"Name": "OpenAI: GPT-6.1 Sol (batch)",
+"Context": 1050000,
+"Input price": "0.000001",
+"Output price": "0.000005"
 },
 "anthropic/claude-sonnet-5.5": {
 "Name": "Anthropic: Claude Sonnet 5.5",
@@ -26155,14 +26170,14 @@
 "~deepseek/deepseek-pro-latest": {
 "Name": "DeepSeek: DeepSeek Pro Latest",
 "Context": 1048576,
-"Input price": "0.000000108",
+"Input price": "0.0000001271",
 "Output price": "0.000008"
 },
 "~deepseek/deepseek-flash-latest": {
 "Name": "DeepSeek: DeepSeek Flash Latest",
 "Context": 1048576,
-"Input price": "0.0000000354",
-"Output price": "0.0000001416"
+"Input price": "0.0000000168",
+"Output price": "0.0000008"
 },
 "inference-net/schematron-v2-turbo": {
 "Name": "Inference.net: Schematron V2 Turbo",
@@ -26272,11 +26287,11 @@
 "Input price": "0.000005",
 "Output price": "0.000025"
 },
-"inclusionai/ling-3.0-flash-sante:free": {
-"Name": "inclusionAI: Ling 3.0 Flash Sante (free)",
+"inclusionai/ling-3.0-flash-sante": {
+"Name": "inclusionAI: Ling 3.0 Flash Sante",
 "Context": 262144,
-"Input price": "0",
-"Output price": "0"
+"Input price": "0.000000042",
+"Output price": "0.0000001232"
 },
 "qwen/qwen3.8-max-0902": {
 "Name": "Qwen: Qwen3.8 Max (0902)",
@@ -26329,8 +26344,8 @@
 "tencent/hy4-preview": {
 "Name": "Tencent: Hy4 preview",
 "Context": 1048576,
-"Input price": "0.000000834",
-"Output price": "0.000002501"
+"Input price": "0.0000007506",
+"Output price": "0.0000022509"
 },
 "inclusionai/ling-3.0-flash-fin": {
 "Name": "inclusionAI: Ling 3.0 Flash Fin",
@@ -26342,7 +26357,7 @@
 "Name": "Z.ai: GLM Flash Latest",
 "Context": 1048576,
 "Input price": "0.000000032",
-"Output price": "0.000004036499"
+"Output price": "0.00000285521"
 },
 "qwen/qwen3.8-flash": {
 "Name": "Qwen: Qwen3.8 Flash",
@@ -26389,7 +26404,7 @@
 "~z-ai/glm-latest": {
 "Name": "Z.ai: GLM Latest",
 "Context": 1048576,
-"Input price": "0.000000036",
+"Input price": "0.00000006",
 "Output price": "0.000012"
 },
 "tencent/hy-mt2-7b": {
@@ -26401,7 +26416,7 @@
 "z-ai/glm-5.3": {
 "Name": "Z.ai: GLM 5.3",
 "Context": 1048576,
-"Input price": "0.000000049",
+"Input price": "0.00000009",
 "Output price": "0.00000339"
 },
 "z-ai/glm-5.3:batch": {
@@ -26509,8 +26524,8 @@
 "~deepseek/deepseek-v4-flash-latest": {
 "Name": "DeepSeek: DeepSeek V4 Flash Latest",
 "Context": 1048576,
-"Input price": "0.0000000104",
-"Output price": "0.00000128"
+"Input price": "0.00000000832",
+"Output price": "0.000000543613"
 },
 "deepseek/deepseek-v4-flash-0731": {
 "Name": "DeepSeek: DeepSeek V4 Flash 0731",
@@ -26617,8 +26632,8 @@
 "moonshotai/kimi-k3": {
 "Name": "MoonshotAI: Kimi K3",
 "Context": 1048576,
-"Input price": "0.00000062",
-"Output price": "0.0000123"
+"Input price": "0.00000082",
+"Output price": "0.0000135"
 },
 "moonshotai/kimi-k3:batch": {
 "Name": "MoonshotAI: Kimi K3 (batch)",
@@ -26731,8 +26746,8 @@
 "tencent/hy3": {
 "Name": "Tencent: Hy3",
 "Context": 262144,
-"Input price": "0.000000132",
-"Output price": "0.000000528"
+"Input price": "0.0000000825",
+"Output price": "0.00000033"
 },
 "poolside/laguna-xs-2.1": {
 "Name": "Poolside: Laguna XS 2.1",
@@ -26791,8 +26806,8 @@
 "z-ai/glm-5.2": {
 "Name": "Z.ai: GLM 5.2",
 "Context": 1048576,
-"Input price": "0.00000003",
-"Output price": "0.00001"
+"Input price": "0.00000007",
+"Output price": "0.0000043"
 },
 "openrouter/fusion": {
 "Name": "OpenRouter: Fusion",
@@ -26977,7 +26992,7 @@
 "~moonshotai/kimi-latest": {
 "Name": "MoonshotAI: Kimi Latest",
 "Context": 1048576,
-"Input price": "0.00000045",
+"Input price": "0.00000082",
 "Output price": "0.000013"
 },
 "~google/gemini-flash-latest": {
@@ -27019,8 +27034,8 @@
 "qwen/qwen3.6-27b": {
 "Name": "Qwen: Qwen3.6 27B",
 "Context": 262144,
-"Input price": "0.00000045",
-"Output price": "0.0000027"
+"Input price": "0.0000003",
+"Output price": "0.000002"
 },
 "openai/gpt-5.5-pro": {
 "Name": "OpenAI: GPT-5.5 Pro",
@@ -27055,7 +27070,7 @@
 "deepseek/deepseek-v4-flash": {
 "Name": "DeepSeek: DeepSeek V4 Flash 0423",
 "Context": 1048576,
-"Input price": "0.0000000173",
+"Input price": "0.0000000057",
 "Output price": "0.00000128"
 },
 "tencent/hy3-preview": {
@@ -27121,8 +27136,8 @@
 "google/gemma-4-26b-a4b-it": {
 "Name": "Google: Gemma 4 26B A4B ",
 "Context": 262144,
-"Input price": "0.00000009",
-"Output price": "0.0000003"
+"Input price": "0.0000000765",
+"Output price": "0.000000255"
 },
 "google/gemma-4-26b-a4b-it:free": {
 "Name": "Google: Gemma 4 26B A4B  (free)",
@@ -27241,8 +27256,8 @@
 "nvidia/nemotron-3-super-120b-a12b": {
 "Name": "NVIDIA: Nemotron 3 Super",
 "Context": 262144,
-"Input price": "0.000000085",
-"Output price": "0.0000004"
+"Input price": "0.00000008",
+"Output price": "0.00000045"
 },
 "nvidia/nemotron-3-super-120b-a12b:free": {
 "Name": "NVIDIA: Nemotron 3 Super (free)",
@@ -27871,8 +27886,8 @@
 "qwen/qwen3-next-80b-a3b-instruct": {
 "Name": "Qwen: Qwen3 Next 80B A3B Instruct",
 "Context": 262144,
-"Input price": "0.00000015",
-"Output price": "0.0000015"
+"Input price": "0.00000009",
+"Output price": "0.0000011"
 },
 "qwen/qwen-plus-2025-07-28": {
 "Name": "Qwen: Qwen Plus 0728",
@@ -28015,8 +28030,8 @@
 "qwen/qwen3-30b-a3b-instruct-2507": {
 "Name": "Qwen: Qwen3 30B A3B Instruct 2507",
 "Context": 262144,
-"Input price": "0.00000004815",
-"Output price": "0.00000019305"
+"Input price": "0.0000001",
+"Output price": "0.0000003"
 },
 "z-ai/glm-4.5": {
 "Name": "Z.ai: GLM 4.5",
@@ -28095,12 +28110,6 @@
 "Context": 81920,
 "Input price": "0.0000008",
 "Output price": "0.0000012"
-},
-"baidu/ernie-4.5-vl-424b-a47b": {
-"Name": "Baidu: ERNIE 4.5 VL 424B A47B ",
-"Context": 123000,
-"Input price": "0.00000042",
-"Output price": "0.00000125"
 },
 "mistralai/mistral-small-3.2-24b-instruct": {
 "Name": "Mistral: Mistral Small 3.2 24B",
@@ -30584,7 +30593,9 @@
 "blog.google/innovation-and-ai/technology/developers-tools/embeddinggemma-2",
 "blog.google/innovation-and-ai/technology/health/google-earth-ai",
 "blog.google/innovation-and-ai/technology/research/google-beam-expansion",
+"blog.google/innovation-and-ai/technology/safety-security/how-to-set-up-passkey",
 "blog.google/products-and-platforms/devices/googlebook/henry-cavill-googlebook-video-game",
+"blog.google/products-and-platforms/platforms/google-play/play-fest",
 "blog.google/products-and-platforms/products/android-enterprise/whats-new-android-enterprise-2026",
 "blog.google/products-and-platforms/products/chrome/tips-for-school-and-studying",
 "blog.google/products-and-platforms/products/education/ai-educator-series-badge-a-thon",
@@ -30719,9 +30730,11 @@
 "developers.googleblog.com/introducing-credentio-open-source-c-library-for-c2pa-content-credentials-from-google",
 "developers.googleblog.com/introducing-support-for-local-ai-models-in-the-antigravity-sdk",
 "developers.googleblog.com/mastering-edge-ai-on-raspberry-pi-with-litert-and-gemma",
+"developers.googleblog.com/ml-drift-next-gen-gpu-aiml-inference-at-the-edge",
 "developers.googleblog.com/reproducing-olmo-3-7b-pre-training-in-maxtext-case-study-of-large-scale-training-on-tpus",
 "developers.googleblog.com/supercharge-your-development-with-the-google-developer-knowledge-api-ecosystem",
 "developers.googleblog.com/the-anatomy-of-harness-engineering-how-to-evaluate-iterate-and-guard-ai-coding-agents",
+"developers.googleblog.com/the-outer-loop-insights-first-an-ambient-quality-agent-that-diagnoses-your-production-agent",
 "developers.googleblog.com/turn-your-rest-apis-into-mcp-tools-with-google-cloud-api-gateway",
 "developers.googleblog.com/why-client-sdk-generation-belongs-in-the-open",
 "developers.googleblog.com/why-go-is-an-ideal-language-for-ai-assisted-software-engineering",
@@ -31121,6 +31134,7 @@
 "openai.com/index/discovering-types-for-entity-disambiguation",
 "openai.com/index/disney-sora-agreement",
 "openai.com/index/disrupting-a-covert-iranian-influence-operation",
+"openai.com/index/disrupting-ai-enabled-false-front-operations",
 "openai.com/index/disrupting-deceptive-uses-of-ai-by-covert-influence-operations",
 "openai.com/index/disrupting-malicious-ai-uses",
 "openai.com/index/disrupting-malicious-uses-of-ai-a2z",
@@ -31743,6 +31757,7 @@
 "openai.com/index/openai-welcomes-cfo-cpo",
 "openai.com/index/operator-system-card",
 "openai.com/index/optimizing-chatgpt",
+"openai.com/index/oracle",
 "openai.com/index/organizational-update",
 "openai.com/index/oscar",
 "openai.com/index/our-agreement-with-the-department-of-war",
@@ -31784,6 +31799,7 @@
 "openai.com/index/podium",
 "openai.com/index/point-e",
 "openai.com/index/polimill",
+"openai.com/index/pollo-ai",
 "openai.com/index/powering-product-discovery-in-chatgpt",
 "openai.com/index/practical-guide-building-gpt-6",
 "openai.com/index/practices-for-governing-agentic-ai-systems",
@@ -32352,6 +32368,7 @@
 "cherryblossom",
 "chestnut",
 "claude",
+"claude-haiku-5-5",
 "claude-opus-4-8",
 "claude-opus-5",
 "claude-opus-5-5",
@@ -32554,7 +32571,6 @@
 "qwen3.8-max",
 "qwen3.8-max-preview",
 "replit-nov-19",
-"replit-slides",
 "resemble",
 "riverflow-2.5-pro",
 "riverflow-2.5-pro-edit",
