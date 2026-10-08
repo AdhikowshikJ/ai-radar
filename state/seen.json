@@ -66,6 +66,7 @@
 "chg::meta-llama/llama-3.3-70b-instruct",
 "chg::meta/muse-glimmer-30b",
 "chg::minimax/minimax-m1",
+"chg::mistralai/mistral-large-4-0",
 "chg::moonshotai/kimi-k2.6",
 "chg::moonshotai/kimi-k3",
 "chg::nvidia/nemotron-3-nano-30b-a3b",
@@ -449,6 +450,7 @@
 "stealth/space-bunny-alpha",
 "stepfun/step-3.5-flash",
 "stepfun/step-3.7-flash",
+"stepfun/step-5-preview",
 "tencent/hunyuan-a13b-instruct",
 "tencent/hy-mt2-1.8b",
 "tencent/hy-mt2-30b-a3b",
@@ -25910,6 +25912,12 @@
 "azure#groups": [],
 "cursor#groups": [],
 "openrouter#snap": {
+"stepfun/step-5-preview": {
+"Name": "StepFun: Step 5 Preview",
+"Context": 1000000,
+"Input price": "0.000001",
+"Output price": "0.0000027"
+},
 "anthropic/claude-haiku-5.5": {
 "Name": "Anthropic: Claude Haiku 5.5",
 "Context": 1000000,
@@ -25930,7 +25938,7 @@
 },
 "mistralai/mistral-large-4-0": {
 "Name": "Mistral: Mistral Large 4",
-"Context": 524288,
+"Context": 1048576,
 "Input price": "0.00000068",
 "Output price": "0.00000209"
 },
@@ -26147,14 +26155,14 @@
 "~deepseek/deepseek-pro-latest": {
 "Name": "DeepSeek: DeepSeek Pro Latest",
 "Context": 1048576,
-"Input price": "0.0000001575",
+"Input price": "0.000000108",
 "Output price": "0.000008"
 },
 "~deepseek/deepseek-flash-latest": {
 "Name": "DeepSeek: DeepSeek Flash Latest",
 "Context": 1048576,
-"Input price": "0.0000000184",
-"Output price": "0.0000006"
+"Input price": "0.0000000354",
+"Output price": "0.0000001416"
 },
 "inference-net/schematron-v2-turbo": {
 "Name": "Inference.net: Schematron V2 Turbo",
@@ -26334,7 +26342,7 @@
 "Name": "Z.ai: GLM Flash Latest",
 "Context": 1048576,
 "Input price": "0.000000032",
-"Output price": "0.000001062936"
+"Output price": "0.000004036499"
 },
 "qwen/qwen3.8-flash": {
 "Name": "Qwen: Qwen3.8 Flash",
@@ -26381,7 +26389,7 @@
 "~z-ai/glm-latest": {
 "Name": "Z.ai: GLM Latest",
 "Context": 1048576,
-"Input price": "0.0000000392",
+"Input price": "0.000000036",
 "Output price": "0.000012"
 },
 "tencent/hy-mt2-7b": {
@@ -26447,8 +26455,8 @@
 "deepseek/deepseek-v4-pro-0813": {
 "Name": "DeepSeek: DeepSeek V4 Pro 0813",
 "Context": 1048576,
-"Input price": "0.00000132",
-"Output price": "0.00000396"
+"Input price": "0.00000066",
+"Output price": "0.00000198"
 },
 "x-ai/grok-4.6": {
 "Name": "SpaceXAI: Grok 4.6",
@@ -26501,13 +26509,13 @@
 "~deepseek/deepseek-v4-flash-latest": {
 "Name": "DeepSeek: DeepSeek V4 Flash Latest",
 "Context": 1048576,
-"Input price": "0.0000000046",
+"Input price": "0.0000000104",
 "Output price": "0.00000128"
 },
 "deepseek/deepseek-v4-flash-0731": {
 "Name": "DeepSeek: DeepSeek V4 Flash 0731",
 "Context": 1048576,
-"Input price": "0.0000000046",
+"Input price": "0.0000000104",
 "Output price": "0.00000128"
 },
 "thinkingmachines/inkling-small": {
@@ -26609,8 +26617,8 @@
 "moonshotai/kimi-k3": {
 "Name": "MoonshotAI: Kimi K3",
 "Context": 1048576,
-"Input price": "0.00000072",
-"Output price": "0.000015"
+"Input price": "0.00000062",
+"Output price": "0.0000123"
 },
 "moonshotai/kimi-k3:batch": {
 "Name": "MoonshotAI: Kimi K3 (batch)",
@@ -26969,8 +26977,8 @@
 "~moonshotai/kimi-latest": {
 "Name": "MoonshotAI: Kimi Latest",
 "Context": 1048576,
-"Input price": "0.00000061",
-"Output price": "0.000015"
+"Input price": "0.00000045",
+"Output price": "0.000013"
 },
 "~google/gemini-flash-latest": {
 "Name": "Google: Gemini Flash Latest",
@@ -27011,8 +27019,8 @@
 "qwen/qwen3.6-27b": {
 "Name": "Qwen: Qwen3.6 27B",
 "Context": 262144,
-"Input price": "0.0000003",
-"Output price": "0.000002"
+"Input price": "0.00000045",
+"Output price": "0.0000027"
 },
 "openai/gpt-5.5-pro": {
 "Name": "OpenAI: GPT-5.5 Pro",
@@ -27041,13 +27049,13 @@
 "deepseek/deepseek-v4-pro": {
 "Name": "DeepSeek: DeepSeek V4 Pro 0423",
 "Context": 1048576,
-"Input price": "0.00000095526",
-"Output price": "0.00000191052"
+"Input price": "0.00000029232",
+"Output price": "0.00000058464"
 },
 "deepseek/deepseek-v4-flash": {
 "Name": "DeepSeek: DeepSeek V4 Flash 0423",
 "Context": 1048576,
-"Input price": "0.0000000072",
+"Input price": "0.0000000173",
 "Output price": "0.00000128"
 },
 "tencent/hy3-preview": {
@@ -27089,7 +27097,7 @@
 "moonshotai/kimi-k2.6": {
 "Name": "MoonshotAI: Kimi K2.6",
 "Context": 262144,
-"Input price": "0.000000465",
+"Input price": "0.000000441",
 "Output price": "0.00000245"
 },
 "anthropic/claude-opus-4.7": {
@@ -30558,6 +30566,7 @@
 "blog.google/company-news/outreach-and-initiatives/entrepreneurs/gemini-startup-forum-2026",
 "blog.google/company-news/outreach-and-initiatives/public-policy/america-gov-google-public-sector",
 "blog.google/company-news/why-were-backing-americas-existing-nuclear-plants",
+"blog.google/innovation-and-ai/infrastructure-and-cloud/google-cloud/gemini-at-work",
 "blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-3-8-flash-developers",
 "blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-3-8-live-with-live-avatar",
 "blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-4-argon",
@@ -30582,6 +30591,8 @@
 "blog.google/products-and-platforms/products/education/making-ai-training-available-to-uk-and-ireland-educators",
 "blog.google/products-and-platforms/products/gemini/edys-grocer-gemini",
 "blog.google/products-and-platforms/products/google-health/health-guardian-features-live",
+"blog.google/products-and-platforms/products/maps/google-maps-fan-favorite-dining-list",
+"blog.google/products-and-platforms/products/maps/google-maps-restaurant-tips-tricks",
 "blog.google/products-and-platforms/products/photos/google-photos-updates",
 "blog.google/products-and-platforms/products/search/coffee-tips-google-search",
 "blog.google/products-and-platforms/products/workspace/gemini-omni-in-google-vids",
