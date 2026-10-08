@@ -19350,6 +19350,7 @@
 "tag:google.com,2016:gemini-enterprise-release-notes#October_01_2026",
 "tag:google.com,2016:gemini-enterprise-release-notes#October_02_2026",
 "tag:google.com,2016:gemini-enterprise-release-notes#October_06_2026",
+"tag:google.com,2016:gemini-enterprise-release-notes#October_07_2026",
 "tag:google.com,2016:gemini-enterprise-release-notes#September_01_2026",
 "tag:google.com,2016:gemini-enterprise-release-notes#September_02_2026",
 "tag:google.com,2016:gemini-enterprise-release-notes#September_03_2026",
@@ -26146,14 +26147,14 @@
 "~deepseek/deepseek-pro-latest": {
 "Name": "DeepSeek: DeepSeek Pro Latest",
 "Context": 1048576,
-"Input price": "0.0000002871",
-"Output price": "0.0000042"
+"Input price": "0.0000001575",
+"Output price": "0.000008"
 },
 "~deepseek/deepseek-flash-latest": {
 "Name": "DeepSeek: DeepSeek Flash Latest",
 "Context": 1048576,
-"Input price": "0.0000000152",
-"Output price": "0.0000012"
+"Input price": "0.0000000184",
+"Output price": "0.0000006"
 },
 "inference-net/schematron-v2-turbo": {
 "Name": "Inference.net: Schematron V2 Turbo",
@@ -26332,8 +26333,8 @@
 "~z-ai/glm-flash-latest": {
 "Name": "Z.ai: GLM Flash Latest",
 "Context": 1048576,
-"Input price": "0.00000004",
-"Output price": "0.0000005"
+"Input price": "0.000000032",
+"Output price": "0.000001062936"
 },
 "qwen/qwen3.8-flash": {
 "Name": "Qwen: Qwen3.8 Flash",
@@ -26380,7 +26381,7 @@
 "~z-ai/glm-latest": {
 "Name": "Z.ai: GLM Latest",
 "Context": 1048576,
-"Input price": "0.0000000496",
+"Input price": "0.0000000392",
 "Output price": "0.000012"
 },
 "tencent/hy-mt2-7b": {
@@ -26392,8 +26393,8 @@
 "z-ai/glm-5.3": {
 "Name": "Z.ai: GLM 5.3",
 "Context": 1048576,
-"Input price": "0.000000062",
-"Output price": "0.0000026"
+"Input price": "0.000000049",
+"Output price": "0.00000339"
 },
 "z-ai/glm-5.3:batch": {
 "Name": "Z.ai: GLM 5.3 (batch)",
@@ -26446,8 +26447,8 @@
 "deepseek/deepseek-v4-pro-0813": {
 "Name": "DeepSeek: DeepSeek V4 Pro 0813",
 "Context": 1048576,
-"Input price": "0.00000066",
-"Output price": "0.00000198"
+"Input price": "0.00000132",
+"Output price": "0.00000396"
 },
 "x-ai/grok-4.6": {
 "Name": "SpaceXAI: Grok 4.6",
@@ -26500,13 +26501,13 @@
 "~deepseek/deepseek-v4-flash-latest": {
 "Name": "DeepSeek: DeepSeek V4 Flash Latest",
 "Context": 1048576,
-"Input price": "0.000000018",
+"Input price": "0.0000000046",
 "Output price": "0.00000128"
 },
 "deepseek/deepseek-v4-flash-0731": {
 "Name": "DeepSeek: DeepSeek V4 Flash 0731",
 "Context": 1048576,
-"Input price": "0.000000018",
+"Input price": "0.0000000046",
 "Output price": "0.00000128"
 },
 "thinkingmachines/inkling-small": {
@@ -26608,7 +26609,7 @@
 "moonshotai/kimi-k3": {
 "Name": "MoonshotAI: Kimi K3",
 "Context": 1048576,
-"Input price": "0.0000005",
+"Input price": "0.00000072",
 "Output price": "0.000015"
 },
 "moonshotai/kimi-k3:batch": {
@@ -26782,8 +26783,8 @@
 "z-ai/glm-5.2": {
 "Name": "Z.ai: GLM 5.2",
 "Context": 1048576,
-"Input price": "0.0000000883",
-"Output price": "0.000012"
+"Input price": "0.00000003",
+"Output price": "0.00001"
 },
 "openrouter/fusion": {
 "Name": "OpenRouter: Fusion",
@@ -26968,8 +26969,8 @@
 "~moonshotai/kimi-latest": {
 "Name": "MoonshotAI: Kimi Latest",
 "Context": 1048576,
-"Input price": "0.00000049",
-"Output price": "0.000013"
+"Input price": "0.00000061",
+"Output price": "0.000015"
 },
 "~google/gemini-flash-latest": {
 "Name": "Google: Gemini Flash Latest",
@@ -27040,13 +27041,13 @@
 "deepseek/deepseek-v4-pro": {
 "Name": "DeepSeek: DeepSeek V4 Pro 0423",
 "Context": 1048576,
-"Input price": "0.0000002088",
-"Output price": "0.0000004176"
+"Input price": "0.00000095526",
+"Output price": "0.00000191052"
 },
 "deepseek/deepseek-v4-flash": {
 "Name": "DeepSeek: DeepSeek V4 Flash 0423",
 "Context": 1048576,
-"Input price": "0.00000003",
+"Input price": "0.0000000072",
 "Output price": "0.00000128"
 },
 "tencent/hy3-preview": {
@@ -27112,8 +27113,8 @@
 "google/gemma-4-26b-a4b-it": {
 "Name": "Google: Gemma 4 26B A4B ",
 "Context": 262144,
-"Input price": "0.0000000765",
-"Output price": "0.000000255"
+"Input price": "0.00000009",
+"Output price": "0.0000003"
 },
 "google/gemma-4-26b-a4b-it:free": {
 "Name": "Google: Gemma 4 26B A4B  (free)",
