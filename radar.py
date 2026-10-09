@@ -645,10 +645,16 @@ def fetch_subdomains():
     # public certificate-transparency logs via crt.sh (slow, so a failure just skips this run)
     items, good = [], 0
     for root in SUBDOMAIN_ROOTS:
-        try:
-            certs = json.loads(http_get(f"https://crt.sh/?q=%25.{root}&output=json&exclude=expired", timeout=90))
-        except Exception as e:
-            print(f"  ! crt.sh {root}: {e}", file=sys.stderr)
+        certs = None
+        for attempt in range(3):  # crt.sh often answers 502 / cuts the reply short; retry gently
+            try:
+                certs = json.loads(_http_get(f"https://crt.sh/?q=%25.{root}&output=json&exclude=expired", 120))
+                break
+            except Exception as e:
+                err = e
+                time.sleep(10 * (attempt + 1))
+        if certs is None:
+            print(f"  ! crt.sh {root}: {err} (crt.sh is busy; will retry next run)", file=sys.stderr)
             continue
         good += 1
         names = set()
@@ -1823,6 +1829,7 @@ ARENA_LANE = ["arenas", "artificialanalysis", "lb_arena_text", "lb_arena_vision"
 LOOP_OVERRIDE_SECONDS = {
     **{k: int(os.environ.get("RADAR_LOOP_ARENA", "60")) for k in ARENA_LANE},
     "sitemaps": int(os.environ.get("RADAR_LOOP_SITEMAPS", "180")),
+    "subdomains": int(os.environ.get("RADAR_LOOP_SUBDOMAINS", "1800")),  # crt.sh is fragile: be gentle
 }
 
 
