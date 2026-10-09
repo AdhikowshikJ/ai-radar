@@ -892,6 +892,9 @@ def fetch_designarena_registry():
             "key": k, "title": name if same else f"{name} (id: {k})",
             "url": "https://www.designarena.ai/leaderboard", "desc": "", "fields": fields,
             "color": 0x57F287, "label": "New Design Arena model", "icon": "designarena.ai",
+            # a display-name change = a codename being revealed (see track_changes)
+            "snap": {"Name": name}, "change_label": "🎭 Revealed Design Arena model",
+            "change_fields": [("Organization", org)],
         })
     return items, len(items) > 100
 
@@ -1506,6 +1509,14 @@ def track_changes(name, items, old_snap):
         if not diffs:
             continue
         base = by_key[k]
+        if name == "designarena_registry":
+            old_name = (before or {}).get("Name") or k
+            changes.append({
+                "key": f"chg::{k}", "model": k, "title": now.get("Name") or k, "url": base["url"],
+                "desc": f"**Previously known as:** {old_name}", "fields": base.get("change_fields", []),
+                "color": 0x9B59B6, "label": base["change_label"], "icon": base.get("icon"),
+            })
+            continue
         changes.append({
             "key": f"chg::{k}", "model": k, "title": base["title"], "url": base["url"],
             "desc": "\n".join(f"• **Old** {f}: **{_fmt_snap(f, a)}**\n• **New** {f}: **{_fmt_snap(f, b)}**"
