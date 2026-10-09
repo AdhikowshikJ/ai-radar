@@ -466,6 +466,9 @@ FAST_SITEMAP_EXCLUDE = {"claude.com": r"claude\.com/[a-z]{2}(-[a-z]{2,4})?/",
 
 
 PRIORITY_SITES = ("openai", "anthropic", "claude.com")  # own lane, every 30 s
+# Watch every OpenAI path in the fast checks (/form/, /codex/... are real leak signals).
+# The "all paths" groups are new, so the wider set is remembered quietly once instead of flooding.
+FAST_SITEMAP_ALL_PATHS = {"openai"}
 
 
 def _fast_sitemap_items(sites):
@@ -494,12 +497,14 @@ def _fast_sitemap_items(sites):
             if site in FAST_SITEMAP_EXCLUDE and re.search(FAST_SITEMAP_EXCLUDE[site], loc):
                 continue
             path = urllib.parse.urlparse(loc).path
-            # same path filter as the full sitemap check (OpenAI: /index/, /research/...; not /about/, /form/)
-            if site in SITEMAPS and not any(path.startswith(p) for p in SITEMAPS[site]["include"]):
+            # same path filter as the full sitemap check, except sites we watch on every path
+            if (site in SITEMAPS and site not in FAST_SITEMAP_ALL_PATHS
+                    and not any(path.startswith(p) for p in SITEMAPS[site]["include"])):
                 continue
             if not path.strip("/"):
                 continue
-            items.append({"key": norm_url(loc), "group": f"{site} [{section}]", "site": site, "title": path,
+            group = f"{site} [{section}]" + (" all-paths" if site in FAST_SITEMAP_ALL_PATHS else "")
+            items.append({"key": norm_url(loc), "group": group, "site": site, "title": path,
                           "url": loc, "desc": "", "fields": [("Site", site)], "color": 0xFEE75C,
                           "label": f"New {site} page"})
     return items, good
