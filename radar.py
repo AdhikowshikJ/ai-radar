@@ -425,9 +425,13 @@ def norm_url(u):
 FAST_SITEMAPS = {
     "anthropic": ["https://www.anthropic.com/sitemap.xml"],
     "openai": [f"https://openai.com/sitemap.xml/{part}/" for part in
-               ("release", "product", "research", "publication", "milestone", "company", "safety", "global-affairs")],
+               ("page", "release", "product", "research", "publication", "milestone", "company", "safety",
+                "global-affairs")],
     "openai deployment safety": ["https://deploymentsafety.openai.com/sitemap.xml"],
+    "claude.com": ["https://claude.com/sitemap.xml"],
 }
+# skip translated copies (claude.com/ja/..., /de/..., /pt-br/...)
+FAST_SITEMAP_EXCLUDE = {"claude.com": r"claude\.com/[a-z]{2}(-[a-z]{2,4})?/"}
 
 
 def _fast_sitemap_items():
@@ -445,6 +449,8 @@ def _fast_sitemap_items():
         for loc in locs:
             # deploymentsafety's sitemap lists localhost URLs; point them at the real site
             loc = re.sub(r"^https?://localhost:\d+", "https://deploymentsafety.openai.com", loc)
+            if site in FAST_SITEMAP_EXCLUDE and re.search(FAST_SITEMAP_EXCLUDE[site], loc):
+                continue
             path = urllib.parse.urlparse(loc).path
             if site == "anthropic" and not any(path.startswith(p) for p in SITEMAPS["anthropic"]["include"]):
                 continue
