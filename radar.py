@@ -103,6 +103,20 @@ FAST_PAGE_FEEDS = {
     "google developers blog": "https://developers.googleblog.com/feeds/posts/default",
 }
 
+# Trusted outlets for #news. filter=True: general tech feed, keep only AI stories.
+NEWS_FEEDS = {
+    "Bloomberg": ("https://feeds.bloomberg.com/technology/news.rss", True),
+    "The Information": ("https://www.theinformation.com/feed", True),
+    "Financial Times": ("https://www.ft.com/artificial-intelligence?format=rss", False),
+    "SemiAnalysis": ("https://newsletter.semianalysis.com/feed", False),
+    "Axios": ("https://api.axios.com/feed/", True),
+    "Reuters": ("https://news.google.com/rss/search?q=site:reuters.com+(%22artificial+intelligence%22+OR+OpenAI+OR+"
+                "Anthropic+OR+Nvidia+OR+%22AI%22)+when:2d&hl=en-US&gl=US&ceid=US:en", True),
+}
+AI_NEWS = re.compile(r"\bA\.?I\b|artificial intelligence|\b(OpenAI|Anthropic|Claude|ChatGPT|Gemini|DeepMind|LLMs?|"
+                     r"Nvidia|GPUs?|xAI|Grok|Mistral|DeepSeek|Copilot|Llama|AGI|superintelligence|chatbots?|"
+                     r"data cent(er|re)s?|machine learning|Sam Altman|Dario Amodei|Demis Hassabis|Perplexity|Cursor)\b")
+
 # OpenAI-compatible "list models" endpoints: id -> (name, url, env var for the key, docs link)
 OPENAI_COMPAT_APIS = {
     "openai": ("OpenAI", "https://api.openai.com/v1/models", "OPENAI_API_KEY", "https://platform.openai.com/docs/models"),
@@ -144,6 +158,7 @@ ROLE_ENV = {
     "arenas": "DISCORD_ROLE_ARENAS",
     "designarena": "DISCORD_ROLE_DESIGNARENA",
     "sitemaps": "DISCORD_ROLE_PAGES",
+    "news": "DISCORD_ROLE_NEWS",
     "fastpages": "DISCORD_ROLE_PAGES",
     "releases": "DISCORD_ROLE_RELEASES",
     "api_anthropic": "DISCORD_ROLE_API_MODELS",
@@ -173,6 +188,7 @@ WEBHOOK_ENV = {
     "arenas": "DISCORD_WEBHOOK_ARENAS",
     "designarena": "DISCORD_WEBHOOK_ARENAS",
     "sitemaps": "DISCORD_WEBHOOK_PAGES",
+    "news": "DISCORD_WEBHOOK_NEWS",
     "fastpages": "DISCORD_WEBHOOK_PAGES",
     "releases": "DISCORD_WEBHOOK_RELEASES",
     "api_anthropic": "DISCORD_WEBHOOK_API_MODELS",
@@ -241,6 +257,8 @@ def fetch_openrouter():
         return [], False
     items = []
     for m in data:
+        if m["id"].startswith("~"):
+            continue  # "~vendor/...-latest" are moving aliases, not models: pure noise
         p = m.get("pricing") or {}
         try:
             pin = float(p.get("prompt", 0)) * 1_000_000
@@ -251,8 +269,7 @@ def fetch_openrouter():
         ctx = m.get("context_length")
         items.append({
             # "snap" = values we watch for changes (see track_changes)
-            "snap": {"Name": m.get("name") or m["id"], "Context": ctx,
-                     "Input price": p.get("prompt"), "Output price": p.get("completion")},
+            "snap": {"Context": ctx},  # only big context changes are announced (see track_changes)
             "key": m["id"],
             "title": m.get("name") or m["id"],
             "url": f"https://openrouter.ai/{m['id']}",
@@ -404,8 +421,42 @@ def norm_url(u):
     return f"{host}{p.path.rstrip('/')}"
 
 
-def fetch_fastpages():
+# Small sitemaps checked every minute (same group names as SITEMAPS; shared memory, so no double posts)
+FAST_SITEMAPS = {
+    "anthropic": ["https://www.anthropic.com/sitemap.xml"],
+    "openai": [f"https://openai.com/sitemap.xml/{part}/" for part in
+               ("release", "product", "research", "publication", "milestone", "company", "safety", "global-affairs")],
+    "openai deployment safety": ["https://deploymentsafety.openai.com/sitemap.xml"],
+}
+
+
+def _fast_sitemap_items():
     items, good = [], 0
+    for site, urls in FAST_SITEMAPS.items():
+        try:
+            locs = []
+            for u in urls:
+                root = ET.fromstring(http_get(u, timeout=40))
+                locs += [e.text.strip() for e in root.iter() if e.tag.endswith("}loc") and e.text]
+        except Exception as e:
+            print(f"  ! fast sitemap {site}: {e}", file=sys.stderr)
+            continue
+        good += 1
+        for loc in locs:
+            # deploymentsafety's sitemap lists localhost URLs; point them at the real site
+            loc = re.sub(r"^https?://localhost:\d+", "https://deploymentsafety.openai.com", loc)
+            path = urllib.parse.urlparse(loc).path
+            if site == "anthropic" and not any(path.startswith(p) for p in SITEMAPS["anthropic"]["include"]):
+                continue
+            if not path.strip("/"):
+                continue
+            items.append({"key": norm_url(loc), "group": site, "title": path, "url": loc, "desc": "",
+                          "fields": [("Site", site)], "color": 0xFEE75C, "label": f"New {site} page"})
+    return items, good
+
+
+def fetch_fastpages():
+    items, good = _fast_sitemap_items()
     for site, url in FAST_PAGE_FEEDS.items():
         try:
             entries = _parse_feed(http_get(url, timeout=40))
@@ -422,6 +473,30 @@ def fetch_fastpages():
             items.append({
                 "key": norm_url(link), "group": site, "title": e["title"] or link, "url": link,
                 "desc": "", "fields": [("Site", site)], "color": 0xFEE75C, "label": f"New {site} page",
+            })
+    return items, good > 0
+
+
+def fetch_news():
+    items, good = [], 0
+    for outlet, (url, filt) in NEWS_FEEDS.items():
+        try:
+            entries = _parse_feed(http_get(url, timeout=40))
+        except Exception as e:
+            print(f"  ! news {outlet}: {e}", file=sys.stderr)
+            continue
+        good += 1
+        for e in entries:
+            title = html.unescape(e["title"] or "").strip()
+            if outlet == "Reuters":
+                title = re.sub(r"\s+-\s+Reuters$", "", title)
+            if filt and not AI_NEWS.search(title + " " + _clean(e["summary"], 300)):
+                continue
+            items.append({
+                "key": norm_url(e["link"]) if e["link"] else e["id"], "group": outlet, "title": title[:250],
+                "url": e["link"], "desc": _clean(e["summary"], 300), "fields": [("Source", outlet)],
+                "color": 0x2F3136, "label": f"{outlet}",
+                "icon": {"Reuters": "reuters.com", "Financial Times": "ft.com"}.get(outlet),
             })
     return items, good > 0
 
@@ -840,6 +915,7 @@ SOURCES = {
     "arenas": fetch_arenas,
     "sitemaps": fetch_sitemaps,
     "releases": fetch_releases,
+    "news": fetch_news,
     "fastpages": fetch_fastpages,
     **{f"api_{k}": make_openai_compat_fetcher(k) for k in OPENAI_COMPAT_APIS},
     "api_anthropic": fetch_api_anthropic,
@@ -853,7 +929,6 @@ SOURCES = {
     "status": fetch_status,
     "designarena_registry": fetch_designarena_registry,
     "sdk_models": fetch_sdk_models,
-    "litellm": fetch_litellm,
     "arcprize": fetch_arcprize,
     "artificialanalysis": fetch_artificialanalysis,
 }
@@ -1110,6 +1185,16 @@ def boards_vals():
     return boards
 
 
+def lb_cursorbench():
+    page = http_get("https://cursor.com/cursorbench", timeout=60)
+    rows = {}
+    for name, score in re.findall(r'aria-label="([^":]+): ([\d.]+)%', page):
+        name = html.unescape(name).strip()
+        if name not in rows or float(score) > rows[name]["score"]:
+            rows[name] = {"id": name, "name": name, "score": float(score)}
+    return list(rows.values())
+
+
 def _single(bid, title, subtitle, url, fetch, channel, color, fmt):
     return lambda: [_board(bid, title, subtitle, url, fetch(), channel, color, fmt)]
 
@@ -1126,6 +1211,8 @@ LEADERBOARDS = {
                                "https://arena.ai/leaderboard/vision", lb_arena("vision"), "arenas", 0x57F287, "{:.0f}"),
     "lb_designarena_main": _single("lb_designarena_main", "Design Arena leaderboard", "Elo from designarena.ai (all categories).",
                                    "https://www.designarena.ai/leaderboard", lb_designarena, "arenas", 0x57F287, "{:.0f}"),
+    "lb_cursorbench": _single("lb_cursorbench", "CursorBench", "Coding-agent performance on real Cursor sessions.",
+                              "https://cursor.com/cursorbench", lb_cursorbench, "benchmarks", 0x111111, "{:.1f}%"),
     "lb_epoch": boards_epoch,
     "lb_vals": boards_vals,
 }
@@ -1158,10 +1245,12 @@ def render_board(b, prev):
 
 
 def run_board(b, state, dry_run):
+    # equal scores used to swap places between fetches and re-post the board; sort ties by name
+    b["rows"] = sorted(b["rows"], key=lambda r: (-r["score"], str(r["name"]).lower()))
     bid, rows = b["id"], b["rows"]
     if len(rows) < LB_MIN_ROWS:
         return
-    key = f"{bid}#ranking"
+    key = f"{bid}#ranking2"  # new key: re-learn rankings quietly with the stable tie order
     top = min(LB_TOP, len(rows))
     ids = [r["id"] for r in rows[:LB_MEMORY]]
     prev = state.get(key)
@@ -1193,8 +1282,15 @@ def run_leaderboard(lb_id, state, dry_run):
         print(f"[{lb_id}] failed: {e}", file=sys.stderr)
         return
     print(f"[{lb_id}] {len(boards)} board(s)")
+    quiet = lb_id in CATCHUP
+    CATCHUP.discard(lb_id)
     for b in boards:
         with STATE_LOCK:
+            if quiet:  # catch-up: just remember the current ranking
+                b["rows"] = sorted(b["rows"], key=lambda r: (-r["score"], str(r["name"]).lower()))
+                if not dry_run and len(b["rows"]) >= LB_MIN_ROWS:
+                    state[f"{b['id']}#ranking2"] = [r["id"] for r in b["rows"][:LB_MEMORY]]
+                continue
             run_board(b, state, dry_run)
 
 
@@ -1226,17 +1322,26 @@ def _small_price_move(field, a, b):
     return a > 0 and b > 0 and abs(b - a) / a < MIN_PRICE_CHANGE
 
 
+MIN_CONTEXT_RATIO = 1.5  # announce context changes only when they grow/shrink 1.5x or more
+
+
+def _small_context_move(field, a, b):
+    if field != "Context" or not isinstance(a, int) or not isinstance(b, int) or a <= 0 or b <= 0:
+        return False
+    return max(a, b) / min(a, b) < MIN_CONTEXT_RATIO
+
+
 def track_changes(name, items, old_snap):
     """Compare items' "snap" values with last run. Returns (change_items, current_snap)."""
     cur = {i["key"]: i["snap"] for i in items if "snap" in i}
     by_key = {i["key"]: i for i in items}
     changes = []
     for k, now in cur.items():
-        before = old_snap.get(k)
+        before = {f: v for f, v in (old_snap.get(k) or {}).items() if f in now} or None  # ignore fields we stopped watching
         if before is None or before == now:
             continue
         diffs = [(f, before.get(f), now.get(f)) for f in now if before.get(f) != now.get(f)]
-        small = [d for d in diffs if _small_price_move(*d)]
+        small = [d for d in diffs if _small_price_move(*d) or _small_context_move(*d)]
         if small:
             # keep the last announced price, so many tiny moves still add up to an alert
             cur[k] = {**now, **{f: a for f, a, _ in small}}
@@ -1336,7 +1441,7 @@ FAST_MIN, MEDIUM_MIN, SLOW_MIN = 5, 15, 30
 SCHEDULE_MIN = {
     # every 5 min: light and where being first matters
     "openrouter": FAST_MIN, "releases": FAST_MIN, "cursor": FAST_MIN, "fastpages": FAST_MIN,
-    "sdk_models": FAST_MIN, "designarena_registry": FAST_MIN,
+    "sdk_models": FAST_MIN, "designarena_registry": FAST_MIN, "news": FAST_MIN,
     "bedrock": FAST_MIN, "azure": FAST_MIN, "gcp": FAST_MIN,
     **{k: FAST_MIN for k in SOURCES if k.startswith("api_")},
     # every 15 min: many requests per run
@@ -1399,6 +1504,11 @@ def _process(name, items, state, args):
     new = [i for i in new if i["key"] not in fresh]
     print(f"[{name}] {len(items)} items, {len(new)} new" + (" (first run)" if first_run else ""))
 
+    quiet = name in CATCHUP
+    CATCHUP.discard(name)
+    if quiet:
+        print(f"[{name}] catching up quietly")
+        first_run = True  # remember everything current, post nothing
     announce = new if (not first_run or args.announce_first) else []
     removals = find_removals(name, items, seen) if (name in REMOVAL_SOURCES and not first_run) else []
     if removals:
@@ -1406,7 +1516,7 @@ def _process(name, items, state, args):
     skey = f"{name}#snap"
     changes, cur_snap = [], None
     if any("snap" in i for i in items):
-        if skey in state:
+        if skey in state and not quiet:
             changes, cur_snap = track_changes(name, items, state[skey])
             announce = announce + changes
         else:
@@ -1472,6 +1582,10 @@ STATE_REMOTE_PATH = "state/remote-seen.json.gz"
 STATE_TOKEN = os.environ.get("RADAR_STATE_TOKEN")
 REMOTE_SAVE_SECONDS = int(os.environ.get("RADAR_SAVE_SECONDS", "300"))
 _remote = {"sha": None, "hash": None, "saved_at": 0}
+# If the loaded memory is older than this, each source's first check after startup only
+# updates the memory (no posts), so a long gap never turns into a flood of old news.
+STALE_AFTER_SECONDS = int(os.environ.get("RADAR_STALE_HOURS", "6")) * 3600
+CATCHUP = set()
 
 
 def _gh(method, path, body=None):
@@ -1515,7 +1629,11 @@ def load_remote_state():
         state = json.loads(gzip.decompress(base64.b64decode(meta["content"])))
         if ref == STATE_BRANCH:
             _remote["sha"] = meta["sha"]
-            _remote["hash"] = _state_digest(state)[1]  # unchanged memory is never re-saved
+            _remote["hash"] = _state_digest({k: v for k, v in state.items() if k != "_saved_at"})[1]
+        age = time.time() - float(state.get("_saved_at") or 0)
+        if age > STALE_AFTER_SECONDS:
+            CATCHUP.update(list(SOURCES) + list(LEADERBOARDS))
+            print(f"memory is {age / 3600:.0f}h old: catching up quietly (first check of each source won't post)")
         print(f"loaded remote state from {ref} ({len(state)} keys)")
         return state
     raw = http_get(f"https://raw.githubusercontent.com/{STATE_REPO}/main/state/seen.json", timeout=90)
@@ -1527,7 +1645,10 @@ def save_remote_state(state, force=False):
     import base64
     import gzip
     with STATE_LOCK:
-        data, digest = _state_digest(state)
+        data, digest = _state_digest({k: v for k, v in state.items() if k != "_saved_at"})
+        if digest != _remote["hash"]:
+            state["_saved_at"] = time.time()
+            data = json.dumps(state, separators=(",", ":"), sort_keys=True).encode()
     if digest == _remote["hash"] or (not force and time.time() - _remote["saved_at"] < REMOTE_SAVE_SECONDS):
         return
     body = {"message": "radar: save state", "branch": STATE_BRANCH,
@@ -1535,7 +1656,15 @@ def save_remote_state(state, force=False):
     if _remote["sha"]:
         body["sha"] = _remote["sha"]
     try:
-        _remote["sha"] = _gh("PUT", f"contents/{STATE_REMOTE_PATH}", body)["content"]["sha"]
+        try:
+            _remote["sha"] = _gh("PUT", f"contents/{STATE_REMOTE_PATH}", body)["content"]["sha"]
+        except urllib.error.HTTPError as e:
+            if e.code not in (409, 422):
+                raise
+            # file changed since we read it (e.g. the old instance saved during a redeploy):
+            # fetch its current version id and overwrite with our newer memory
+            body["sha"] = _gh("GET", f"contents/{STATE_REMOTE_PATH}?ref={STATE_BRANCH}")["sha"]
+            _remote["sha"] = _gh("PUT", f"contents/{STATE_REMOTE_PATH}", body)["content"]["sha"]
         _remote["hash"], _remote["saved_at"] = digest, time.time()
         print("saved remote state")
     except Exception as e:

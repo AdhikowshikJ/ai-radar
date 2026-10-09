@@ -120,7 +120,6 @@ Everything is at the top of `radar.py`:
 - **Design Arena registry** (`#arenas`): models appear here when added to battles, before any leaderboard. New and removed models.
 - **arena.ai removals** (`#arenas`): "Removed Arena.ai models", one message per arena.
 - **SDK model IDs** (`#api-models`, every 5 min): OpenAI and Anthropic SDKs list new model IDs, often before launch.
-- **LiteLLM catalog** (`#api-models`, every 15 min): thousands of model IDs across providers.
 - **Model-list APIs** (`#api-models`): OpenAI, Anthropic, Gemini, xAI, DeepSeek, Mistral, Kimi, MiniMax, Qwen, Z.ai. Experimental checkpoints show up here, so add the API keys.
 - **Leaderboard snapshots** (`#benchmarks`): every Epoch AI benchmark (FrontierMath, GPQA, SWE-bench Verified, ...) and 18 Vals AI benchmarks (Vals Index, Terminal-Bench 4.0, ...), posted when the top 20 changes.
 
@@ -152,3 +151,13 @@ Render's free disk is wiped on restart, so the bot keeps its memory in this repo
    (`RADAR_STATE_TOKEN`, the webhooks, the API keys) → Apply.
 4. Keep it awake: free services sleep after ~15 min without visits. In cron-job.org add a job that
    GETs `https://<your-service>.onrender.com/` every 10 minutes.
+
+## #news: AI news from trusted outlets
+Bloomberg (tech), The Information, Financial Times (AI section), SemiAnalysis, Axios and Reuters (via Google News).
+General feeds are filtered to AI stories only. Webhook: `DISCORD_WEBHOOK_NEWS`.
+
+## Noise controls
+- OpenRouter: no price changes; context changes only when 1.5x bigger/smaller; `~...-latest` aliases ignored.
+- Leaderboards: ties are ordered by name, so equal scores no longer re-post a board.
+- If the saved memory is more than 6 hours old at startup (`RADAR_STALE_HOURS`), the first check of each
+  source catches up quietly instead of re-posting everything since.

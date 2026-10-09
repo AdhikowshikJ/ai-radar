@@ -1,8 +1,7 @@
 name: AI Radar
 
 on:
-  schedule:
-    - cron: "*/30 * * * *"   # backup only; cron-job.org triggers the real 5-min runs (see README)
+  # No schedule: the bot runs on Render (python radar.py --serve). Two bots would post everything twice.
   workflow_dispatch:          # "Run workflow" button, and what cron-job.org calls
     inputs:
       mode:
