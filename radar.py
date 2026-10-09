@@ -9,6 +9,7 @@ Usage:
   python radar.py --only openrouter,arenas
 """
 import argparse
+import gc
 import html
 import json
 import os
@@ -239,11 +240,14 @@ def _get_cache():
 
 
 def http_get(url, timeout=40, headers=None):
+    # only arena.ai pages are shared by two trackers; caching everything else just held
+    # big pages (sitemaps, Vals, Epoch...) in memory until the end of a pass
+    shared = not headers and "arena.ai/leaderboard" in url
     cache = _get_cache()
-    if not headers and url in cache:
+    if shared and url in cache:
         return cache[url]
     text = _http_get(url, timeout, headers)
-    if not headers:
+    if shared:
         cache[url] = text
     return text
 
@@ -388,15 +392,23 @@ def fetch_designarena():
     return list(items.values()), len(items) >= 20
 
 
+_LOC = re.compile(r"<loc>\s*(.*?)\s*</loc>", re.S)
+
+
 def _sitemap_urls(url, depth=0):
-    root = ET.fromstring(http_get(url, timeout=60))
-    locs = [e.text.strip() for e in root.iter() if e.tag.endswith("}loc") and e.text]
-    if root.tag.endswith("sitemapindex") and depth < 1:
+    # plain text search instead of an XML tree: same URLs, a fraction of the memory
+    text = _http_get(url, 60)
+    if "<urlset" not in text and "<sitemapindex" not in text:
+        raise ValueError("not a sitemap")
+    is_index = "<sitemapindex" in text[:3000]
+    locs = [html.unescape(x) for x in _LOC.findall(text)]
+    del text
+    if is_index and depth < 1:
         urls = []
         # fetch the parts in parallel (OpenAI has ~60); if any part fails, the whole site fails
         # this run, otherwise that part's old pages would look "new" the next time it loads
         from concurrent.futures import ThreadPoolExecutor
-        with ThreadPoolExecutor(max_workers=8) as pool:
+        with ThreadPoolExecutor(max_workers=4) as pool:
             for part in pool.map(lambda sub: _sitemap_urls(sub, depth + 1), locs[:60]):  # sanity cap
                 urls += part
         return urls
@@ -1634,9 +1646,21 @@ def due_sources(now=None):
 
 
 PAGE_SOURCES = ("sitemaps", "fastpages", "priority_pages")  # share "already posted" pages
+# memory-heavy checks: at most 2 at once across lanes (Render free = 512 MB). The 30 s priority
+# lane isn't limited, so it never waits.
+MEMORY_HEAVY = {"sitemaps", "fastpages", "arenas", "lb_vals", "lb_epoch", "lb_arena_text", "lb_arena_vision",
+                "artificialanalysis", "lb_aa_index"}
+_HEAVY_SLOTS = threading.Semaphore(int(os.environ.get("RADAR_HEAVY_AT_ONCE", "2")))
 
 
 def run_source(name, state, args):
+    if name in MEMORY_HEAVY:
+        with _HEAVY_SLOTS:
+            return _run_source(name, state, args)
+    return _run_source(name, state, args)
+
+
+def _run_source(name, state, args):
     if name in LEADERBOARDS:
         run_leaderboard(name, state, args.dry_run)
         return
@@ -1895,6 +1919,7 @@ def _lane(lane, names, state, args):
                 run_source(name, state, args)
             except Exception as e:  # never let one source kill the loop
                 print(f"[{name}] crashed: {e}", file=sys.stderr)
+            gc.collect()  # Render's free tier has 512 MB; give big pages back right away
             if not args.dry_run:
                 save_state(state)
                 if STATE_TOKEN:
