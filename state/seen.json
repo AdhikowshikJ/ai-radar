@@ -67,6 +67,7 @@
 "chg::meta/muse-glimmer-30b",
 "chg::minimax/minimax-m1",
 "chg::mistralai/mistral-large-4-0",
+"chg::mistralai/mistral-nemo",
 "chg::moonshotai/kimi-k2.6",
 "chg::moonshotai/kimi-k3",
 "chg::nvidia/nemotron-3-nano-30b-a3b",
@@ -19447,6 +19448,7 @@
 "550bed1161044a3d69be78ef263de16f06f52280",
 "56c672cac486b544c0f4220247daec2abe4dec82",
 "5a50599c4c217241c21e7c6d72c35ac8787ec30c",
+"5b1e42c0b7253ca414a2c6fd4d1af45299e26a8b",
 "5b6b2be06e92f9d20ace25256420c010b66ad1c6",
 "6cea47503efae2004c7fe196819b2a94f5b97d47",
 "6fd1598d6f0a60355bc3f5ad482ace869bd145c7",
@@ -26170,14 +26172,14 @@
 "~deepseek/deepseek-pro-latest": {
 "Name": "DeepSeek: DeepSeek Pro Latest",
 "Context": 1048576,
-"Input price": "0.0000001271",
+"Input price": "0.000000108",
 "Output price": "0.000008"
 },
 "~deepseek/deepseek-flash-latest": {
 "Name": "DeepSeek: DeepSeek Flash Latest",
 "Context": 1048576,
 "Input price": "0.0000000168",
-"Output price": "0.0000008"
+"Output price": "0.0000012"
 },
 "inference-net/schematron-v2-turbo": {
 "Name": "Inference.net: Schematron V2 Turbo",
@@ -26344,8 +26346,8 @@
 "tencent/hy4-preview": {
 "Name": "Tencent: Hy4 preview",
 "Context": 1048576,
-"Input price": "0.0000007506",
-"Output price": "0.0000022509"
+"Input price": "0.000000834",
+"Output price": "0.000002501"
 },
 "inclusionai/ling-3.0-flash-fin": {
 "Name": "inclusionAI: Ling 3.0 Flash Fin",
@@ -26356,8 +26358,8 @@
 "~z-ai/glm-flash-latest": {
 "Name": "Z.ai: GLM Flash Latest",
 "Context": 1048576,
-"Input price": "0.000000032",
-"Output price": "0.00000285521"
+"Input price": "0.00000002",
+"Output price": "0.000002"
 },
 "qwen/qwen3.8-flash": {
 "Name": "Qwen: Qwen3.8 Flash",
@@ -26404,7 +26406,7 @@
 "~z-ai/glm-latest": {
 "Name": "Z.ai: GLM Latest",
 "Context": 1048576,
-"Input price": "0.00000006",
+"Input price": "0.0000000312",
 "Output price": "0.000012"
 },
 "tencent/hy-mt2-7b": {
@@ -26416,7 +26418,7 @@
 "z-ai/glm-5.3": {
 "Name": "Z.ai: GLM 5.3",
 "Context": 1048576,
-"Input price": "0.00000009",
+"Input price": "0.000000039",
 "Output price": "0.00000339"
 },
 "z-ai/glm-5.3:batch": {
@@ -26524,13 +26526,13 @@
 "~deepseek/deepseek-v4-flash-latest": {
 "Name": "DeepSeek: DeepSeek V4 Flash Latest",
 "Context": 1048576,
-"Input price": "0.00000000832",
-"Output price": "0.000000543613"
+"Input price": "0.0000000048",
+"Output price": "0.000000479516"
 },
 "deepseek/deepseek-v4-flash-0731": {
 "Name": "DeepSeek: DeepSeek V4 Flash 0731",
 "Context": 1048576,
-"Input price": "0.0000000104",
+"Input price": "0.000000006",
 "Output price": "0.00000128"
 },
 "thinkingmachines/inkling-small": {
@@ -26632,7 +26634,7 @@
 "moonshotai/kimi-k3": {
 "Name": "MoonshotAI: Kimi K3",
 "Context": 1048576,
-"Input price": "0.00000082",
+"Input price": "0.00000076",
 "Output price": "0.0000135"
 },
 "moonshotai/kimi-k3:batch": {
@@ -26746,8 +26748,8 @@
 "tencent/hy3": {
 "Name": "Tencent: Hy3",
 "Context": 262144,
-"Input price": "0.0000000825",
-"Output price": "0.00000033"
+"Input price": "0.000000132",
+"Output price": "0.000000528"
 },
 "poolside/laguna-xs-2.1": {
 "Name": "Poolside: Laguna XS 2.1",
@@ -26992,7 +26994,7 @@
 "~moonshotai/kimi-latest": {
 "Name": "MoonshotAI: Kimi Latest",
 "Context": 1048576,
-"Input price": "0.00000082",
+"Input price": "0.00000076",
 "Output price": "0.000013"
 },
 "~google/gemini-flash-latest": {
@@ -27034,8 +27036,8 @@
 "qwen/qwen3.6-27b": {
 "Name": "Qwen: Qwen3.6 27B",
 "Context": 262144,
-"Input price": "0.0000003",
-"Output price": "0.000002"
+"Input price": "0.00000045",
+"Output price": "0.0000027"
 },
 "openai/gpt-5.5-pro": {
 "Name": "OpenAI: GPT-5.5 Pro",
@@ -27070,7 +27072,7 @@
 "deepseek/deepseek-v4-flash": {
 "Name": "DeepSeek: DeepSeek V4 Flash 0423",
 "Context": 1048576,
-"Input price": "0.0000000057",
+"Input price": "0.0000000075",
 "Output price": "0.00000128"
 },
 "tencent/hy3-preview": {
@@ -27112,7 +27114,7 @@
 "moonshotai/kimi-k2.6": {
 "Name": "MoonshotAI: Kimi K2.6",
 "Context": 262144,
-"Input price": "0.000000441",
+"Input price": "0.000000465",
 "Output price": "0.00000245"
 },
 "anthropic/claude-opus-4.7": {
@@ -27328,8 +27330,8 @@
 "qwen/qwen3.5-35b-a3b": {
 "Name": "Qwen: Qwen3.5-35B-A3B",
 "Context": 262144,
-"Input price": "0.00000015",
-"Output price": "0.000001"
+"Input price": "0.0000001625",
+"Output price": "0.0000013"
 },
 "qwen/qwen3.5-27b": {
 "Name": "Qwen: Qwen3.5-27B",
@@ -27400,8 +27402,8 @@
 "qwen/qwen3.5-397b-a17b": {
 "Name": "Qwen: Qwen3.5 397B A17B",
 "Context": 262144,
-"Input price": "0.00000045",
-"Output price": "0.000003"
+"Input price": "0.00000055",
+"Output price": "0.0000035"
 },
 "minimax/minimax-m2.5": {
 "Name": "MiniMax: MiniMax M2.5",
@@ -28462,8 +28464,8 @@
 "meta-llama/llama-3.3-70b-instruct": {
 "Name": "Meta: Llama 3.3 70B Instruct",
 "Context": 131072,
-"Input price": "0.0000001",
-"Output price": "0.00000032"
+"Input price": "0.00000022",
+"Output price": "0.0000005"
 },
 "amazon/nova-lite-v1": {
 "Name": "Amazon: Nova Lite 1.0",
@@ -28594,7 +28596,7 @@
 "mistralai/mistral-nemo": {
 "Name": "Mistral: Mistral Nemo",
 "Context": 131072,
-"Input price": "0.000000019",
+"Input price": "0.000000029",
 "Output price": "0.00000003"
 },
 "openai/gpt-4o-mini": {
@@ -30591,6 +30593,7 @@
 "blog.google/innovation-and-ai/technology/ai/playground-experimental-gaming-platform",
 "blog.google/innovation-and-ai/technology/ai/winner-future-vision-xprize",
 "blog.google/innovation-and-ai/technology/developers-tools/embeddinggemma-2",
+"blog.google/innovation-and-ai/technology/health/amie-clinical-study-lancet",
 "blog.google/innovation-and-ai/technology/health/google-earth-ai",
 "blog.google/innovation-and-ai/technology/research/google-beam-expansion",
 "blog.google/innovation-and-ai/technology/safety-security/how-to-set-up-passkey",
@@ -31562,6 +31565,7 @@
 "openai.com/index/learning-to-reason-with-llms",
 "openai.com/index/learning-to-summarize-with-human-feedback",
 "openai.com/index/learning-with-opponent-learning-awareness",
+"openai.com/index/legalon-halves-codex-costs",
 "openai.com/index/legora-financial-statement-review-with-astra",
 "openai.com/index/lenfest-ai-collaborative-expansion",
 "openai.com/index/lenfest-institute",
@@ -32589,6 +32593,7 @@
 "seedream-v4-edit-4k",
 "seedream-v45-edit",
 "silk-mulberry-1.5",
+"solar-mini4",
 "stable_audio_25",
 "step-3.7-flash",
 "tomato",
