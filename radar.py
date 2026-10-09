@@ -1869,10 +1869,11 @@ LOOP_SECONDS = {
 # Per-source loop intervals (seconds) that differ from their tier, and which lane runs them.
 # Lanes run in parallel, so arena/AA checks every minute never delay the API checks.
 ARENA_LANE = ["arenas", "artificialanalysis", "lb_arena_text", "lb_arena_vision", "lb_aa_index"]
-PAGES_LANE = ["priority_pages"]
+PAGES_LANE = ["priority_pages", "designarena_registry"]  # the most time-critical leaks, every 30 s
 LOOP_OVERRIDE_SECONDS = {
     **{k: int(os.environ.get("RADAR_LOOP_ARENA", "60")) for k in ARENA_LANE},
     "priority_pages": int(os.environ.get("RADAR_LOOP_PAGES", "30")),
+    "designarena_registry": int(os.environ.get("RADAR_LOOP_PAGES", "30")),
     "sitemaps": int(os.environ.get("RADAR_LOOP_SITEMAPS", "180")),
     "subdomains": int(os.environ.get("RADAR_LOOP_SUBDOMAINS", "1800")),  # crt.sh is fragile: be gentle
 }
