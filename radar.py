@@ -444,26 +444,29 @@ def _fast_sitemap_items():
     items, good = [], 0
     for site, urls in FAST_SITEMAPS.items():
         try:
-            locs = []
-            for u in urls:
+            locs = []  # (url, section): each sitemap section is its own group, so a newly added
+            for u in urls:  # section is remembered quietly instead of posting all its old pages
                 root = ET.fromstring(http_get(u, timeout=40))
-                locs += [e.text.strip() for e in root.iter() if e.tag.endswith("}loc") and e.text]
+                section = u.rstrip("/").rsplit("/", 1)[-1]
+                locs += [(e.text.strip(), section) for e in root.iter() if e.tag.endswith("}loc") and e.text]
         except Exception as e:
             print(f"  ! fast sitemap {site}: {e}", file=sys.stderr)
             continue
         good += 1
-        for loc in locs:
+        for loc, section in locs:
             # deploymentsafety's sitemap lists localhost URLs; point them at the real site
             loc = re.sub(r"^https?://localhost:\d+", "https://deploymentsafety.openai.com", loc)
             if site in FAST_SITEMAP_EXCLUDE and re.search(FAST_SITEMAP_EXCLUDE[site], loc):
                 continue
             path = urllib.parse.urlparse(loc).path
-            if site == "anthropic" and not any(path.startswith(p) for p in SITEMAPS["anthropic"]["include"]):
+            # same path filter as the full sitemap check (OpenAI: /index/, /research/...; not /about/, /form/)
+            if site in SITEMAPS and not any(path.startswith(p) for p in SITEMAPS[site]["include"]):
                 continue
             if not path.strip("/"):
                 continue
-            items.append({"key": norm_url(loc), "group": site, "title": path, "url": loc, "desc": "",
-                          "fields": [("Site", site)], "color": 0xFEE75C, "label": f"New {site} page"})
+            items.append({"key": norm_url(loc), "group": f"{site} [{section}]", "site": site, "title": path,
+                          "url": loc, "desc": "", "fields": [("Site", site)], "color": 0xFEE75C,
+                          "label": f"New {site} page"})
     return items, good
 
 
@@ -1531,6 +1534,7 @@ def batch_items(name, items):
         groups.setdefault(i.get("group") or name, []).append(i)
     batches = []
     for group, members in groups.items():
+        first = members[0]
         noun = BATCH_SOURCES[name]
         label_noun = noun[:-1] if len(members) == 1 and noun.endswith("s") else noun
         lines, used = [], 0
@@ -1544,7 +1548,7 @@ def batch_items(name, items):
         first = members[0]
         batches.append({
             "key": f"batch::{group}", "members": [m["key"] for m in members],
-            "title": f"New {group} {label_noun}",
+            "title": f"New {first.get('site', group)} {label_noun}",
             "url": first["url"], "icon": first.get("icon"), "desc": "\n".join(lines),
             "fields": [("Count", str(len(members)))] if len(members) > 1 else [],
             "color": first["color"], "label": first["label"],
