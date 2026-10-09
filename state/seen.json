@@ -26175,14 +26175,14 @@
 "~deepseek/deepseek-pro-latest": {
 "Name": "DeepSeek: DeepSeek Pro Latest",
 "Context": 1048576,
-"Input price": "0.000000198",
-"Output price": "0.000008"
+"Input price": "0.00000017688",
+"Output price": "0.00000053064"
 },
 "~deepseek/deepseek-flash-latest": {
 "Name": "DeepSeek: DeepSeek Flash Latest",
 "Context": 1048576,
 "Input price": "0.0000000168",
-"Output price": "0.0000006"
+"Output price": "0.0000012"
 },
 "inference-net/schematron-v2-turbo": {
 "Name": "Inference.net: Schematron V2 Turbo",
@@ -26362,7 +26362,7 @@
 "Name": "Z.ai: GLM Flash Latest",
 "Context": 1048576,
 "Input price": "0.000000032",
-"Output price": "0.000001763677"
+"Output price": "0.000000403472"
 },
 "qwen/qwen3.8-flash": {
 "Name": "Qwen: Qwen3.8 Flash",
@@ -26422,7 +26422,7 @@
 "Name": "Z.ai: GLM 5.3",
 "Context": 1048576,
 "Input price": "0.000000039",
-"Output price": "0.000007"
+"Output price": "0.0000036"
 },
 "z-ai/glm-5.3:batch": {
 "Name": "Z.ai: GLM 5.3 (batch)",
@@ -26475,8 +26475,8 @@
 "deepseek/deepseek-v4-pro-0813": {
 "Name": "DeepSeek: DeepSeek V4 Pro 0813",
 "Context": 1048576,
-"Input price": "0.00000132",
-"Output price": "0.00000396"
+"Input price": "0.00000066",
+"Output price": "0.00000198"
 },
 "x-ai/grok-4.6": {
 "Name": "SpaceXAI: Grok 4.6",
@@ -26529,13 +26529,13 @@
 "~deepseek/deepseek-v4-flash-latest": {
 "Name": "DeepSeek: DeepSeek V4 Flash Latest",
 "Context": 1048576,
-"Input price": "0.0000000144",
-"Output price": "0.000000165525"
+"Input price": "0.00000000632",
+"Output price": "0.000000037866"
 },
 "deepseek/deepseek-v4-flash-0731": {
 "Name": "DeepSeek: DeepSeek V4 Flash 0731",
 "Context": 1048576,
-"Input price": "0.000000018",
+"Input price": "0.0000000079",
 "Output price": "0.00000128"
 },
 "thinkingmachines/inkling-small": {
@@ -26637,7 +26637,7 @@
 "moonshotai/kimi-k3": {
 "Name": "MoonshotAI: Kimi K3",
 "Context": 1048576,
-"Input price": "0.00000053",
+"Input price": "0.0000005",
 "Output price": "0.000012"
 },
 "moonshotai/kimi-k3:batch": {
@@ -26811,8 +26811,8 @@
 "z-ai/glm-5.2": {
 "Name": "Z.ai: GLM 5.2",
 "Context": 1048576,
-"Input price": "0.000000084",
-"Output price": "0.000008"
+"Input price": "0.00000006",
+"Output price": "0.0000042"
 },
 "openrouter/fusion": {
 "Name": "OpenRouter: Fusion",
@@ -26997,8 +26997,8 @@
 "~moonshotai/kimi-latest": {
 "Name": "MoonshotAI: Kimi Latest",
 "Context": 1048576,
-"Input price": "0.0000001",
-"Output price": "0.000004"
+"Input price": "0.00000049",
+"Output price": "0.000013"
 },
 "~google/gemini-flash-latest": {
 "Name": "Google: Gemini Flash Latest",
@@ -27069,13 +27069,13 @@
 "deepseek/deepseek-v4-pro": {
 "Name": "DeepSeek: DeepSeek V4 Pro 0423",
 "Context": 1048576,
-"Input price": "0.00000095526",
-"Output price": "0.00000191052"
+"Input price": "0.00000029406",
+"Output price": "0.00000058812"
 },
 "deepseek/deepseek-v4-flash": {
 "Name": "DeepSeek: DeepSeek V4 Flash 0423",
 "Context": 1048576,
-"Input price": "0.00000003",
+"Input price": "0.0000000228",
 "Output price": "0.00000128"
 },
 "tencent/hy3-preview": {
@@ -27117,7 +27117,7 @@
 "moonshotai/kimi-k2.6": {
 "Name": "MoonshotAI: Kimi K2.6",
 "Context": 262144,
-"Input price": "0.000000465",
+"Input price": "0.000000441",
 "Output price": "0.00000245"
 },
 "anthropic/claude-opus-4.7": {
@@ -31909,6 +31909,7 @@
 "openai.com/index/solving-math-word-problems",
 "openai.com/index/solving-rubiks-cube",
 "openai.com/index/some-considerations-on-learning-to-explore-via-meta-reinforcement-learning",
+"openai.com/index/sophos",
 "openai.com/index/sora-2",
 "openai.com/index/sora-2-system-card",
 "openai.com/index/sora-feed-philosophy",
