@@ -161,3 +161,11 @@ General feeds are filtered to AI stories only. Webhook: `DISCORD_WEBHOOK_NEWS`.
 - Leaderboards: ties are ordered by name, so equal scores no longer re-post a board.
 - If the saved memory is more than 6 hours old at startup (`RADAR_STALE_HOURS`), the first check of each
   source catches up quietly instead of re-posting everything since.
+
+## #desktop-apps and #mobile-apps
+- **Desktop / CLI** (`DISCORD_WEBHOOK_DESKTOP_APPS`, every minute): new versions on every npm release channel
+  (latest, alpha, beta, preview, nightly, next, rc...) for Codex CLI, Gemini CLI, Claude Code, Qwen Code,
+  GitHub Copilot CLI, OpenCode, Amp, Kilo Code, Auggie, Crush, Factory Droid and Zed's Claude Code adapter.
+- **Mobile** (`DISCORD_WEBHOOK_MOBILE_APPS`): iOS every minute via Apple's lookup API (with release notes),
+  Android every 5 minutes from the Play Store: ChatGPT, Claude, Gemini, Grok, Vibe by Mistral, Perplexity,
+  Copilot (iOS), DeepSeek, Meta AI, Kimi.

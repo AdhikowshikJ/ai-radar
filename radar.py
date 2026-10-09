@@ -170,6 +170,9 @@ ROLE_ENV = {
     "changelogs": "DISCORD_ROLE_TOOLS",
     "benchmarks": "DISCORD_ROLE_BENCHMARKS",
     "status": "DISCORD_ROLE_STATUS",
+    "desktop_apps": "DISCORD_ROLE_DESKTOP_APPS",
+    "mobile_ios": "DISCORD_ROLE_MOBILE_APPS",
+    "mobile_android": "DISCORD_ROLE_MOBILE_APPS",
     "designarena_registry": "DISCORD_ROLE_DESIGNARENA",
     "sdk_models": "DISCORD_ROLE_API_MODELS",
     "litellm": "DISCORD_ROLE_API_MODELS",
@@ -200,6 +203,9 @@ WEBHOOK_ENV = {
     "changelogs": "DISCORD_WEBHOOK_TOOLS",
     "benchmarks": "DISCORD_WEBHOOK_BENCHMARKS",
     "status": ("DISCORD_WEBHOOK_STATUS", "DISCORD_WEBHOOK_SUBDOMAINS"),
+    "desktop_apps": "DISCORD_WEBHOOK_DESKTOP_APPS",
+    "mobile_ios": "DISCORD_WEBHOOK_MOBILE_APPS",
+    "mobile_android": "DISCORD_WEBHOOK_MOBILE_APPS",
     "designarena_registry": "DISCORD_WEBHOOK_ARENAS",
     "sdk_models": "DISCORD_WEBHOOK_API_MODELS",
     "litellm": "DISCORD_WEBHOOK_API_MODELS",
@@ -897,6 +903,109 @@ def fetch_litellm():
     return items, len(items) > 500
 
 
+# ---- desktop / CLI tools on npm: every release channel (latest, alpha, preview, nightly...)
+NPM_APPS = {
+    "@openai/codex": ("Codex CLI", "openai.com"),
+    "@google/gemini-cli": ("Gemini CLI", "gemini.google.com"),
+    "@anthropic-ai/claude-code": ("Claude Code", "claude.ai"),
+    "@qwen-code/qwen-code": ("Qwen Code", "qwen.ai"),
+    "@github/copilot": ("GitHub Copilot CLI", "github.com"),
+    "opencode-ai": ("OpenCode", "opencode.ai"),
+    "@sourcegraph/amp": ("Amp", "ampcode.com"),
+    "@kilocode/cli": ("Kilo Code CLI", "kilocode.ai"),
+    "@augmentcode/auggie": ("Auggie (Augment)", "augmentcode.com"),
+    "@charmland/crush": ("Crush", "charm.sh"),
+    "@factory/cli": ("Factory Droid", "factory.ai"),
+    "@zed-industries/claude-code-acp": ("Zed Claude Code adapter", "zed.dev"),
+}
+NPM_CHANNELS = ("latest", "next", "preview", "alpha", "beta", "nightly", "rc", "canary", "stable", "insiders")
+
+
+def fetch_desktop_apps():
+    items, good = [], 0
+    for pkg, (name, icon) in NPM_APPS.items():
+        tags = None
+        for reg in ("https://registry.npmjs.org", "https://registry.npmmirror.com"):  # mirror if npm is blocked
+            try:
+                tags = json.loads(http_get(f"{reg}/-/package/{pkg}/dist-tags", timeout=30))
+                break
+            except Exception as e:
+                last_err = e
+        if tags is None:
+            print(f"  ! npm {pkg}: {last_err}", file=sys.stderr)
+            continue
+        good += 1
+        for tag, version in tags.items():
+            if tag not in NPM_CHANNELS:
+                continue  # skip per-platform / one-off tags
+            items.append({
+                "key": f"{pkg}::{tag}", "snap": {"Version": version},
+                "title": f"{name}" + ("" if tag == "latest" else f" ({tag})"),
+                "url": f"https://www.npmjs.com/package/{pkg}?activeTab=versions", "desc": "",
+                "fields": [("Package", f"`{pkg}`"), ("Tag", tag), ("Version", version)],
+                "change_fields": [("NPM tag", tag), ("Package", f"`{pkg}`")],
+                "change_label": f"New {name} update", "color": 0x5865F2, "label": f"New {name} channel",
+                "icon": icon,
+            })
+    return items, good >= len(NPM_APPS) // 2
+
+
+# ---- mobile apps: iOS (Apple's official lookup API, with release notes) and Android (Play page)
+MOBILE_APPS = {  # name: (iOS App Store id, Android package, icon domain)
+    "ChatGPT": (6448311069, "com.openai.chatgpt", "openai.com"),
+    "Claude": (6473753684, "com.anthropic.claude", "claude.ai"),
+    "Gemini": (6477489729, "com.google.android.apps.bard", "gemini.google.com"),
+    "Grok": (6670324846, "ai.x.grok", "x.ai"),
+    "Vibe by Mistral": (6740410176, "ai.mistral.chat", "mistral.ai"),
+    "Perplexity": (1668000334, "ai.perplexity.app.android", "perplexity.ai"),
+    "Microsoft Copilot": (541164041, None, "copilot.microsoft.com"),
+    "DeepSeek": (6737597349, "com.deepseek.chat", "deepseek.com"),
+    "Meta AI": (1558240027, "com.facebook.stella", "meta.ai"),
+    "Kimi": (6474233312, "com.moonshot.kimichat", "kimi.com"),
+}
+
+
+def _app_item(name, platform, version, url, icon, notes=""):
+    return {
+        "key": f"{name}::{platform}", "snap": {"Version": version},
+        "title": f"{name} ({platform})", "url": url, "desc": notes,
+        "fields": [("Platform", platform), ("Version", version)],
+        "change_fields": [("Platform", platform)],
+        "change_label": f"New {name} update ({platform})", "color": 0x3BA55C,
+        "label": f"{name} ({platform})", "icon": icon,
+    }
+
+
+def fetch_mobile_ios():
+    ids = ",".join(str(v[0]) for v in MOBILE_APPS.values())
+    res = json.loads(http_get(f"https://itunes.apple.com/lookup?id={ids}&country=us", timeout=40))["results"]
+    by_id = {r["trackId"]: r for r in res}
+    items = []
+    for name, (ios_id, _a, icon) in MOBILE_APPS.items():
+        r = by_id.get(ios_id)
+        if r:
+            notes = (r.get("releaseNotes") or "").strip()[:500]
+            items.append(_app_item(name, "iOS", r["version"], r.get("trackViewUrl", ""), icon,
+                                   f"**Release notes:** {notes}" if notes else ""))
+    return items, len(items) >= len(MOBILE_APPS) // 2
+
+
+def fetch_mobile_android():
+    items = []
+    for name, (_i, pkg, icon) in MOBILE_APPS.items():
+        if not pkg:
+            continue
+        url = f"https://play.google.com/store/apps/details?id={pkg}&hl=en&gl=US"
+        try:
+            v = re.findall(r'\[\[\["(\d+[\w.\-]*)"\]\]', http_get(url, timeout=40))
+        except Exception as e:
+            print(f"  ! play {pkg}: {e}", file=sys.stderr)
+            continue
+        if v:
+            items.append(_app_item(name, "Android", v[0], url, icon))
+    return items, len(items) >= 4
+
+
 def fetch_status():
     items, good = [], 0
     for name, url in STATUS_PAGES.items():
@@ -933,6 +1042,9 @@ SOURCES = {
     **{k: make_feed_fetcher(k) for k in FEEDS},
     "changelogs": fetch_changelogs,
     "status": fetch_status,
+    "desktop_apps": fetch_desktop_apps,
+    "mobile_ios": fetch_mobile_ios,
+    "mobile_android": fetch_mobile_android,
     "designarena_registry": fetch_designarena_registry,
     "sdk_models": fetch_sdk_models,
     "arcprize": fetch_arcprize,
@@ -1359,10 +1471,11 @@ def track_changes(name, items, old_snap):
             "key": f"chg::{k}", "model": k, "title": base["title"], "url": base["url"],
             "desc": "\n".join(f"• **Old** {f}: **{_fmt_snap(f, a)}**\n• **New** {f}: **{_fmt_snap(f, b)}**"
                               for f, a, b in diffs),
-            "fields": [("Model ID", f"`{k}`")], "color": 0xF39C12, "label": "Changed OpenRouter model",
+            "fields": base.get("change_fields", [("Model ID", f"`{k}`")]), "color": 0xF39C12,
+            "label": base.get("change_label", "Changed OpenRouter model"), "icon": base.get("icon"),
         })
     # removals: skip if the list suddenly shrank a lot (probably an API hiccup, not real removals)
-    gone = [k for k in old_snap if k not in cur]
+    gone = [k for k in old_snap if k not in cur] if name == "openrouter" else []
     if gone and len(cur) >= 0.9 * len(old_snap):
         for k in gone:
             changes.append({
@@ -1448,11 +1561,12 @@ SCHEDULE_MIN = {
     # every 5 min: light and where being first matters
     "openrouter": FAST_MIN, "releases": FAST_MIN, "cursor": FAST_MIN, "fastpages": FAST_MIN,
     "sdk_models": FAST_MIN, "designarena_registry": FAST_MIN, "news": FAST_MIN,
+    "desktop_apps": FAST_MIN, "mobile_ios": FAST_MIN,
     "bedrock": FAST_MIN, "azure": FAST_MIN, "gcp": FAST_MIN,
     **{k: FAST_MIN for k in SOURCES if k.startswith("api_")},
     # every 15 min: many requests per run
     "sitemaps": MEDIUM_MIN, "huggingface": MEDIUM_MIN, "newrepos": MEDIUM_MIN,
-    "changelogs": MEDIUM_MIN, "designarena": MEDIUM_MIN, "litellm": MEDIUM_MIN,
+    "changelogs": MEDIUM_MIN, "mobile_android": MEDIUM_MIN, "designarena": MEDIUM_MIN, "litellm": MEDIUM_MIN,
     # every 30 min: heavy downloads or slow/fragile services
     "arenas": SLOW_MIN, "benchmarks": SLOW_MIN, "subdomains": SLOW_MIN, "status": SLOW_MIN,
     "arcprize": SLOW_MIN, "artificialanalysis": SLOW_MIN,
