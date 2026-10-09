@@ -65,6 +65,12 @@ SITEMAPS = {
     "google ai dev": {"url": "https://ai.google.dev/sitemap.xml", "include": ("/",), "exclude": r"\?hl=", "min": 100},
     "xai": {"url": "https://x.ai/sitemap.xml", "include": ("/",), "min": 50},
     "microsoft ai": {"url": "https://microsoft.ai/sitemap.xml", "include": ("/",), "min": 20},
+    # docs / help centers (new articles often reveal features before launch)
+    "xAI docs": {"url": "https://docs.x.ai/sitemap.xml", "include": ("/",), "min": 50},
+    "Mistral help": {"url": "https://help.mistral.ai/sitemap.xml", "include": ("/en/",), "min": 10},
+    "Mistral docs": {"url": "https://docs.mistral.ai/sitemap.xml", "include": ("/",),
+                     "exclude": r"docs\.mistral\.ai/(?!en/)[a-z]{2}(-[a-z]{2})?/", "min": 50},
+    "Cursor docs": {"url": "https://cursor.com/docs/sitemap.xml", "include": ("/docs/",), "min": 50},
 }
 
 RELEASE_REPOS = [
@@ -435,9 +441,14 @@ FAST_SITEMAPS = {
                 "global-affairs")],
     "openai deployment safety": ["https://deploymentsafety.openai.com/sitemap.xml"],
     "claude.com": ["https://claude.com/sitemap.xml"],
+    "Anthropic support": ["https://support.claude.com/sitemap.xml"],
+    "Claude API docs": ["https://platform.claude.com/sitemap.xml"],
+    "OpenAI developer docs": ["https://developers.openai.com/sitemap-index.xml"],
 }
 # skip translated copies (claude.com/ja/..., /de/..., /pt-br/...)
-FAST_SITEMAP_EXCLUDE = {"claude.com": r"claude\.com/[a-z]{2}(-[a-z]{2,4})?/"}
+_NOT_ENGLISH = r"\.com/(docs/)?(?!en/)[a-z]{2}(-[a-zA-Z]{2,4})?/"  # /ja/, /de/, /pt-BR/... (keeps /en/)
+FAST_SITEMAP_EXCLUDE = {"claude.com": r"claude\.com/[a-z]{2}(-[a-z]{2,4})?/",
+                        "Anthropic support": _NOT_ENGLISH, "Claude API docs": _NOT_ENGLISH}
 
 
 def _fast_sitemap_items():
@@ -446,9 +457,8 @@ def _fast_sitemap_items():
         try:
             locs = []  # (url, section): each sitemap section is its own group, so a newly added
             for u in urls:  # section is remembered quietly instead of posting all its old pages
-                root = ET.fromstring(http_get(u, timeout=40))
                 section = u.rstrip("/").rsplit("/", 1)[-1]
-                locs += [(e.text.strip(), section) for e in root.iter() if e.tag.endswith("}loc") and e.text]
+                locs += [(loc, section) for loc in _sitemap_urls(u)]
         except Exception as e:
             print(f"  ! fast sitemap {site}: {e}", file=sys.stderr)
             continue
