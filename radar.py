@@ -166,6 +166,7 @@ ROLE_ENV = {
     "sitemaps": "DISCORD_ROLE_PAGES",
     "news": "DISCORD_ROLE_NEWS",
     "fastpages": "DISCORD_ROLE_PAGES",
+    "priority_pages": "DISCORD_ROLE_PAGES",
     "releases": "DISCORD_ROLE_RELEASES",
     "api_anthropic": "DISCORD_ROLE_API_MODELS",
     "api_gemini": "DISCORD_ROLE_API_MODELS",
@@ -199,6 +200,7 @@ WEBHOOK_ENV = {
     "sitemaps": "DISCORD_WEBHOOK_PAGES",
     "news": "DISCORD_WEBHOOK_NEWS",
     "fastpages": "DISCORD_WEBHOOK_PAGES",
+    "priority_pages": "DISCORD_WEBHOOK_PAGES",
     "releases": "DISCORD_WEBHOOK_RELEASES",
     "api_anthropic": "DISCORD_WEBHOOK_API_MODELS",
     "api_gemini": "DISCORD_WEBHOOK_API_MODELS",
@@ -451,14 +453,25 @@ FAST_SITEMAP_EXCLUDE = {"claude.com": r"claude\.com/[a-z]{2}(-[a-z]{2,4})?/",
                         "Anthropic support": _NOT_ENGLISH, "Claude API docs": _NOT_ENGLISH}
 
 
-def _fast_sitemap_items():
+PRIORITY_SITES = ("openai", "anthropic", "claude.com")  # own lane, every 30 s
+
+
+def _fast_sitemap_items(sites):
+    from concurrent.futures import ThreadPoolExecutor
+
+    def load(site):
+        locs = []  # (url, section): each sitemap section is its own group, so a newly added
+        for u in FAST_SITEMAPS[site]:  # section is remembered quietly instead of posting all its old pages
+            section = u.rstrip("/").rsplit("/", 1)[-1]
+            locs += [(loc, section) for loc in _sitemap_urls(u)]
+        return locs
+
+    with ThreadPoolExecutor(max_workers=4) as pool:
+        futures = {site: pool.submit(load, site) for site in sites}
     items, good = [], 0
-    for site, urls in FAST_SITEMAPS.items():
+    for site, fut in futures.items():
         try:
-            locs = []  # (url, section): each sitemap section is its own group, so a newly added
-            for u in urls:  # section is remembered quietly instead of posting all its old pages
-                section = u.rstrip("/").rsplit("/", 1)[-1]
-                locs += [(loc, section) for loc in _sitemap_urls(u)]
+            locs = fut.result()
         except Exception as e:
             print(f"  ! fast sitemap {site}: {e}", file=sys.stderr)
             continue
@@ -480,8 +493,14 @@ def _fast_sitemap_items():
     return items, good
 
 
+def fetch_priority_pages():
+    """OpenAI, Anthropic, claude.com: checked every 30 s in their own lane."""
+    items, good = _fast_sitemap_items(PRIORITY_SITES)
+    return items, good > 0
+
+
 def fetch_fastpages():
-    items, good = _fast_sitemap_items()
+    items, good = _fast_sitemap_items([s for s in FAST_SITEMAPS if s not in PRIORITY_SITES])
     for site, url in FAST_PAGE_FEEDS.items():
         try:
             entries = _parse_feed(http_get(url, timeout=40))
@@ -1051,6 +1070,7 @@ SOURCES = {
     "releases": fetch_releases,
     "news": fetch_news,
     "fastpages": fetch_fastpages,
+    "priority_pages": fetch_priority_pages,
     **{f"api_{k}": make_openai_compat_fetcher(k) for k in OPENAI_COMPAT_APIS},
     "api_anthropic": fetch_api_anthropic,
     "api_gemini": fetch_api_gemini,
@@ -1540,7 +1560,7 @@ def find_removals(name, items, seen):
 
 # ---------------------------------------------------------------- batching
 # For these sources, all new items from the same site/domain in one run go into ONE message.
-BATCH_SOURCES = {"sitemaps": "pages", "fastpages": "pages", "subdomains": "subdomains",
+BATCH_SOURCES = {"sitemaps": "pages", "fastpages": "pages", "priority_pages": "pages", "subdomains": "subdomains",
                  "sdk_models": "model IDs", "litellm": "model IDs"}
 
 
@@ -1602,6 +1622,9 @@ def due_sources(now=None):
 # ---------------------------------------------------------------- main
 
 
+PAGE_SOURCES = ("sitemaps", "fastpages", "priority_pages")  # share "already posted" pages
+
+
 def run_source(name, state, args):
     if name in LEADERBOARDS:
         run_leaderboard(name, state, args.dry_run)
@@ -1625,10 +1648,9 @@ def _process(name, items, state, args):
     first_run = name not in state
     new = [i for i in items if i["key"] not in seen]
     # the sitemap check and the fast RSS check share pages: never post one twice
-    if name in ("sitemaps", "fastpages"):
-        other = state.get("fastpages" if name == "sitemaps" else "sitemaps", [])
-        already = {norm_url(k) if name == "fastpages" else k for k in other}
-        new = [i for i in new if (i["key"] if name == "fastpages" else norm_url(i["key"])) not in already]
+    if name in PAGE_SOURCES:
+        already = {norm_url(k) for other in PAGE_SOURCES if other != name for k in state.get(other, [])}
+        new = [i for i in new if norm_url(i["key"]) not in already]
     # Drop duplicate keys inside a single fetch
     new = list({i["key"]: i for i in new}.values())
 
@@ -1836,8 +1858,10 @@ LOOP_SECONDS = {
 # Per-source loop intervals (seconds) that differ from their tier, and which lane runs them.
 # Lanes run in parallel, so arena/AA checks every minute never delay the API checks.
 ARENA_LANE = ["arenas", "artificialanalysis", "lb_arena_text", "lb_arena_vision", "lb_aa_index"]
+PAGES_LANE = ["priority_pages"]
 LOOP_OVERRIDE_SECONDS = {
     **{k: int(os.environ.get("RADAR_LOOP_ARENA", "60")) for k in ARENA_LANE},
+    "priority_pages": int(os.environ.get("RADAR_LOOP_PAGES", "30")),
     "sitemaps": int(os.environ.get("RADAR_LOOP_SITEMAPS", "180")),
     "subdomains": int(os.environ.get("RADAR_LOOP_SUBDOMAINS", "1800")),  # crt.sh is fragile: be gentle
 }
@@ -1871,11 +1895,12 @@ def run_loop(state, args):
     heavy (sitemaps every 3 min; Epoch, Vals, ARC, changelogs ... every 5 min)."""
     everything = list(SOURCES) + list(LEADERBOARDS)
     arena = [k for k in ARENA_LANE if k in everything]
-    fast = [k for k in everything if SCHEDULE_MIN.get(k, SLOW_MIN) == FAST_MIN and k not in arena]
-    heavy = [k for k in everything if k not in fast and k not in arena]
-    for lane, names in (("fast", fast), ("arena", arena), ("heavy", heavy)):
+    pages = [k for k in PAGES_LANE if k in everything]
+    fast = [k for k in everything if SCHEDULE_MIN.get(k, SLOW_MIN) == FAST_MIN and k not in arena + pages]
+    heavy = [k for k in everything if k not in fast + arena + pages]
+    for lane, names in (("pages", pages), ("fast", fast), ("arena", arena), ("heavy", heavy)):
         print(f"lane {lane}: " + ", ".join(f"{k}@{loop_interval(k)}s" for k in names))
-    for lane, names in (("arena", arena), ("heavy", heavy)):
+    for lane, names in (("pages", pages), ("arena", arena), ("heavy", heavy)):
         threading.Thread(target=_lane, args=(lane, names, state, args), daemon=True).start()
     _lane("fast", fast, state, args)
 
