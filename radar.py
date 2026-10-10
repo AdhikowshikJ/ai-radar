@@ -9,6 +9,7 @@ Usage:
   python radar.py --only openrouter,arenas
 """
 import argparse
+import email.utils
 import gc
 import html
 import json
@@ -154,6 +155,9 @@ NEWS_FEEDS = {
     "Wired": ("https://www.wired.com/feed/tag/ai/latest/rss", False),
     "The Decoder": ("https://the-decoder.com/feed/", False),
 }
+# News older than this (by its published date) is remembered but never announced: outlets re-list
+# old articles when they are updated, and that must not look like breaking news.
+NEWS_MAX_AGE_HOURS = float(os.environ.get("RADAR_NEWS_MAX_AGE_HOURS", "6"))
 # Google News-style sitemaps: each <url> carries <news:title>. Checked every minute, in parallel.
 NEWS_SITEMAPS = {
     "Business Insider": "https://www.businessinsider.com/sitemap/google-news.xml",
@@ -600,12 +604,30 @@ def fetch_fastpages():
 _SITEMAP_URL = re.compile(r"<url>(.*?)</url>", re.S)
 _SITEMAP_LOC = re.compile(r"<loc>\s*(.*?)\s*</loc>", re.S)
 _SITEMAP_TITLE = re.compile(r"<news:title>\s*(.*?)\s*</news:title>", re.S)
+_SITEMAP_PUBDATE = re.compile(r"<news:publication_date>\s*(.*?)\s*</news:publication_date>", re.S)
 _SLUG_DATE = re.compile(r"-\d{4}-\d{2}$")  # trailing "-YYYY-MM" on article slugs
 SLUG_AI = re.compile(r"gemini|openai|anthropic|claude|chatgpt|nvidia|(?<![a-z])ai(?![a-z])", re.I)
 
 
+def _to_ts(s, rfc=False):
+    """Date string (RFC 2822 if rfc, else ISO 8601) -> POSIX timestamp, or None if missing/unparseable."""
+    if not s or not s.strip():
+        return None
+    try:
+        s = s.strip()
+        if rfc:
+            dt = email.utils.parsedate_to_datetime(s)
+        else:
+            dt = datetime.fromisoformat(s[:-1] + "+00:00" if s.endswith("Z") else s)
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=timezone.utc)
+        return dt.timestamp()
+    except Exception:
+        return None
+
+
 def _sitemap_news(text):
-    """Google News sitemap -> (loc, title) for each <url> block; title falls back to the URL slug."""
+    """Google News sitemap -> (loc, title, published) for each <url> block; title falls back to the URL slug."""
     out = []
     for block in _SITEMAP_URL.findall(text):
         m = _SITEMAP_LOC.search(block)
@@ -621,7 +643,8 @@ def _sitemap_news(text):
             slug = urllib.parse.urlparse(loc).path.rstrip("/").split("/")[-1]
             slug = _SLUG_DATE.sub("", slug).replace("-", " ")
             title = slug[:1].upper() + slug[1:]
-        out.append((loc, title))
+        pd = _SITEMAP_PUBDATE.search(block)
+        out.append((loc, title, _to_ts(pd.group(1)) if pd else None))
     return out
 
 
@@ -629,14 +652,14 @@ def _news_sitemap(outlet, url):
     """One outlet's news sitemap -> its AI-related items. Raises if the fetch fails."""
     out = []
     group = "Business Insider (sitemap)" if outlet == "Business Insider" else f"{outlet} (sitemap)"
-    for loc, title in _sitemap_news(http_get(url, timeout=40)):
+    for loc, title, published in _sitemap_news(http_get(url, timeout=40)):
         slug = urllib.parse.urlparse(loc).path.rstrip("/").split("/")[-1]
         if not (AI_NEWS.search(title) or AI_NEWS.search(slug.replace("-", " ")) or SLUG_AI.search(slug)):
             continue
         out.append({
             "key": norm_url(loc), "group": group, "title": title[:250],
             "url": loc, "desc": "", "fields": [("Source", outlet)],
-            "color": 0x2F3136, "label": outlet, "icon": NEWS_ICONS.get(outlet),
+            "color": 0x2F3136, "label": outlet, "icon": NEWS_ICONS.get(outlet), "published": published,
         })
     return out
 
@@ -663,6 +686,7 @@ def fetch_news():
                     "key": norm_url(e["link"]) if e["link"] else e["id"], "group": outlet, "title": title[:250],
                     "url": e["link"], "desc": _clean(e["summary"], 300), "fields": [("Source", outlet)],
                     "color": 0x2F3136, "label": f"{outlet}", "icon": NEWS_ICONS.get(outlet),
+                    "published": e.get("published"),
                 })
         for outlet, job in sitemap_jobs.items():
             try:
@@ -672,6 +696,12 @@ def fetch_news():
                 continue
             good += 1
             items.extend(found)
+    # old news (by published date) is still returned, but flagged quiet: remembered, never announced
+    now = time.time()
+    for i in items:
+        pub = i.pop("published", None)
+        if pub is not None and now - pub > NEWS_MAX_AGE_HOURS * 3600:
+            i["quiet"] = True
     # the same article can be listed by a feed and a sitemap: keep the first copy (feeds come first)
     unique, keys = [], set()
     for i in items:
@@ -860,24 +890,30 @@ def fetch_gcp():
 
 
 def _parse_feed(text):
-    """RSS or Atom -> list of dicts(id, title, link, summary, categories)."""
+    """RSS or Atom -> list of dicts(id, title, link, summary, categories, published).
+    published is a POSIX timestamp, or None if the entry has no usable date."""
     root = ET.fromstring(text)
     a = "{http://www.w3.org/2005/Atom}"
+    dc = "{http://purl.org/dc/elements/1.1/}"
     out = []
     for it in root.iter("item"):  # RSS
+        pub = _to_ts(it.findtext("pubDate"), rfc=True) or _to_ts(it.findtext(dc + "date"))
         out.append({
             "id": it.findtext("guid") or it.findtext("link") or it.findtext("title"),
             "title": it.findtext("title", ""), "link": it.findtext("link", ""),
             "summary": it.findtext("description", ""),
             "categories": [c.text or "" for c in it.findall("category")],
+            "published": pub,
         })
     for it in root.iter(a + "entry"):  # Atom
         link = it.find(a + "link")
+        pub = _to_ts(it.findtext(a + "published")) or _to_ts(it.findtext(a + "updated"))
         out.append({
             "id": it.findtext(a + "id"), "title": it.findtext(a + "title", ""),
             "link": link.get("href", "") if link is not None else "",
             "summary": it.findtext(a + "content", "") or it.findtext(a + "summary", ""),
             "categories": [c.get("term", "") for c in it.findall(a + "category")],
+            "published": pub,
         })
     return out
 
@@ -2230,6 +2266,9 @@ def _process(name, items, state, args):
         new = [i for i in new if norm_url(i["key"]) not in already]
     # Drop duplicate keys inside a single fetch
     new = list({i["key"]: i for i in new}.values())
+    # quiet items (old news, see fetch_news) are remembered but never announced
+    quiet_keys = {i["key"] for i in items if i.get("quiet")}
+    new = [i for i in new if not i.get("quiet")]
 
     # A group (arena, org, domain, feed...) seen for the first time is baselined silently,
     # so a flaky group that finally loads, or an org you add later, doesn't flood the channel.
@@ -2271,6 +2310,8 @@ def _process(name, items, state, args):
             print(f"   ...and {len(announce) - MAX_POSTS_PER_SOURCE} more")
     elif (announce or removals) and not hook:
         print(f"[{name}] no webhook set ({WEBHOOK_ENV[name]}), will post once it's added")
+        if not args.dry_run:
+            state[name] = sorted(set(state.get(name, [])) | quiet_keys)
         return
     elif announce or removals:
         if name in BATCH_SOURCES:
@@ -2297,7 +2338,7 @@ def _process(name, items, state, args):
         # First run (without --announce-first): remember everything so we don't spam.
         # Otherwise remember only what was posted; failed posts stay "new" and retry next run.
         keep = {i["key"] for i in items} if (first_run and not args.announce_first) else posted
-        state[name] = sorted((seen | keep | fresh) - gone)
+        state[name] = sorted((seen | keep | fresh | quiet_keys) - gone)
         if present:
             state[gkey] = sorted(known_groups | present)
         if cur_snap is not None:
