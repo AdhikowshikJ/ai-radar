@@ -203,6 +203,7 @@ ROLE_ENV = {
     "benchmarks": "DISCORD_ROLE_BENCHMARKS",
     "status": "DISCORD_ROLE_STATUS",
     "desktop_apps": "DISCORD_ROLE_DESKTOP_APPS",
+    "bundles": "DISCORD_ROLE_BUNDLES",
     "mobile_ios": "DISCORD_ROLE_MOBILE_APPS",
     "mobile_android": "DISCORD_ROLE_MOBILE_APPS",
     "designarena_registry": "DISCORD_ROLE_DESIGNARENA",
@@ -237,6 +238,7 @@ WEBHOOK_ENV = {
     "benchmarks": "DISCORD_WEBHOOK_BENCHMARKS",
     "status": ("DISCORD_WEBHOOK_STATUS", "DISCORD_WEBHOOK_SUBDOMAINS"),
     "desktop_apps": "DISCORD_WEBHOOK_DESKTOP_APPS",
+    "bundles": ("DISCORD_WEBHOOK_BUNDLES", "DISCORD_WEBHOOK_DESKTOP_APPS"),
     "mobile_ios": "DISCORD_WEBHOOK_MOBILE_APPS",
     "mobile_android": "DISCORD_WEBHOOK_MOBILE_APPS",
     "designarena_registry": "DISCORD_WEBHOOK_ARENAS",
@@ -1108,6 +1110,218 @@ def fetch_status():
     return items, good > 0
 
 
+# ---- bundle diff: download each tool's official build, scan it for model-name strings, and
+# announce strings that no earlier build from the same vendor contained (e.g. unreleased names)
+_STATE = {}  # the bot's state dict (set by main() and run_loop()); holds "bundles#versions"
+BUNDLE_CHUNK = 8 * 1024 * 1024
+BUNDLE_OVERLAP = 200                       # bytes carried over so names split across chunks are found
+BUNDLE_MAX_MEMBER = 400 * 1024 * 1024      # bigger files inside the tarball are skipped
+BUNDLE_MAX_DOWNLOADS = 2                   # per run; other changed targets wait for the next run
+BUNDLE_ANTIGRAVITY = "https://antigravity-cli-auto-updater-974169037036.us-central1.run.app/manifests/linux_amd64.json"
+# ("id" = model ID, cleaned by _clean_model_id; "name" = display name). Names in the binaries are
+# glued to the text before them, so no leading \b; a preceding uppercase/digit is still rejected.
+BUNDLE_PATTERNS = {
+    "gemini": [(rb"gemini-[0-9][a-z0-9.\-]{1,40}", "id"),
+               (rb"(?<![A-Z0-9])Gemini [0-9][0-9.]*(?: [A-Z][a-z]+){1,2}(?![a-z])", "name")],
+    "claude": [(rb"claude-(?:opus|sonnet|haiku|fable|mythos|[a-z]+)-[0-9][a-z0-9.\-]{0,30}", "id"),
+               (rb"(?<![A-Z0-9])Claude (?:Opus|Sonnet|Haiku|Fable|Mythos|[A-Z][a-z]+) [0-9][0-9.]*(?![a-z0-9])", "name")],
+    "openai": [(rb"gpt-[0-9][a-z0-9.\-]{0,30}", "id"),
+               (rb"(?<![A-Z0-9])GPT-[0-9][0-9.]*(?: [A-Z][a-z]+)?(?![a-z])", "name")],
+    "qwen": [(rb"qwen[0-9][a-z0-9.\-]{1,30}", "id")],
+}
+BUNDLE_ID_PREFIX = {"gemini": "gemini-", "claude": "claude-", "openai": "gpt-", "qwen": "qwen"}
+# known tokens of model IDs; a token glued to one of these (e.g. "liteuser") is cut back to the word
+BUNDLE_VOCAB = {"flash", "pro", "lite", "ultra", "nano", "image", "preview", "tts", "live", "thinking", "high",
+                "low", "medium", "max", "min", "xhigh", "exp", "experimental", "latest", "mini", "omni", "audio",
+                "native", "customtools", "embedding", "robotics", "er", "vision", "deep", "think", "deepthink",
+                "fast", "base", "extra", "tiered", "thoughts", "summary", "opus", "sonnet", "haiku", "fable",
+                "mythos", "codex", "turbo", "plus", "coder", "instruct", "chat", "next", "edit", "video", "agent",
+                "code", "search", "large", "small", "none", "default", "beta", "alpha", "rc", "dev", "nightly",
+                "windsurf", "debug", "1p", "it"}
+
+
+DISPLAY_VOCAB = {w.capitalize() for w in BUNDLE_VOCAB} | {
+    "Opus", "Sonnet", "Haiku", "Fable", "Mythos", "Pro", "Flash", "Lite", "Ultra", "Nano", "Image", "Preview",
+    "Live", "Thinking", "Max", "Mini", "Omni", "Deep", "Think", "Codex", "Turbo", "Plus", "Coder", "Agent",
+    "Default", "Robotics"}
+
+
+def _clean_display_name(s):
+    """Cut glued text off a display name such as "Gemini 3.1 Provideo" -> "Gemini 3.1 Pro"."""
+    words = s.split(" ")
+    out = [words[0]]  # vendor word
+    i = 1
+    while i < len(words) and re.fullmatch(r"[0-9][0-9.]*", words[i]):  # version number(s)
+        out.append(words[i])
+        i += 1
+    for w in words[i:]:
+        if w in DISPLAY_VOCAB:
+            out.append(w)
+            continue
+        glued = [v for v in DISPLAY_VOCAB if w.startswith(v) and len(w) > len(v)]
+        if glued:
+            out.append(max(glued, key=len))
+            break
+        out.append(w)  # not known: may be a new name such as "Argon"
+    return " ".join(out)
+
+
+def _clean_model_id(s, vendor):
+    """Split and clean one raw model-ID match from a binary. Returns a list of IDs."""
+    prefix = BUNDLE_ID_PREFIX[vendor]
+    cuts = [0] + [m.start() for m in re.finditer(re.escape(prefix), s) if m.start() > 0]
+    out = []
+    for a, b in zip(cuts, cuts[1:] + [len(s)]):
+        toks = s[a:b].split("-")
+        keep = [toks[0]]
+        for t in toks[1:]:
+            if not t:
+                continue
+            if t in BUNDLE_VOCAB or re.fullmatch(r"[0-9]+[bk]", t):  # "1p", sizes like "27b"
+                keep.append(t)
+                continue
+            if t[0].isdigit():
+                num = re.match(r"[0-9][0-9.]*", t).group()
+                if num == t:
+                    keep.append(t)
+                    continue
+                keep.append(num.rstrip("."))  # glued text after a version: "2.5rewrite" -> "2.5"
+                break
+            glued = [w for w in BUNDLE_VOCAB if t.startswith(w) and len(t) > len(w)]
+            if glued:  # the rest of the token is glued-on text: keep the known word and stop
+                keep.append(max(glued, key=len))
+                break
+            if any(v.startswith(t) and len(v) > len(t) for v in BUNDLE_VOCAB):
+                break  # truncated known word, e.g. "previ" from "preview": drop it and the rest
+            keep.append(t)  # not known: may be a new name such as "argon"
+        cleaned = "-".join(keep).rstrip("-.")
+        if len(cleaned) >= len(prefix) + 2:
+            out.append(cleaned)
+    return out
+BUNDLE_ICONS = {"gemini": "gemini.google.com", "claude": "claude.ai", "openai": "openai.com", "qwen": "qwen.ai"}
+# (npm package, display name, vendor, dist-tags to track, tarball file name for a version)
+BUNDLE_NPM = [
+    ("@google/gemini-cli", "Gemini CLI", "gemini", ("latest", "preview", "nightly"), "gemini-cli-{v}.tgz"),
+    ("@qwen-code/qwen-code", "Qwen Code", "qwen", ("latest", "preview", "nightly"), "qwen-code-{v}.tgz"),
+    ("@anthropic-ai/claude-code-linux-x64", "Claude Code", "claude", ("latest",), "claude-code-linux-x64-{v}.tgz"),
+    ("@openai/codex", "Codex CLI", "openai", ("latest", "alpha"), "codex-{v}-linux-x64.tgz"),
+]
+
+
+def _bundle_targets():
+    """(target, version, download url, vendor, official page) for every release channel tracked."""
+    targets, checked = [], 0
+    try:
+        m = json.loads(http_get(BUNDLE_ANTIGRAVITY, timeout=30))
+        targets.append(("Antigravity CLI", m["version"], m["url"], "gemini", m["url"]))
+        checked += 1
+    except Exception as e:
+        print(f"  ! antigravity manifest: {e}", file=sys.stderr)
+    for pkg, name, vendor, tags, fname in BUNDLE_NPM:
+        tagmap, reg, last_err = None, None, None
+        for r in ("https://registry.npmjs.org", "https://registry.npmmirror.com"):  # mirror if npm is blocked
+            try:
+                tagmap = json.loads(http_get(f"{r}/-/package/{pkg}/dist-tags", timeout=30))
+                reg = r
+                break
+            except Exception as e:
+                last_err = e
+        if tagmap is None:
+            print(f"  ! npm {pkg}: {last_err}", file=sys.stderr)
+            continue
+        checked += 1
+        for tag in tags:
+            if tag not in tagmap:
+                continue
+            v = tagmap[tag]
+            target = name if tag == "latest" else f"{name} ({tag})"
+            targets.append((target, v, f"{reg}/{pkg}/-/{fname.format(v=v)}", vendor,
+                            f"https://www.npmjs.com/package/{pkg}?activeTab=versions"))
+    return targets, checked > 0
+
+
+def _bundle_download(url, path):
+    req = urllib.request.Request(url, headers={"User-Agent": UA})
+    with urllib.request.urlopen(req, timeout=300) as r, open(path, "wb") as f:
+        while True:
+            chunk = r.read(1024 * 1024)
+            if not chunk:
+                break
+            f.write(chunk)
+
+
+def _bundle_scan(path, vendor):
+    """Model-name strings inside a .tar.gz. Streams the archive and reads each file in 8 MB chunks."""
+    import tarfile
+    pats = [(re.compile(p), kind) for p, kind in BUNDLE_PATTERNS[vendor]]
+    found = set()
+    with tarfile.open(path, "r|gz") as tar:
+        for member in tar:
+            if not member.isreg() or member.size > BUNDLE_MAX_MEMBER:
+                continue
+            f = tar.extractfile(member)
+            tail = b""
+            while True:
+                chunk = f.read(BUNDLE_CHUNK)
+                buf = tail + chunk
+                for p, kind in pats:
+                    for m in p.finditer(buf):
+                        # a match touching the end of a non-final buffer may be cut short; the next
+                        # buffer starts with the overlap and finds it whole
+                        if chunk and m.end() == len(buf):
+                            continue
+                        raw = m.group().decode("utf-8", errors="ignore")
+                        if kind == "id":
+                            found.update(_clean_model_id(raw, vendor))
+                        else:
+                            name = _clean_display_name(raw.rstrip("-."))
+                            if name:
+                                found.add(name)
+                if not chunk:
+                    break
+                tail = buf[-BUNDLE_OVERLAP:]
+    return found
+
+
+def fetch_bundles():
+    import tempfile
+    targets, ok = _bundle_targets()
+    if targets:  # rotate the order so a target that keeps failing can't block the ones after it
+        k = int(time.time() // 600) % len(targets)
+        targets = targets[k:] + targets[:k]
+    with STATE_LOCK:
+        versions = _STATE.setdefault("bundles#versions", {})
+    items, downloads = [], 0
+    for target, version, url, vendor, page in targets:
+        if versions.get(target) == version:
+            continue  # this build was already scanned
+        if downloads >= BUNDLE_MAX_DOWNLOADS:
+            print(f"[bundles] {target} {version} waits for the next run")
+            continue
+        downloads += 1
+        print(f"[bundles] downloading {target} {version}...")
+        tmp = tempfile.NamedTemporaryFile(dir=tempfile.gettempdir(), suffix=".tgz", delete=False)
+        tmp.close()
+        try:
+            _bundle_download(url, tmp.name)
+            found = _bundle_scan(tmp.name, vendor)
+        except Exception as e:
+            print(f"  ! bundle {target} {version}: {e}", file=sys.stderr)
+            continue
+        finally:
+            os.remove(tmp.name)
+        print(f"[bundles] {target} {version}: {len(found)} model strings")
+        for s in sorted(found):
+            items.append({
+                "key": f"{vendor}::{s}", "group": target, "site": f"{target} {version}",
+                "title": f"`{s}`", "url": page, "desc": "", "fields": [], "color": 0x9B59B6,
+                "label": f"New model strings in {target}", "icon": BUNDLE_ICONS[vendor],
+            })
+        with STATE_LOCK:  # only after a successful scan, so a failed download is retried next run
+            versions[target] = version
+    return items, ok
+
+
 SOURCES = {
     "openrouter": fetch_openrouter,
     "arenas": fetch_arenas,
@@ -1127,6 +1341,7 @@ SOURCES = {
     "changelogs": fetch_changelogs,
     "status": fetch_status,
     "desktop_apps": fetch_desktop_apps,
+    "bundles": fetch_bundles,
     "mobile_ios": fetch_mobile_ios,
     "mobile_android": fetch_mobile_android,
     "designarena_registry": fetch_designarena_registry,
@@ -1615,7 +1830,7 @@ def find_removals(name, items, seen):
 # ---------------------------------------------------------------- batching
 # For these sources, all new items from the same site/domain in one run go into ONE message.
 BATCH_SOURCES = {"sitemaps": "pages", "fastpages": "pages", "priority_pages": "pages", "subdomains": "subdomains",
-                 "sdk_models": "model IDs", "litellm": "model IDs"}
+                 "sdk_models": "model IDs", "litellm": "model IDs", "bundles": "model strings"}
 
 
 def batch_items(name, items):
@@ -1661,6 +1876,7 @@ SCHEDULE_MIN = {
     # every 15 min: many requests per run
     "sitemaps": MEDIUM_MIN, "huggingface": MEDIUM_MIN, "newrepos": MEDIUM_MIN,
     "changelogs": MEDIUM_MIN, "mobile_android": MEDIUM_MIN, "designarena": MEDIUM_MIN, "litellm": MEDIUM_MIN,
+    "bundles": MEDIUM_MIN,
     # every 30 min: heavy downloads or slow/fragile services
     "arenas": SLOW_MIN, "benchmarks": SLOW_MIN, "subdomains": SLOW_MIN, "status": SLOW_MIN,
     "arcprize": SLOW_MIN, "artificialanalysis": SLOW_MIN,
@@ -1680,7 +1896,7 @@ PAGE_SOURCES = ("sitemaps", "fastpages", "priority_pages")  # share "already pos
 # memory-heavy checks: at most 2 at once across lanes (Render free = 512 MB). The 30 s priority
 # lane isn't limited, so it never waits.
 MEMORY_HEAVY = {"sitemaps", "fastpages", "arenas", "lb_vals", "lb_epoch", "lb_arena_text", "lb_arena_vision",
-                "lb_arena_webdev", "artificialanalysis", "lb_aa_index"}
+                "lb_arena_webdev", "artificialanalysis", "lb_aa_index", "bundles"}
 _HEAVY_SLOTS = threading.Semaphore(int(os.environ.get("RADAR_HEAVY_AT_ONCE", "2")))
 
 
@@ -1931,6 +2147,7 @@ LOOP_OVERRIDE_SECONDS = {
     "designarena_registry": int(os.environ.get("RADAR_LOOP_PAGES", "30")),
     "sitemaps": int(os.environ.get("RADAR_LOOP_SITEMAPS", "180")),
     "subdomains": int(os.environ.get("RADAR_LOOP_SUBDOMAINS", "1800")),  # crt.sh is fragile: be gentle
+    "bundles": int(os.environ.get("RADAR_LOOP_BUNDLES", "600")),
 }
 
 
@@ -1961,6 +2178,8 @@ def _lane(lane, names, state, args):
 def run_loop(state, args):
     """Three lanes in parallel: fast (APIs, SDKs, ...), arena (arena.ai + Artificial Analysis),
     heavy (sitemaps every 3 min; Epoch, Vals, ARC, changelogs ... every 5 min)."""
+    global _STATE
+    _STATE = state
     everything = list(SOURCES) + list(LEADERBOARDS)
     arena = [k for k in ARENA_LANE if k in everything]
     pages = [k for k in PAGES_LANE if k in everything]
@@ -2008,6 +2227,7 @@ def serve(state, args):
 
 
 def main():
+    global _STATE
     ap = argparse.ArgumentParser()
     ap.add_argument("--dry-run", action="store_true", help="print only; don't post or save")
     ap.add_argument("--only", help="comma-separated: " + ",".join(list(SOURCES) + list(LEADERBOARDS)))
@@ -2022,6 +2242,7 @@ def main():
         state = load_remote_state()
     else:
         state = json.loads(STATE_FILE.read_text()) if STATE_FILE.exists() else {}
+    _STATE = state
     if args.serve:
         serve(state, args)
         return

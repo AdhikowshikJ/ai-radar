@@ -169,3 +169,10 @@ General feeds are filtered to AI stories only. Webhook: `DISCORD_WEBHOOK_NEWS`.
 - **Mobile** (`DISCORD_WEBHOOK_MOBILE_APPS`): iOS every minute via Apple's lookup API (with release notes),
   Android every 5 minutes from the Play Store: ChatGPT, Claude, Gemini, Grok, Vibe by Mistral, Perplexity,
   Copilot (iOS), DeepSeek, Meta AI, Kimi.
+
+## Bundle diffs (new model names inside app builds)
+When Antigravity CLI, Gemini CLI (latest/preview/nightly), Qwen Code, Claude Code (Linux build) or Codex
+(Linux build) publishes a new version, the bot downloads the official build, streams through it, and posts
+model names it has never seen before (e.g. "Gemini 4 Argon" was in Antigravity CLI 1.3.3 before launch).
+Webhook: `DISCORD_WEBHOOK_BUNDLES` (falls back to `#desktop-apps`). Checked every 10 min, at most 2
+downloads per check; a build is only downloaded when its version changes.
