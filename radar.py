@@ -140,6 +140,7 @@ NEWS_FEEDS = {
     "Financial Times": ("https://www.ft.com/artificial-intelligence?format=rss", False),
     "SemiAnalysis": ("https://newsletter.semianalysis.com/feed", False),
     "Axios": ("https://api.axios.com/feed/", True),
+    "Business Insider": ("https://feeds.businessinsider.com/custom/all", True),
     "Reuters": ("https://news.google.com/rss/search?q=site:reuters.com+(%22artificial+intelligence%22+OR+OpenAI+OR+"
                 "Anthropic+OR+Nvidia+OR+%22AI%22)+when:2d&hl=en-US&gl=US&ceid=US:en", True),
 }
@@ -580,7 +581,8 @@ def fetch_news():
                 "key": norm_url(e["link"]) if e["link"] else e["id"], "group": outlet, "title": title[:250],
                 "url": e["link"], "desc": _clean(e["summary"], 300), "fields": [("Source", outlet)],
                 "color": 0x2F3136, "label": f"{outlet}",
-                "icon": {"Reuters": "reuters.com", "Financial Times": "ft.com"}.get(outlet),
+                "icon": {"Reuters": "reuters.com", "Financial Times": "ft.com",
+                         "Business Insider": "businessinsider.com"}.get(outlet),
             })
     return items, good > 0
 
