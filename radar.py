@@ -41,7 +41,30 @@ ARENAS = {
     "video-edit": "Video Edit Arena",
     "search": "Search Arena",
     "document": "Document Arena",
+    "image-edit-multi": "Image Edit Arena (multi-image)",
+    "webdev": "WebDev Arena",
+    "image-to-webdev": "Image-to-WebDev Arena",
 }
+
+# arena slug -> leaderboard path on arena.ai (slugs above stay the stable keys)
+ARENA_PATHS = {
+    "text": "chat/text",
+    "vision": "chat/vision",
+    "search": "chat/search",
+    "document": "chat/document",
+    "text-to-image": "image/text-to-image",
+    "image-edit": "image/image-edit/single-image",
+    "image-edit-multi": "image/image-edit/multi-image",
+    "text-to-video": "video/text-to-video",
+    "image-to-video": "video/image-to-video",
+    "video-edit": "video/video-edit",
+    "webdev": "code/webdev",
+    "image-to-webdev": "code/image-to-webdev",
+}
+
+
+def arena_url(slug):
+    return f"https://arena.ai/leaderboard/{ARENA_PATHS.get(slug, slug)}"
 
 SITEMAPS = {
     "openai": {
@@ -303,7 +326,7 @@ def fetch_arenas():
     items, good = [], 0
     for slug, label in ARENAS.items():
         try:
-            page = http_get(f"https://arena.ai/leaderboard/{slug}", timeout=60)
+            page = http_get(arena_url(slug), timeout=60)
         except Exception as e:  # one arena failing shouldn't kill the rest
             print(f"  ! {slug}: {e}", file=sys.stderr)
             continue
@@ -321,7 +344,7 @@ def fetch_arenas():
             items.append({
                 "key": f"{slug}::{name}", "group": slug,
                 "title": name,
-                "url": f"https://arena.ai/leaderboard/{slug}",
+                "url": arena_url(slug),
                 "desc": "",
                 "fields": [("Arena", label), ("Organization", org or "?"), ("Rank", f"#{rank}"),
                            ("Score", f"{float(rating):.0f}"), ("Votes", f"{int(votes):,}")],
@@ -1205,7 +1228,7 @@ def lb_artificialanalysis():
 
 def lb_arena(slug):
     def fetch():
-        page = http_get(f"https://arena.ai/leaderboard/{slug}", timeout=60).replace('\\"', '"')
+        page = http_get(arena_url(slug), timeout=60).replace('\\"', '"')
         first = page.split('"entries":[', 1)[1].split('"entries":[', 1)[0]  # overall board only
         rows = {}
         for rank, name, rating in re.findall(r'"rank":(\d+),.*?"modelDisplayName":"([^"]+)","rating":([\d.]+)', first):
@@ -1383,9 +1406,10 @@ LEADERBOARDS = {
                            "https://artificialanalysis.ai/leaderboards/models", lb_artificialanalysis,
                            "benchmarks", 0xE67E22, "{:.1f}"),
     "lb_arena_text": _single("lb_arena_text", "Text Arena leaderboard", "Human-preference Elo from arena.ai (overall, text).",
-                             "https://arena.ai/leaderboard/text", lb_arena("text"), "arenas", 0x57F287, "{:.0f}"),
+                             arena_url("text"), lb_arena("text"), "arenas", 0x57F287, "{:.0f}"),
     "lb_arena_vision": _single("lb_arena_vision", "Vision Arena leaderboard", "Human-preference Elo from arena.ai (overall, vision).",
-                               "https://arena.ai/leaderboard/vision", lb_arena("vision"), "arenas", 0x57F287, "{:.0f}"),
+                               arena_url("vision"), lb_arena("vision"), "arenas", 0x57F287, "{:.0f}"),
+    "lb_arena_webdev": _single("lb_arena_webdev", "WebDev Arena leaderboard", "Human-preference Elo from arena.ai (overall, webdev).", arena_url("webdev"), lb_arena("webdev"), "arenas", 0x57F287, "{:.0f}"),
     "lb_designarena_main": _single("lb_designarena_main", "Design Arena leaderboard", "Elo from designarena.ai (all categories).",
                                    "https://www.designarena.ai/leaderboard", lb_designarena, "arenas", 0x57F287, "{:.0f}"),
     "lb_cursorbench": _single("lb_cursorbench", "CursorBench", "Coding-agent performance on real Cursor sessions.",
@@ -1578,7 +1602,7 @@ def find_removals(name, items, seen):
         where = REMOVAL_SOURCES[name] + (f" {ARENAS.get(g, g)}" if g else "")
         out.append({
             "key": f"removed::{g}", "removes": keys, "title": f"Removed {where} models",
-            "url": f"https://arena.ai/leaderboard/{g}" if name == "arenas" else "https://www.designarena.ai/leaderboard",
+            "url": arena_url(g) if name == "arenas" else "https://www.designarena.ai/leaderboard",
             "desc": "\n".join(f"🗑️ {k.split('::', 1)[-1]}" for k in keys[:40]), "fields": [],
             "color": 0xED4245, "label": f"Removed {REMOVAL_SOURCES[name]} models",
             "icon": "arena.ai" if name == "arenas" else "designarena.ai",
@@ -1654,7 +1678,7 @@ PAGE_SOURCES = ("sitemaps", "fastpages", "priority_pages")  # share "already pos
 # memory-heavy checks: at most 2 at once across lanes (Render free = 512 MB). The 30 s priority
 # lane isn't limited, so it never waits.
 MEMORY_HEAVY = {"sitemaps", "fastpages", "arenas", "lb_vals", "lb_epoch", "lb_arena_text", "lb_arena_vision",
-                "artificialanalysis", "lb_aa_index"}
+                "lb_arena_webdev", "artificialanalysis", "lb_aa_index"}
 _HEAVY_SLOTS = threading.Semaphore(int(os.environ.get("RADAR_HEAVY_AT_ONCE", "2")))
 
 
@@ -1897,7 +1921,7 @@ LOOP_SECONDS = {
 
 # Per-source loop intervals (seconds) that differ from their tier, and which lane runs them.
 # Lanes run in parallel, so arena/AA checks every minute never delay the API checks.
-ARENA_LANE = ["arenas", "artificialanalysis", "lb_arena_text", "lb_arena_vision", "lb_aa_index"]
+ARENA_LANE = ["arenas", "artificialanalysis", "lb_arena_text", "lb_arena_vision", "lb_arena_webdev", "lb_aa_index"]
 PAGES_LANE = ["priority_pages", "designarena_registry"]  # the most time-critical leaks, every 30 s
 LOOP_OVERRIDE_SECONDS = {
     **{k: int(os.environ.get("RADAR_LOOP_ARENA", "60")) for k in ARENA_LANE},
