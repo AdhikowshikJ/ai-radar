@@ -143,6 +143,37 @@ NEWS_FEEDS = {
     "Business Insider": ("https://feeds.businessinsider.com/custom/all", True),
     "Reuters": ("https://news.google.com/rss/search?q=site:reuters.com+(%22artificial+intelligence%22+OR+OpenAI+OR+"
                 "Anthropic+OR+Nvidia+OR+%22AI%22)+when:2d&hl=en-US&gl=US&ceid=US:en", True),
+    "New York Times": ("https://rss.nytimes.com/services/xml/rss/nyt/Technology.xml", True),
+    "Wall Street Journal": ("https://feeds.content.dowjones.io/public/rss/RSSWSJD", True),
+    "Washington Post": ("https://feeds.washingtonpost.com/rss/business/technology", True),
+    "CNBC": ("https://www.cnbc.com/id/19854910/device/rss/rss.html", True),
+    "Platformer": ("https://www.platformer.news/rss/", True),
+    "404 Media": ("https://www.404media.co/rss/", True),
+    "The Verge": ("https://www.theverge.com/rss/ai-artificial-intelligence/index.xml", False),
+    "TechCrunch": ("https://techcrunch.com/category/artificial-intelligence/feed/", False),
+    "Wired": ("https://www.wired.com/feed/tag/ai/latest/rss", False),
+    "The Decoder": ("https://the-decoder.com/feed/", False),
+}
+# Google News-style sitemaps: each <url> carries <news:title>. Checked every minute, in parallel.
+NEWS_SITEMAPS = {
+    "Business Insider": "https://www.businessinsider.com/sitemap/google-news.xml",
+    "New York Times": "https://www.nytimes.com/sitemaps/new/news.xml.gz",
+    "Wall Street Journal": "https://www.wsj.com/wsjsitemaps/wsj_google_news.xml",
+    "Washington Post": "https://www.washingtonpost.com/sitemaps/news-sitemap.xml.gz",
+    "Bloomberg": "https://www.bloomberg.com/sitemaps/news/latest.xml",
+    "Financial Times": "https://www.ft.com/sitemaps/news.xml",
+    "Reuters": "https://www.reuters.com/arc/outboundfeeds/news-sitemap/?outputType=xml",
+    "Axios": "https://www.axios.com/sitemaps/news.xml",
+    "The Verge": "https://www.theverge.com/sitemaps/google_news",
+    "TechCrunch": "https://techcrunch.com/news-sitemap.xml",
+}
+# icon domain per outlet (embed thumbnail); outlets not listed use their link's domain
+NEWS_ICONS = {
+    "Reuters": "reuters.com", "Financial Times": "ft.com", "Business Insider": "businessinsider.com",
+    "New York Times": "nytimes.com", "Wall Street Journal": "wsj.com", "Washington Post": "washingtonpost.com",
+    "CNBC": "cnbc.com", "Platformer": "platformer.news", "404 Media": "404media.co", "The Verge": "theverge.com",
+    "TechCrunch": "techcrunch.com", "Wired": "wired.com", "The Decoder": "the-decoder.com",
+    "Bloomberg": "bloomberg.com", "Axios": "axios.com",
 }
 AI_NEWS = re.compile(r"\bA\.?I\b|artificial intelligence|\b(OpenAI|Anthropic|Claude|ChatGPT|Gemini|DeepMind|LLMs?|"
                      r"Nvidia|GPUs?|xAI|Grok|Mistral|DeepSeek|Copilot|Llama|AGI|superintelligence|chatbots?|"
@@ -215,6 +246,7 @@ ROLE_ENV = {
     "subdomains": "DISCORD_ROLE_SUBDOMAINS",
     "newrepos": "DISCORD_ROLE_NEWREPOS",
     "gcp": "DISCORD_ROLE_CLOUD",
+    "polymarket": "DISCORD_ROLE_MARKETS",
 }
 BRAND = os.environ.get("RADAR_BRAND", "AI Leaks")
 
@@ -250,6 +282,7 @@ WEBHOOK_ENV = {
     "subdomains": "DISCORD_WEBHOOK_SUBDOMAINS",
     "newrepos": "DISCORD_WEBHOOK_NEWREPOS",
     "gcp": ("DISCORD_WEBHOOK_CLOUD", "DISCORD_WEBHOOK_GOOGLE_CLOUD"),
+    "polymarket": ("DISCORD_WEBHOOK_MARKETS", "DISCORD_WEBHOOK_NEWS"),
 }
 
 
@@ -564,7 +597,6 @@ def fetch_fastpages():
     return items, good > 0
 
 
-BI_NEWS_SITEMAP = "https://www.businessinsider.com/sitemap/google-news.xml"
 _SITEMAP_URL = re.compile(r"<url>(.*?)</url>", re.S)
 _SITEMAP_LOC = re.compile(r"<loc>\s*(.*?)\s*</loc>", re.S)
 _SITEMAP_TITLE = re.compile(r"<news:title>\s*(.*?)\s*</news:title>", re.S)
@@ -593,51 +625,60 @@ def _sitemap_news(text):
     return out
 
 
-def fetch_news():
-    items, good = [], 0
-    for outlet, (url, filt) in NEWS_FEEDS.items():
-        try:
-            entries = _parse_feed(http_get(url, timeout=40))
-        except Exception as e:
-            print(f"  ! news {outlet}: {e}", file=sys.stderr)
+def _news_sitemap(outlet, url):
+    """One outlet's news sitemap -> its AI-related items. Raises if the fetch fails."""
+    out = []
+    group = "Business Insider (sitemap)" if outlet == "Business Insider" else f"{outlet} (sitemap)"
+    for loc, title in _sitemap_news(http_get(url, timeout=40)):
+        slug = urllib.parse.urlparse(loc).path.rstrip("/").split("/")[-1]
+        if not (AI_NEWS.search(title) or AI_NEWS.search(slug.replace("-", " ")) or SLUG_AI.search(slug)):
             continue
-        good += 1
-        for e in entries:
-            title = html.unescape(e["title"] or "").strip()
-            if outlet == "Reuters":
-                title = re.sub(r"\s+-\s+Reuters$", "", title)
-            if filt and not AI_NEWS.search(title + " " + _clean(e["summary"], 300)):
+        out.append({
+            "key": norm_url(loc), "group": group, "title": title[:250],
+            "url": loc, "desc": "", "fields": [("Source", outlet)],
+            "color": 0x2F3136, "label": outlet, "icon": NEWS_ICONS.get(outlet),
+        })
+    return out
+
+
+def fetch_news():
+    from concurrent.futures import ThreadPoolExecutor
+    items, good = [], 0
+    with ThreadPoolExecutor(max_workers=5) as pool:  # sitemaps in parallel; RSS below
+        sitemap_jobs = {outlet: pool.submit(_news_sitemap, outlet, url) for outlet, url in NEWS_SITEMAPS.items()}
+        for outlet, (url, filt) in NEWS_FEEDS.items():
+            try:
+                entries = _parse_feed(http_get(url, timeout=40))
+            except Exception as e:
+                print(f"  ! news {outlet}: {e}", file=sys.stderr)
                 continue
-            items.append({
-                "key": norm_url(e["link"]) if e["link"] else e["id"], "group": outlet, "title": title[:250],
-                "url": e["link"], "desc": _clean(e["summary"], 300), "fields": [("Source", outlet)],
-                "color": 0x2F3136, "label": f"{outlet}",
-                "icon": {"Reuters": "reuters.com", "Financial Times": "ft.com",
-                         "Business Insider": "businessinsider.com"}.get(outlet),
-            })
-    # Business Insider's news sitemap: its own group, so the older articles are remembered quietly
-    try:
-        bi = _sitemap_news(http_get(BI_NEWS_SITEMAP, timeout=40))
-    except Exception as e:
-        print(f"  ! news Business Insider sitemap: {e}", file=sys.stderr)
-        bi = None
-    if bi is not None:
-        good += 1
-        rss_keys = {i["key"] for i in items}  # the RSS copy wins when both list one article
-        for loc, title in bi:
-            slug = urllib.parse.urlparse(loc).path.rstrip("/").split("/")[-1]
-            if not (AI_NEWS.search(title) or AI_NEWS.search(slug.replace("-", " ")) or SLUG_AI.search(slug)):
+            good += 1
+            for e in entries:
+                title = html.unescape(e["title"] or "").strip()
+                if outlet == "Reuters":
+                    title = re.sub(r"\s+-\s+Reuters$", "", title)
+                if filt and not AI_NEWS.search(title + " " + _clean(e["summary"], 300)):
+                    continue
+                items.append({
+                    "key": norm_url(e["link"]) if e["link"] else e["id"], "group": outlet, "title": title[:250],
+                    "url": e["link"], "desc": _clean(e["summary"], 300), "fields": [("Source", outlet)],
+                    "color": 0x2F3136, "label": f"{outlet}", "icon": NEWS_ICONS.get(outlet),
+                })
+        for outlet, job in sitemap_jobs.items():
+            try:
+                found = job.result()
+            except Exception as e:
+                print(f"  ! news {outlet} sitemap: {e}", file=sys.stderr)
                 continue
-            key = norm_url(loc)
-            if key in rss_keys:
-                continue
-            rss_keys.add(key)
-            items.append({
-                "key": key, "group": "Business Insider (sitemap)", "title": title[:250],
-                "url": loc, "desc": "", "fields": [("Source", "Business Insider")],
-                "color": 0x2F3136, "label": "Business Insider", "icon": "businessinsider.com",
-            })
-    return items, good > 0
+            good += 1
+            items.extend(found)
+    # the same article can be listed by a feed and a sitemap: keep the first copy (feeds come first)
+    unique, keys = [], set()
+    for i in items:
+        if i["key"] not in keys:
+            keys.add(i["key"])
+            unique.append(i)
+    return unique, good > 0
 
 
 def fetch_releases():
@@ -1523,6 +1564,42 @@ def fetch_bundles():
     return items, ok
 
 
+# ---------------------------------------------------------------- polymarket
+POLYMARKET_API = "https://gamma-api.polymarket.com/events?tag_slug=ai&closed=false&limit=100&order=volume24hr&ascending=false"
+POLYMARKET_MIN_VOLUME = 5000  # USD traded in 24h before a market is listed
+
+
+def fetch_polymarket():
+    """One item per open AI market with enough 24h volume; the YES price is tracked as "Odds"."""
+    items = []
+    for ev in json.loads(http_get(POLYMARKET_API, timeout=40)):
+        for m in ev.get("markets") or []:
+            if m.get("closed"):
+                continue
+            vol = float(m.get("volume24hr") or 0)
+            if vol < POLYMARKET_MIN_VOLUME:
+                continue
+            prices = m.get("outcomePrices")
+            if isinstance(prices, str):  # the API sends a JSON-encoded string
+                prices = json.loads(prices)
+            try:
+                yes = float(prices[0])
+            except (TypeError, ValueError, IndexError):
+                continue
+            title = ev.get("title") or ""
+            if m.get("groupItemTitle"):
+                title += f" · {m['groupItemTitle']}"
+            items.append({
+                "key": f"pm::{m['id']}", "group": "Polymarket AI", "title": title[:250],
+                "url": f"https://polymarket.com/event/{ev.get('slug', '')}", "desc": m.get("question") or "",
+                "fields": [("Yes", f"{yes * 100:.0f}%"), ("24h volume", f"${vol:,.0f}")],
+                "color": 0x2E5CFF, "label": "New Polymarket AI market", "icon": "polymarket.com",
+                "snap": {"Odds": round(yes, 3)},
+                "change_label": "Polymarket odds moved", "change_fields": [("24h volume", f"${vol:,.0f}")],
+            })
+    return items, len(items) > 0
+
+
 SOURCES = {
     "openrouter": fetch_openrouter,
     "arenas": fetch_arenas,
@@ -1549,6 +1626,7 @@ SOURCES = {
     "sdk_models": fetch_sdk_models,
     "arcprize": fetch_arcprize,
     "artificialanalysis": fetch_artificialanalysis,
+    "polymarket": fetch_polymarket,
 }
 
 # ---------------------------------------------------------------- discord
@@ -1919,6 +1997,8 @@ def run_leaderboard(lb_id, state, dry_run):
 def _fmt_snap(field, v):
     if v is None or v == "":
         return "n/a"
+    if field == "Odds":  # probability 0-1 -> percent
+        return f"{float(v) * 100:.0f}%"
     if "price" in field:
         try:
             f = float(v) * 1_000_000
@@ -1941,6 +2021,19 @@ def _small_price_move(field, a, b):
     return a > 0 and b > 0 and abs(b - a) / a < MIN_PRICE_CHANGE
 
 
+MIN_ODDS_CHANGE = 0.15  # Polymarket odds: ignore moves under 15 points (the last announced value is kept)
+
+
+def _small_odds_move(field, a, b):
+    if field != "Odds":
+        return False
+    try:
+        a, b = float(a), float(b)
+    except (TypeError, ValueError):
+        return False
+    return abs(b - a) < MIN_ODDS_CHANGE
+
+
 MIN_CONTEXT_RATIO = 1.5  # announce context changes only when they grow/shrink 1.5x or more
 
 
@@ -1960,7 +2053,7 @@ def track_changes(name, items, old_snap):
         if before is None or before == now:
             continue
         diffs = [(f, before.get(f), now.get(f)) for f in now if before.get(f) != now.get(f)]
-        small = [d for d in diffs if _small_price_move(*d) or _small_context_move(*d)]
+        small = [d for d in diffs if _small_price_move(*d) or _small_context_move(*d) or _small_odds_move(*d)]
         if small:
             # keep the last announced price, so many tiny moves still add up to an alert
             cur[k] = {**now, **{f: a for f, a, _ in small}}
@@ -2081,6 +2174,7 @@ SCHEDULE_MIN = {
     # every 30 min: heavy downloads or slow/fragile services
     "arenas": SLOW_MIN, "benchmarks": SLOW_MIN, "subdomains": SLOW_MIN, "status": SLOW_MIN,
     "arcprize": SLOW_MIN, "artificialanalysis": SLOW_MIN,
+    "polymarket": FAST_MIN,
 }
 
 
@@ -2341,6 +2435,7 @@ LOOP_SECONDS = {
 # Per-source loop intervals (seconds) that differ from their tier, and which lane runs them.
 # Lanes run in parallel, so arena/AA checks every minute never delay the API checks.
 ARENA_LANE = ["arenas", "artificialanalysis", "lb_arena_text", "lb_arena_vision", "lb_arena_webdev", "lb_aa_index"]
+NEWS_LANE = ["news", "polymarket"]
 PAGES_LANE = ["priority_pages", "designarena_registry"]  # the most time-critical leaks, every 30 s
 LOOP_OVERRIDE_SECONDS = {
     **{k: int(os.environ.get("RADAR_LOOP_ARENA", "60")) for k in ARENA_LANE},
@@ -2349,6 +2444,7 @@ LOOP_OVERRIDE_SECONDS = {
     "sitemaps": int(os.environ.get("RADAR_LOOP_SITEMAPS", "180")),
     "subdomains": int(os.environ.get("RADAR_LOOP_SUBDOMAINS", "1800")),  # crt.sh is fragile: be gentle
     "bundles": int(os.environ.get("RADAR_LOOP_BUNDLES", "600")),
+    "news": int(os.environ.get("RADAR_LOOP_NEWS", "60")),
 }
 
 
@@ -2384,11 +2480,12 @@ def run_loop(state, args):
     everything = list(SOURCES) + list(LEADERBOARDS)
     arena = [k for k in ARENA_LANE if k in everything]
     pages = [k for k in PAGES_LANE if k in everything]
-    fast = [k for k in everything if SCHEDULE_MIN.get(k, SLOW_MIN) == FAST_MIN and k not in arena + pages]
-    heavy = [k for k in everything if k not in fast + arena + pages]
-    for lane, names in (("pages", pages), ("fast", fast), ("arena", arena), ("heavy", heavy)):
+    news = [k for k in NEWS_LANE if k in everything]  # ~20 outlets: own lane so it never slows page checks
+    fast = [k for k in everything if SCHEDULE_MIN.get(k, SLOW_MIN) == FAST_MIN and k not in arena + pages + news]
+    heavy = [k for k in everything if k not in fast + arena + pages + news]
+    for lane, names in (("pages", pages), ("news", news), ("fast", fast), ("arena", arena), ("heavy", heavy)):
         print(f"lane {lane}: " + ", ".join(f"{k}@{loop_interval(k)}s" for k in names))
-    for lane, names in (("pages", pages), ("arena", arena), ("heavy", heavy)):
+    for lane, names in (("pages", pages), ("news", news), ("arena", arena), ("heavy", heavy)):
         threading.Thread(target=_lane, args=(lane, names, state, args), daemon=True).start()
     _lane("fast", fast, state, args)
 

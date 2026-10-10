@@ -177,3 +177,13 @@ model names it has never seen before, for every lab (Gemini, Claude, GPT, Qwen, 
 Mistral, GLM) (e.g. "Gemini 4 Argon" was in Antigravity CLI 1.3.3 before launch).
 Webhook: `DISCORD_WEBHOOK_BUNDLES` (falls back to `#desktop-apps`). Checked every 10 min, at most 2
 downloads per check; a build is only downloaded when its version changes.
+
+## #news sources (fastest first)
+Google News sitemaps (articles appear here the moment they're published): New York Times, Wall Street Journal,
+Washington Post, Bloomberg, Financial Times, Reuters, Axios, The Verge, TechCrunch, Business Insider.
+RSS: the same outlets plus CNBC, Wired, The Decoder, Platformer, 404 Media, The Information, SemiAnalysis.
+General feeds are filtered to AI stories. News runs in its own lane every 60 s (`RADAR_LOOP_NEWS`).
+
+## #markets: Polymarket (optional)
+New AI prediction markets with real volume (>= $5k/24h) and odds moves of 15+ points.
+Webhook `DISCORD_WEBHOOK_MARKETS` (falls back to #news).
