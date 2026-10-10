@@ -564,6 +564,35 @@ def fetch_fastpages():
     return items, good > 0
 
 
+BI_NEWS_SITEMAP = "https://www.businessinsider.com/sitemap/google-news.xml"
+_SITEMAP_URL = re.compile(r"<url>(.*?)</url>", re.S)
+_SITEMAP_LOC = re.compile(r"<loc>\s*(.*?)\s*</loc>", re.S)
+_SITEMAP_TITLE = re.compile(r"<news:title>\s*(.*?)\s*</news:title>", re.S)
+_SLUG_DATE = re.compile(r"-\d{4}-\d{2}$")  # trailing "-YYYY-MM" on article slugs
+SLUG_AI = re.compile(r"gemini|openai|anthropic|claude|chatgpt|nvidia|(?<![a-z])ai(?![a-z])", re.I)
+
+
+def _sitemap_news(text):
+    """Google News sitemap -> (loc, title) for each <url> block; title falls back to the URL slug."""
+    out = []
+    for block in _SITEMAP_URL.findall(text):
+        m = _SITEMAP_LOC.search(block)
+        if not m:
+            continue
+        loc = html.unescape(m.group(1)).strip()
+        t = _SITEMAP_TITLE.search(block)
+        title = ""
+        if t:
+            title = re.sub(r"^<!\[CDATA\[(.*)\]\]>$", r"\1", t.group(1).strip(), flags=re.S)
+            title = html.unescape(title).strip()
+        if not title:
+            slug = urllib.parse.urlparse(loc).path.rstrip("/").split("/")[-1]
+            slug = _SLUG_DATE.sub("", slug).replace("-", " ")
+            title = slug[:1].upper() + slug[1:]
+        out.append((loc, title))
+    return out
+
+
 def fetch_news():
     items, good = [], 0
     for outlet, (url, filt) in NEWS_FEEDS.items():
@@ -585,6 +614,28 @@ def fetch_news():
                 "color": 0x2F3136, "label": f"{outlet}",
                 "icon": {"Reuters": "reuters.com", "Financial Times": "ft.com",
                          "Business Insider": "businessinsider.com"}.get(outlet),
+            })
+    # Business Insider's news sitemap: its own group, so the older articles are remembered quietly
+    try:
+        bi = _sitemap_news(http_get(BI_NEWS_SITEMAP, timeout=40))
+    except Exception as e:
+        print(f"  ! news Business Insider sitemap: {e}", file=sys.stderr)
+        bi = None
+    if bi is not None:
+        good += 1
+        rss_keys = {i["key"] for i in items}  # the RSS copy wins when both list one article
+        for loc, title in bi:
+            slug = urllib.parse.urlparse(loc).path.rstrip("/").split("/")[-1]
+            if not (AI_NEWS.search(title) or AI_NEWS.search(slug.replace("-", " ")) or SLUG_AI.search(slug)):
+                continue
+            key = norm_url(loc)
+            if key in rss_keys:
+                continue
+            rss_keys.add(key)
+            items.append({
+                "key": key, "group": "Business Insider (sitemap)", "title": title[:250],
+                "url": loc, "desc": "", "fields": [("Source", "Business Insider")],
+                "color": 0x2F3136, "label": "Business Insider", "icon": "businessinsider.com",
             })
     return items, good > 0
 
@@ -1112,12 +1163,15 @@ def fetch_status():
 
 # ---- bundle diff: download each tool's official build, scan it for model-name strings, and
 # announce strings that no earlier build from the same vendor contained (e.g. unreleased names)
-_STATE = {}  # the bot's state dict (set by main() and run_loop()); holds "bundles#versions"
+_STATE = {}  # the bot's state dict (set by main() and run_loop()); holds "bundles#versions2"
 BUNDLE_CHUNK = 8 * 1024 * 1024
 BUNDLE_OVERLAP = 200                       # bytes carried over so names split across chunks are found
-BUNDLE_MAX_MEMBER = 400 * 1024 * 1024      # bigger files inside the tarball are skipped
+BUNDLE_MAX_MEMBER = 400 * 1024 * 1024      # bigger files inside the archive are skipped
 BUNDLE_MAX_DOWNLOADS = 2                   # per run; other changed targets wait for the next run
 BUNDLE_ANTIGRAVITY = "https://antigravity-cli-auto-updater-974169037036.us-central1.run.app/manifests/linux_amd64.json"
+CURSOR_API = "https://cursor.com/api/download?platform=linux-x64&releaseTrack="  # + stable | latest
+CURSOR_INSTALL = "https://cursor.com/install"
+KIMI_PYPI = "https://pypi.org/pypi/kimi-cli/json"
 # ("id" = model ID, cleaned by _clean_model_id; "name" = display name). Names in the binaries are
 # glued to the text before them, so no leading \b; a preceding uppercase/digit is still rejected.
 BUNDLE_PATTERNS = {
@@ -1128,8 +1182,20 @@ BUNDLE_PATTERNS = {
     "openai": [(rb"gpt-[0-9][a-z0-9.\-]{0,30}", "id"),
                (rb"(?<![A-Z0-9])GPT-[0-9][0-9.]*(?: [A-Z][a-z]+)?(?![a-z])", "name")],
     "qwen": [(rb"qwen[0-9][a-z0-9.\-]{1,30}", "id")],
+    "kimi": [(rb"kimi-k[0-9][a-z0-9.\-]{0,30}", "id"),
+             (rb"(?<![A-Z0-9])Kimi K[0-9][0-9.]*(?: [A-Z][a-z]+)?(?![a-z])", "name")],
+    "grok": [(rb"grok-[0-9][a-z0-9.\-]{0,30}", "id"),
+             (rb"(?<![A-Z0-9])Grok [0-9][0-9.]*(?: [A-Z][a-z]+)?(?![a-z])", "name")],
+    "deepseek": [(rb"deepseek-(?:v[0-9]|r[0-9]|chat|coder|reasoner)[a-z0-9.\-]{0,30}", "id")],
+    "mistral": [(rb"(?:mistral|codestral|devstral|magistral)-[a-z0-9.\-]{2,30}", "id")],
+    "glm": [(rb"glm-[0-9][a-z0-9.\-]{0,30}", "id")],
 }
-BUNDLE_ID_PREFIX = {"gemini": "gemini-", "claude": "claude-", "openai": "gpt-", "qwen": "qwen"}
+# every (compiled pattern, kind, vendor) triple; each archive is scanned with all of them
+_BUNDLE_RES = [(re.compile(p), kind, vendor) for vendor, lst in BUNDLE_PATTERNS.items() for p, kind in lst]
+# regex for the start of a model ID of each vendor (a repeated prefix means a new ID glued on)
+BUNDLE_ID_PREFIX = {"gemini": r"gemini-", "claude": r"claude-", "openai": r"gpt-", "qwen": r"qwen",
+                    "kimi": r"kimi-", "grok": r"grok-", "deepseek": r"deepseek-",
+                    "mistral": r"(?:mistral|codestral|devstral|magistral)-", "glm": r"glm-"}
 # known tokens of model IDs; a token glued to one of these (e.g. "liteuser") is cut back to the word
 BUNDLE_VOCAB = {"flash", "pro", "lite", "ultra", "nano", "image", "preview", "tts", "live", "thinking", "high",
                 "low", "medium", "max", "min", "xhigh", "exp", "experimental", "latest", "mini", "omni", "audio",
@@ -1168,8 +1234,8 @@ def _clean_display_name(s):
 
 def _clean_model_id(s, vendor):
     """Split and clean one raw model-ID match from a binary. Returns a list of IDs."""
-    prefix = BUNDLE_ID_PREFIX[vendor]
-    cuts = [0] + [m.start() for m in re.finditer(re.escape(prefix), s) if m.start() > 0]
+    pfx = re.compile(BUNDLE_ID_PREFIX[vendor])
+    cuts = [0] + [m.start() for m in pfx.finditer(s) if m.start() > 0]
     out = []
     for a, b in zip(cuts, cuts[1:] + [len(s)]):
         toks = s[a:b].split("-")
@@ -1195,10 +1261,15 @@ def _clean_model_id(s, vendor):
                 break  # truncated known word, e.g. "previ" from "preview": drop it and the rest
             keep.append(t)  # not known: may be a new name such as "argon"
         cleaned = "-".join(keep).rstrip("-.")
-        if len(cleaned) >= len(prefix) + 2:
+        m = pfx.match(cleaned)
+        if m and len(cleaned) >= m.end() + 2:
             out.append(cleaned)
     return out
-BUNDLE_ICONS = {"gemini": "gemini.google.com", "claude": "claude.ai", "openai": "openai.com", "qwen": "qwen.ai"}
+
+
+BUNDLE_ICONS = {"gemini": "gemini.google.com", "claude": "claude.ai", "openai": "openai.com", "qwen": "qwen.ai",
+                "kimi": "kimi.com", "grok": "x.ai", "deepseek": "deepseek.com", "mistral": "mistral.ai",
+                "glm": "z.ai"}
 # (npm package, display name, vendor, dist-tags to track, tarball file name for a version)
 BUNDLE_NPM = [
     ("@google/gemini-cli", "Gemini CLI", "gemini", ("latest", "preview", "nightly"), "gemini-cli-{v}.tgz"),
@@ -1208,12 +1279,16 @@ BUNDLE_NPM = [
 ]
 
 
+def _json_get(url):
+    return json.loads(http_get(url, timeout=30))
+
+
 def _bundle_targets():
-    """(target, version, download url, vendor, official page) for every release channel tracked."""
+    """(target, version, download url, official page) for every release channel tracked."""
     targets, checked = [], 0
     try:
-        m = json.loads(http_get(BUNDLE_ANTIGRAVITY, timeout=30))
-        targets.append(("Antigravity CLI", m["version"], m["url"], "gemini", m["url"]))
+        m = _json_get(BUNDLE_ANTIGRAVITY)
+        targets.append(("Antigravity CLI", m["version"], m["url"], m["url"]))
         checked += 1
     except Exception as e:
         print(f"  ! antigravity manifest: {e}", file=sys.stderr)
@@ -1235,8 +1310,43 @@ def _bundle_targets():
                 continue
             v = tagmap[tag]
             target = name if tag == "latest" else f"{name} ({tag})"
-            targets.append((target, v, f"{reg}/{pkg}/-/{fname.format(v=v)}", vendor,
+            targets.append((target, v, f"{reg}/{pkg}/-/{fname.format(v=v)}",
                             f"https://www.npmjs.com/package/{pkg}?activeTab=versions"))
+    # Cursor desktop app: a .deb, stable and latest tracks
+    for track, name in (("stable", "Cursor"), ("latest", "Cursor (latest)")):
+        try:
+            m = _json_get(CURSOR_API + track)
+            deb = m.get("debUrl")  # the latest track omits debUrl: build the .deb link from commitSha
+            if not deb and m.get("commitSha") and m.get("version"):
+                deb = (f"https://downloads.cursor.com/production/{m['commitSha']}/linux/x64/deb/amd64/deb/"
+                       f"cursor_{m['version']}_amd64.deb")
+            if not deb:
+                raise ValueError("no .deb link in the download API response")
+            targets.append((name, m["version"], deb, deb))
+            checked += 1
+        except Exception as e:
+            print(f"  ! {name}: {e}", file=sys.stderr)
+    # Cursor CLI: the version is in the download link of the install script
+    try:
+        mv = re.search(r"downloads\.cursor\.com/lab/([^/]+)/", http_get(CURSOR_INSTALL, timeout=30))
+        if not mv:
+            raise ValueError("no version in the install script")
+        v = mv.group(1)
+        targets.append(("Cursor CLI", v, f"https://downloads.cursor.com/lab/{v}/linux/x64/agent-cli-package.tar.gz",
+                        CURSOR_INSTALL))
+        checked += 1
+    except Exception as e:
+        print(f"  ! Cursor CLI: {e}", file=sys.stderr)
+    # Kimi CLI: the wheel of the latest PyPI release (a zip file)
+    try:
+        info = _json_get(KIMI_PYPI)
+        whl = [u["url"] for u in info["urls"] if u["filename"].endswith(".whl")]
+        if not whl:
+            raise ValueError("no wheel in the PyPI release")
+        targets.append(("Kimi CLI", info["info"]["version"], whl[0], "https://pypi.org/project/kimi-cli/"))
+        checked += 1
+    except Exception as e:
+        print(f"  ! Kimi CLI: {e}", file=sys.stderr)
     return targets, checked > 0
 
 
@@ -1250,36 +1360,117 @@ def _bundle_download(url, path):
             f.write(chunk)
 
 
-def _bundle_scan(path, vendor):
-    """Model-name strings inside a .tar.gz. Streams the archive and reads each file in 8 MB chunks."""
+class _MemberReader:
+    """File-like view of one byte range of a file. read() never goes past the range's end."""
+
+    def __init__(self, f, start, size):
+        self.f, self.left = f, size
+        f.seek(start)
+
+    def read(self, n=-1):
+        if self.left <= 0:
+            return b""
+        n = self.left if n is None or n < 0 else min(n, self.left)
+        data = self.f.read(n)
+        if not data:
+            self.left = 0
+        self.left -= len(data)
+        return data
+
+
+def _scan_stream(f, found):
+    """Add (vendor, string) pairs found in one file-like object, read in 8 MB chunks."""
+    tail = b""
+    while True:
+        chunk = f.read(BUNDLE_CHUNK)
+        buf = tail + chunk
+        for p, kind, vendor in _BUNDLE_RES:
+            for m in p.finditer(buf):
+                # a match touching the end of a non-final buffer may be cut short; the next
+                # buffer starts with the overlap and finds it whole
+                if chunk and m.end() == len(buf):
+                    continue
+                raw = m.group().decode("utf-8", errors="ignore")
+                if kind == "id":
+                    found.update((vendor, s) for s in _clean_model_id(raw, vendor))
+                else:
+                    name = _clean_display_name(raw.rstrip("-."))
+                    if name:
+                        found.add((vendor, name))
+        if not chunk:
+            break
+        tail = buf[-BUNDLE_OVERLAP:]
+
+
+def _scan_tar(tar, found):
+    for member in tar:
+        if not member.isreg() or member.size > BUNDLE_MAX_MEMBER:
+            continue
+        _scan_stream(tar.extractfile(member), found)
+
+
+def _scan_deb(path, found):
+    """A .deb is an ar archive; only its data.tar.* member holds the files."""
     import tarfile
-    pats = [(re.compile(p), kind) for p, kind in BUNDLE_PATTERNS[vendor]]
-    found = set()
-    with tarfile.open(path, "r|gz") as tar:
-        for member in tar:
-            if not member.isreg() or member.size > BUNDLE_MAX_MEMBER:
+    with open(path, "rb") as f:
+        if f.read(8) != b"!<arch>\n":
+            raise ValueError("not an ar archive")
+        while True:
+            hdr = f.read(60)
+            if len(hdr) < 60:
+                break
+            if hdr[58:60] != b"`\n":
+                raise ValueError("bad ar member header")
+            size = int(hdr[48:58])
+            start = f.tell()
+            name = hdr[0:16].rstrip(b" /").decode("ascii", errors="replace")
+            if name.startswith("data.tar"):
+                if name.endswith(".zst"):
+                    raise UnsupportedArchive(f"{name}: zstd is not readable with the standard library")
+                mode = {".xz": "r|xz", ".gz": "r|gz", ".bz2": "r|bz2", ".tar": "r|"}.get(os.path.splitext(name)[1])
+                if mode is None:
+                    raise ValueError(f"unknown data member {name}")
+                with tarfile.open(fileobj=_MemberReader(f, start, size), mode=mode) as tar:
+                    _scan_tar(tar, found)
+                return
+            f.seek(start + size + (size % 2))  # members are padded to an even length
+    raise ValueError("no data.tar member in the .deb")
+
+
+def _scan_zip(path, found):
+    import zipfile
+    with zipfile.ZipFile(path) as z:
+        for info in z.infolist():
+            if info.is_dir() or info.file_size > BUNDLE_MAX_MEMBER:
                 continue
-            f = tar.extractfile(member)
-            tail = b""
-            while True:
-                chunk = f.read(BUNDLE_CHUNK)
-                buf = tail + chunk
-                for p, kind in pats:
-                    for m in p.finditer(buf):
-                        # a match touching the end of a non-final buffer may be cut short; the next
-                        # buffer starts with the overlap and finds it whole
-                        if chunk and m.end() == len(buf):
-                            continue
-                        raw = m.group().decode("utf-8", errors="ignore")
-                        if kind == "id":
-                            found.update(_clean_model_id(raw, vendor))
-                        else:
-                            name = _clean_display_name(raw.rstrip("-."))
-                            if name:
-                                found.add(name)
-                if not chunk:
-                    break
-                tail = buf[-BUNDLE_OVERLAP:]
+            with z.open(info) as f:
+                _scan_stream(f, found)
+
+
+class UnsupportedArchive(Exception):
+    """The download is not an archive this scanner can read (wrong type, zstd, corrupt). Never retried."""
+
+
+def _bundle_scan(path):
+    """(vendor, string) pairs for every model-name pattern in a download. The archive type is read
+    from its magic bytes: gzip (tar.gz), ar (.deb) or zip (.whl). Files are streamed, never loaded whole.
+    Raises UnsupportedArchive when the file cannot be read as one of those archives."""
+    import tarfile, zipfile, zlib, lzma
+    with open(path, "rb") as f:
+        magic = f.read(8)
+    found = set()
+    try:
+        if magic[:2] == b"\x1f\x8b":
+            with tarfile.open(path, "r|gz") as tar:
+                _scan_tar(tar, found)
+        elif magic[:7] == b"!<arch>":
+            _scan_deb(path, found)
+        elif magic[:2] == b"PK":
+            _scan_zip(path, found)
+        else:
+            raise UnsupportedArchive(f"unknown archive type {magic[:8]!r}")
+    except (tarfile.ReadError, zipfile.BadZipFile, ValueError, EOFError, zlib.error, lzma.LZMAError) as e:
+        raise UnsupportedArchive(f"unreadable archive: {e}") from e
     return found
 
 
@@ -1290,9 +1481,9 @@ def fetch_bundles():
         k = int(time.time() // 600) % len(targets)
         targets = targets[k:] + targets[:k]
     with STATE_LOCK:
-        versions = _STATE.setdefault("bundles#versions", {})
+        versions = _STATE.setdefault("bundles#versions2", {})
     items, downloads = [], 0
-    for target, version, url, vendor, page in targets:
+    for target, version, url, page in targets:
         if versions.get(target) == version:
             continue  # this build was already scanned
         if downloads >= BUNDLE_MAX_DOWNLOADS:
@@ -1300,20 +1491,30 @@ def fetch_bundles():
             continue
         downloads += 1
         print(f"[bundles] downloading {target} {version}...")
-        tmp = tempfile.NamedTemporaryFile(dir=tempfile.gettempdir(), suffix=".tgz", delete=False)
+        tmp = tempfile.NamedTemporaryFile(dir=tempfile.gettempdir(), suffix=".bin", delete=False)
         tmp.close()
         try:
-            _bundle_download(url, tmp.name)
-            found = _bundle_scan(tmp.name, vendor)
-        except Exception as e:
-            print(f"  ! bundle {target} {version}: {e}", file=sys.stderr)
-            continue
+            try:
+                _bundle_download(url, tmp.name)
+            except OSError as e:  # urllib errors, timeouts: leave unrecorded so the next run retries
+                print(f"  ! bundle {target} {version}: download failed: {e}", file=sys.stderr)
+                continue
+            try:
+                found = _bundle_scan(tmp.name)
+            except UnsupportedArchive as e:  # the same build would fail the same way: record it
+                print(f"  ! bundle {target} {version}: unsupported archive, not retried: {e}", file=sys.stderr)
+                with STATE_LOCK:
+                    versions[target] = version
+                continue
+            except Exception as e:
+                print(f"  ! bundle {target} {version}: {e}", file=sys.stderr)
+                continue
         finally:
             os.remove(tmp.name)
         print(f"[bundles] {target} {version}: {len(found)} model strings")
-        for s in sorted(found):
+        for vendor, s in sorted(found):
             items.append({
-                "key": f"{vendor}::{s}", "group": target, "site": f"{target} {version}",
+                "key": f"{vendor}::{s}", "group": f"{target} v2", "site": f"{target} {version}",
                 "title": f"`{s}`", "url": page, "desc": "", "fields": [], "color": 0x9B59B6,
                 "label": f"New model strings in {target}", "icon": BUNDLE_ICONS[vendor],
             })

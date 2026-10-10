@@ -153,7 +153,7 @@ Render's free disk is wiped on restart, so the bot keeps its memory in this repo
    GETs `https://<your-service>.onrender.com/` every 10 minutes.
 
 ## #news: AI news from trusted outlets
-Bloomberg (tech), The Information, Financial Times (AI section), SemiAnalysis, Axios and Reuters (via Google News).
+Bloomberg (tech), The Information, Business Insider (RSS + news sitemap, so premium stories are caught too), Financial Times (AI section), SemiAnalysis, Axios and Reuters (via Google News).
 General feeds are filtered to AI stories only. Webhook: `DISCORD_WEBHOOK_NEWS`.
 
 ## Noise controls
@@ -171,8 +171,9 @@ General feeds are filtered to AI stories only. Webhook: `DISCORD_WEBHOOK_NEWS`.
   Copilot (iOS), DeepSeek, Meta AI, Kimi.
 
 ## Bundle diffs (new model names inside app builds)
-When Antigravity CLI, Gemini CLI (latest/preview/nightly), Qwen Code, Claude Code (Linux build) or Codex
-(Linux build) publishes a new version, the bot downloads the official build, streams through it, and posts
-model names it has never seen before (e.g. "Gemini 4 Argon" was in Antigravity CLI 1.3.3 before launch).
+When Antigravity CLI, Gemini CLI (latest/preview/nightly), Qwen Code, Claude Code (Linux build), Codex
+(Linux build), Cursor (stable + latest .deb), Cursor CLI or Kimi CLI publishes a new version, the bot downloads the official build, streams through it, and posts
+model names it has never seen before, for every lab (Gemini, Claude, GPT, Qwen, Kimi, Grok, DeepSeek,
+Mistral, GLM) (e.g. "Gemini 4 Argon" was in Antigravity CLI 1.3.3 before launch).
 Webhook: `DISCORD_WEBHOOK_BUNDLES` (falls back to `#desktop-apps`). Checked every 10 min, at most 2
 downloads per check; a build is only downloaded when its version changes.
